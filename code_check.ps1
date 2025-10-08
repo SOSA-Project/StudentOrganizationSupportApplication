@@ -1,6 +1,4 @@
-# check_code.ps1
-
-# Aktywuj virtualenv
+# Venv activation
 $venv = "$PSScriptRoot\venv\Scripts\Activate.ps1"
 if (Test-Path $venv) {
     Write-Host "Activation virtualenv..."
@@ -10,16 +8,16 @@ if (Test-Path $venv) {
     exit 1
 }
 
-# Flake8 - linting
-Write-Host "`n===== Flake8 ====="
-python -m flake8 "$PSScriptRoot\app"
-
-# Mypy - typy statyczne
+# Mypy
 Write-Host "`n===== Mypy ====="
 python -m mypy "$PSScriptRoot\app"
 
-# Black - formatowanie
+# Black
 Write-Host "`n===== Black ====="
 python -m black "$PSScriptRoot\app"
 
-Write-Host "`n✅ All done!"
+# Flake8
+Write-Host "`n===== Flake8 ====="
+python -m flake8 "$PSScriptRoot\app"
+
+Write-Host "`nAll done!"
