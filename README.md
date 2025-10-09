@@ -17,7 +17,7 @@ Application supporting students' daily work
 4. Create virtual environment for Python using command below:
 
 ```bash
-  python 3.11 -m venv venv
+  py -3.11 -m venv venv
 ```
 
 5. Activate virtual environment using command bellow:
