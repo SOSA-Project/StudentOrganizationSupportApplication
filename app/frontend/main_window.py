@@ -8,15 +8,11 @@ import customtkinter as ctk
 class GridMaker:
     def __init__(self, parent, rows, columns):
         self.parent = parent
-        self.rows = rows
-        self.columns = columns
-        self.create_grid()
+        self.create_grid(rows, columns)
 
-    def create_grid(self):
-        for i in range(self.rows):
-            self.parent.grid_rowconfigure(i, weight=1, uniform="rowcol")
-        for j in range(self.columns):
-            self.parent.grid_columnconfigure(j, weight=1, uniform="rowcol")
+    def create_grid(self, rows, columns):
+        [self.parent.grid_rowconfigure(index=i, weight=1, uniform="rowcol") for i in range(rows)]
+        [self.parent.grid_columnconfigure(index=i, weight=1, uniform="rowcol") for i in range(columns)]
 
 
 class ButtonsCreator:
@@ -51,10 +47,17 @@ class LabelsCreator:
 class FramesCreator:
     def __init__(self, parent):
         self.parent = parent
+        self.btn_frame = None
         self.create_frames()
 
     def create_frames(self):
-        pass
+        self.btn_frame = ctk.CTkFrame(self.parent, fg_color="#444444", corner_radius=10)
+        self.btn_frame.grid(row=0, rowspan=15, column=0, columnspan=3, sticky="nsew", padx=5, pady=5)
+
+        for i in range(15):
+            self.btn_frame.grid_rowconfigure(i, weight=1)
+        for j in range(2):
+            self.btn_frame.grid_columnconfigure(j, weight=1)
 
 
 class MyApp(ctk.CTk):
@@ -65,6 +68,6 @@ class MyApp(ctk.CTk):
         self.minsize(960, 540)
 
         self.grid_maker = GridMaker(self, rows=36, columns=64)
-        self.buttons = ButtonsCreator(self)
-        self.labels = LabelsCreator(self)
         self.frames = FramesCreator(self)
+        self.buttons = ButtonsCreator(self.frames.btn_frame)
+        self.labels = LabelsCreator(self.frames.btn_frame)
