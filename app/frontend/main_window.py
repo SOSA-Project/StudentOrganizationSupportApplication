@@ -14,9 +14,9 @@ class GridMaker:
 
     def create_grid(self):
         for i in range(self.rows):
-            self.parent.grid_rowconfigure(i, weight=1)
+            self.parent.grid_rowconfigure(i, weight=1, uniform="rowcol")
         for j in range(self.columns):
-            self.parent.grid_columnconfigure(j, weight=1)
+            self.parent.grid_columnconfigure(j, weight=1, uniform="rowcol")
 
 
 class ButtonsCreator:
@@ -25,21 +25,46 @@ class ButtonsCreator:
         self.create_buttons()
 
     def create_buttons(self):
-        btn1 = ctk.CTkButton(self.parent, text="Przycisk 1")
-        btn1.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        btn_calendar = ctk.CTkButton(self.parent, text="Calendar")
+        btn_calendar.grid(row=2, rowspan=3, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        btn2 = ctk.CTkButton(self.parent, text="Przycisk 2")
-        btn2.grid(row=3, column=5, columnspan=2, rowspan=2, sticky="nsew", padx=5, pady=5)
+        btn_notifications = ctk.CTkButton(self.parent, text="Notifications")
+        btn_notifications.grid(row=5, rowspan=3, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        btn3 = ctk.CTkButton(self.parent, text="Przycisk 3")
-        btn3.grid(row=9, column=9, sticky="nsew", padx=5, pady=5)
+        btn_notes = ctk.CTkButton(self.parent, text="Notes")
+        btn_notes.grid(row=8, rowspan=3, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+
+        btn_grades = ctk.CTkButton(self.parent, text="Grades")
+        btn_grades.grid(row=11, rowspan=3, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+
+
+class LabelsCreator:
+    def __init__(self, parent):
+        self.parent = parent
+        self.create_labels()
+
+    def create_labels(self):
+        lab1 = ctk.CTkLabel(self.parent, text="Student Planner", font=("Arial", 16))
+        lab1.grid(row=0, rowspan=2, column=0, columnspan=2, padx=5, pady=5)
+
+
+class FramesCreator:
+    def __init__(self, parent):
+        self.parent = parent
+        self.create_frames()
+
+    def create_frames(self):
+        pass
 
 
 class MyApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("SOSA")
-        self.geometry("800x600")
+        self.geometry("960x540")
+        self.minsize(960, 540)
 
-        self.grid_maker = GridMaker(self, rows=10, columns=15)
+        self.grid_maker = GridMaker(self, rows=36, columns=64)
         self.buttons = ButtonsCreator(self)
+        self.labels = LabelsCreator(self)
+        self.frames = FramesCreator(self)
