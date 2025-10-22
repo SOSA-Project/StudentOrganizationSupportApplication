@@ -1,3 +1,7 @@
+"""
+File contains definition and implementation of Grade class
+"""
+
 from app.backend.subject import Subject
 
 

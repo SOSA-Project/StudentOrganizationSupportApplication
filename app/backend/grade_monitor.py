@@ -1,9 +1,17 @@
+"""
+File contains definition for GradeMonitor class and its functionality
+"""
+
 import numpy as np
 from app.backend.grade import Grade
 from app.backend.subject import Subject
 
 
 class GradeMonitor:
+    """
+    Purpose of the class is to collect, manage and operate of grade data from the database.
+    """
+
     def __init__(self, grades_list: np.ndarray) -> None:
         if not isinstance(grades_list, np.ndarray):
             raise TypeError("grades_list must be a NumPy array")
@@ -29,6 +37,10 @@ class GradeMonitor:
             )
 
     def calculate_total_grade_average(self) -> float:
+        """
+        Method calculates average grade of all subjects.
+        :return: average grade as float value
+        """
         grade_total: float = 0
         total_ects: float = 0
         for subject in self.subject_table:
@@ -39,6 +51,11 @@ class GradeMonitor:
         return grade_total / total_ects
 
     def calculate_subject_average(self, subject_name: str) -> float:
+        """
+        Method calculates average grade for specified subject
+        :param subject_name: name of a subject which average is calculated
+        :return: average subject grade as a float value
+        """
         grade_total: float = 0
         grade_total_weights: float = 0
         for grade in self.grade_table:
