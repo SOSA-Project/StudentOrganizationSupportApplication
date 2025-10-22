@@ -64,10 +64,11 @@ def pie_plot(grades: list[float], theme: str) -> None:
     grade_counts = Counter(grades)
     values = list(grade_counts.values())
 
-    #if theme == "light":
+    if theme == "light":
+        color = 'black'
 
-
-    #if theme == "dark":
+    if theme == "dark":
+        color = 'white'
 
     def make_autopct(values):
         def my_autopct(pct):
@@ -84,7 +85,9 @@ def pie_plot(grades: list[float], theme: str) -> None:
         autopct=make_autopct(values),
         startangle=90,
         colors=colors,
+        textprops=dict(color=color),
     )
+
     plt.title("Pie chart of Grades")
     plt.show()
 
