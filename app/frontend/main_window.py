@@ -177,6 +177,10 @@ class FramesCreator:
 
 
 class AppGUI(ctk.CTk):
+    """
+    Main GUI class.
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.title("SOSA")
