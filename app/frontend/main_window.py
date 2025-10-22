@@ -53,15 +53,21 @@ class LabelsCreator:
 class FramesCreator:
     def __init__(self, parent):
         self.parent = parent
-        self.btn_frame = None
+        self.left_frame = None
+        self.right_frame = None
         self.create_left_frame()
+        self.create_right_frame()
 
     def create_left_frame(self):
-        self.btn_frame = ctk.CTkFrame(self.parent, fg_color="#444444", corner_radius=10)
-        self.btn_frame.grid(row=0, rowspan=9, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        self.left_frame = ctk.CTkFrame(self.parent, fg_color="#444444", corner_radius=10)
+        self.left_frame.grid(row=0, rowspan=9, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        [self.btn_frame.grid_rowconfigure(index=i, weight=1, uniform="rowcol") for i in range(32)]
-        [self.btn_frame.grid_columnconfigure(index=i, weight=1, uniform="rowcol") for i in range(1)]
+        [self.left_frame.grid_rowconfigure(index=i, weight=1, uniform="rowcol") for i in range(32)]
+        [self.left_frame.grid_columnconfigure(index=i, weight=1, uniform="rowcol") for i in range(1)]
+
+    def create_right_frame(self):
+        self.right_frame = ctk.CTkFrame(self.parent, fg_color="#444444", corner_radius=10)
+        self.right_frame.grid(row=0, rowspan=9, column=2, columnspan=22, sticky="nsew", padx=5, pady=5)
 
 
 class MyApp(ctk.CTk):
@@ -73,5 +79,5 @@ class MyApp(ctk.CTk):
 
         self.grid_maker = GridMaker(self, rows=9, columns=24)
         self.frames = FramesCreator(self)
-        self.buttons = ButtonsCreator(self.frames.btn_frame)
-        self.labels = LabelsCreator(self.frames.btn_frame)
+        self.buttons = ButtonsCreator(self.frames.left_frame)
+        self.labels = LabelsCreator(self.frames.left_frame)
