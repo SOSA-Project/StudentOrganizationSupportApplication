@@ -6,13 +6,6 @@ colors = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
 
 gradest = [2, 3, 3.5, 4, 4.5, 5, 3.5, 4, 4.5, 5, 4.5, 2]
 
-
-
-
-
-
-
-
 # HISTOGRAM
 def histogram_plot(grades: list[float], theme: str) -> None:
     """
@@ -29,34 +22,25 @@ def histogram_plot(grades: list[float], theme: str) -> None:
     x = range(len(labels))
 
     fig = plt.figure(figsize=(10, 6), frameon=False)
-
+    color = 'black'
 
     if theme == "light":
         t_color = "black"
-        plt.rcParams['axes.facecolor'] = 'white'
-        ax = fig.add_subplot(1, 1, 1)
-        ax.tick_params(axis='x', colors='black')
-        ax.xaxis.label.set_color('black')
-        ax.title.set_color('black')
-        ax.spines['bottom'].set_color('black')
-        ax.spines['top'].set_color('black')
-        ax.spines['left'].set_color('black')
-        ax.spines['right'].set_color('black')
-        plt.bar(x, heights, color=colors, width=0.5, edgecolor='black')
 
     if theme == "dark":
         t_color = "white"
+        color = "white"
         plt.rcParams['axes.facecolor'] = '#242424'
-        ax = fig.add_subplot(1, 1, 1)
-        ax.tick_params(axis='x', colors='white')
-        ax.xaxis.label.set_color('white')
-        ax.title.set_color('white')
-        ax.spines['bottom'].set_color('white')
-        ax.spines['top'].set_color('white')
-        ax.spines['left'].set_color('white')
-        ax.spines['right'].set_color('white')
-        plt.bar(x, heights, color=colors, width=0.5, edgecolor='white')
 
+    ax = fig.add_subplot(1, 1, 1)
+    ax.tick_params(axis='x', colors=color)
+    ax.xaxis.label.set_color(color)
+    ax.title.set_color(color)
+    ax.spines['bottom'].set_color(color)
+    ax.spines['top'].set_color(color)
+    ax.spines['left'].set_color(color)
+    ax.spines['right'].set_color(color)
+    plt.bar(x, heights, color=colors, width=0.5, edgecolor=color)
 
     plt.xticks(x, labels)
     plt.yticks([])
@@ -80,6 +64,11 @@ def pie_plot(grades: list[float], theme: str) -> None:
     grade_counts = Counter(grades)
     values = list(grade_counts.values())
 
+    #if theme == "light":
+
+
+    #if theme == "dark":
+
     def make_autopct(values):
         def my_autopct(pct):
             total = sum(values)
@@ -100,7 +89,8 @@ def pie_plot(grades: list[float], theme: str) -> None:
     plt.show()
 
 
-histogram_plot(gradest, 'dark')
-histogram_plot(gradest, 'light')
-#pie_plot(gradest)
+#histogram_plot(gradest, 'dark')
+#histogram_plot(gradest, 'light')
+pie_plot(gradest, 'light')
+pie_plot(gradest, 'dark')
 #line_plot(grades)
