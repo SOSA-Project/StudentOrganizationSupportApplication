@@ -13,11 +13,16 @@ class GradeMonitor:
     """
 
     def __init__(self, grades_list: np.ndarray) -> None:
-        if not isinstance(grades_list, np.ndarray):
-            raise TypeError("grades_list must be a NumPy array")
-
         self.grade_table: list[Grade] = []
         self.subject_table: list[Subject] = []
+        self.fill_monitor_tables(grades_list)
+
+    def fill_monitor_tables(self, grades_list: np.ndarray) -> None:
+        """
+        Method fills monitor's tables with data fetched from database.
+        :param grades_list: table of grades data fetched from database
+        :return: nothing
+        """
         for row in grades_list:
             if len(self.subject_table) == 0:
                 current_subject = Subject(row[1], int(row[2]))

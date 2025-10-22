@@ -6,7 +6,11 @@ from app.backend.subject import Subject
 
 
 class Grade:
-    def __init__(self, value: float, subject: Subject, weight: float = 1):
+    """
+    Class stores information about a Grade
+    """
+
+    def __init__(self, value: float, subject: Subject, weight: float = 1) -> None:
         self.value = value
         self.subject = subject
         self.weight = weight
