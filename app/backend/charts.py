@@ -80,7 +80,7 @@ def pie_plot(grades: list[float], theme: str) -> None:
 
     plt.figure(figsize=(6, 6), frameon=False)
     plt.pie(
-        grade_counts.values(),
+        list(grade_counts.values()),
         labels=[str(k) for k in grade_counts.keys()],
         autopct=make_autopct(values),
         startangle=90,
