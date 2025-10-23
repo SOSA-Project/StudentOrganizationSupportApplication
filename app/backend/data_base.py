@@ -50,7 +50,7 @@ def fetch_grades() -> list[tuple[int | float]] | None:
         return None
 
 
-def insert_grade(float: value, int: ects, int: semester_id) -> bool:
+def insert_grade(value: float, ects: int, semester_id: int) -> bool:
     """
     This function inserts grades into the database.
     :param value: grade value
@@ -76,7 +76,7 @@ def insert_grade(float: value, int: ects, int: semester_id) -> bool:
         return False
 
 
-def update_grade(int: grade_id, float: value, int: ects, int: semester_id) -> bool:
+def update_grade(grade_id: int, value: float, ects: int, semester_id: int) -> bool:
     """
     This function updates the grade in the database.
     :param grade_id: id of a grade to update
@@ -106,7 +106,7 @@ def update_grade(int: grade_id, float: value, int: ects, int: semester_id) -> bo
         return False
 
 
-def delete_grade(int: grade_id) -> bool:
+def delete_grade(grade_id: int) -> bool:
     """
     This function deletes the grade in the database.
     :param grade_id: id of a grade to delete
