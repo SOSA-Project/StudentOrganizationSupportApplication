@@ -3,8 +3,27 @@ File contains definition for GradeMonitor class and its functionality
 """
 
 import numpy as np
-from app.backend.grade import Grade
-from app.backend.subject import Subject
+
+
+class Subject:
+    """
+    Class stores information about a Subject
+    """
+
+    def __init__(self, name: str, ects_value: int) -> None:
+        self.name = name
+        self.ects_value = ects_value
+
+
+class Grade:
+    """
+    Class stores information about a Grade
+    """
+
+    def __init__(self, value: float, subject: Subject, weight: float = 1) -> None:
+        self.value = value
+        self.subject = subject
+        self.weight = weight
 
 
 class GradeMonitor:
@@ -23,6 +42,8 @@ class GradeMonitor:
         :param grades_list: table of grades data fetched from database
         :return: nothing
         """
+        current_subject: Subject = Subject("", 0)
+
         for row in grades_list:
             if len(self.subject_table) == 0:
                 current_subject = Subject(row[1], int(row[2]))
@@ -37,9 +58,7 @@ class GradeMonitor:
                 if not subject_in_table:
                     current_subject = Subject(row[1], int(row[2]))
                     self.subject_table.append(current_subject)
-            self.grade_table.append(
-                Grade(float(row[0]), current_subject, float(row[3]))
-            )
+            self.grade_table.append(Grade(float(row[0]), current_subject, float(row[3])))
 
     def calculate_total_grade_average(self) -> float:
         """
@@ -48,11 +67,10 @@ class GradeMonitor:
         """
         grade_total: float = 0
         total_ects: float = 0
+
         for subject in self.subject_table:
             total_ects += subject.ects_value
-            grade_total += (
-                self.calculate_subject_average(subject.name) * subject.ects_value
-            )
+            grade_total += self.calculate_subject_average(subject.name) * subject.ects_value
         return grade_total / total_ects
 
     def calculate_subject_average(self, subject_name: str) -> float:
@@ -63,6 +81,7 @@ class GradeMonitor:
         """
         grade_total: float = 0
         grade_total_weights: float = 0
+
         for grade in self.grade_table:
             if grade.subject.name == subject_name:
                 grade_total += grade.value * grade.weight
