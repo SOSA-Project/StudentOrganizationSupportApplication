@@ -1,18 +1,21 @@
+"""
+This file contains functions that creates plots
+"""
+
 import matplotlib.pyplot as plt
 from collections import Counter
 
-#plt.rcParams['axes.facecolor'] = '#242424'
-colors = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
 
-gradest = [2, 3, 3.5, 4, 4.5, 5, 3.5, 4, 4.5, 5, 4.5, 2]
+colors = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]#Colors of plots
+
 
 # HISTOGRAM
 def histogram_plot(grades: list[float], theme: str) -> None:
     """
-
-    :param grades:
-    :param theme:
-    :return:
+    Method that creates a histogram plot
+    :param grades: list of grades
+    :param theme: theme as string
+    :return: nothing
     """
     plt.rcParams['axes.facecolor'] = 'white'
     grade_counts = Counter(grades)
@@ -56,9 +59,9 @@ def histogram_plot(grades: list[float], theme: str) -> None:
 # PIE CHART
 def pie_plot(grades: list[float], theme: str) -> None:
     """
-
-    :param grades:
-    :param theme:
+    Method that creates a pie plot
+    :param grades: list of grades
+    :param theme: theme as string
     :return:
     """
     grade_counts = Counter(grades)
@@ -88,12 +91,5 @@ def pie_plot(grades: list[float], theme: str) -> None:
         textprops=dict(color=color),
     )
 
-    plt.title("Pie chart of Grades")
+    plt.title("Pie chart of Grades", color=color)
     plt.show()
-
-
-#histogram_plot(gradest, 'dark')
-#histogram_plot(gradest, 'light')
-pie_plot(gradest, 'light')
-pie_plot(gradest, 'dark')
-#line_plot(grades)
