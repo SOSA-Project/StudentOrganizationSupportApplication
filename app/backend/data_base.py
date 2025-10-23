@@ -35,7 +35,7 @@ def connect_to_database() -> sqlite3.Connection:
 def fetch_grades() -> list[tuple[int | float]] | None:
     """
     This function fetches the grades from the database.
-    :return list of tuple:
+    :return list of tuple: list of tuple representing grades
     """
     try:
         conn = connect_to_database()
@@ -50,13 +50,13 @@ def fetch_grades() -> list[tuple[int | float]] | None:
         return None
 
 
-def insert_grade(value, ects, semester_id) -> bool:
+def insert_grade(float: value, int: ects, int: semester_id) -> bool:
     """
     This function inserts grades into the database.
-    :param value:
-    :param ects:
-    :param semester_id:
-    :return success status:
+    :param value: grade value
+    :param ects: ects points associated with grade
+    :param semester_id: corresponding semester id
+    :return success status: whether insert was successful or not
     """
     try:
         conn = connect_to_database()
@@ -76,14 +76,14 @@ def insert_grade(value, ects, semester_id) -> bool:
         return False
 
 
-def update_grade(grade_id, value, ects, semester_id) -> bool:
+def update_grade(int: grade_id, float: value, int: ects, int: semester_id) -> bool:
     """
     This function updates the grade in the database.
-    :param grade_id:
-    :param value:
-    :param ects:
-    :param semester_id:
-    :return success status:
+    :param grade_id: id of a grade to update
+    :param value: new grade value
+    :param ects: new ects points
+    :param semester_id: new corresponding semester id
+    :return success status: whether update was successful or not
     """
     try:
         conn = connect_to_database()
@@ -106,11 +106,11 @@ def update_grade(grade_id, value, ects, semester_id) -> bool:
         return False
 
 
-def delete_grade(grade_id) -> bool:
+def delete_grade(int: grade_id) -> bool:
     """
     This function deletes the grade in the database.
-    :param grade_id:
-    :return success status:
+    :param grade_id: id of a grade to delete
+    :return success status: whether delete was successful or not
     """
     try:
         conn = connect_to_database()
