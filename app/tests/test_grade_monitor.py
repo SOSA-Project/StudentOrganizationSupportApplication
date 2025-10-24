@@ -10,22 +10,20 @@ from app.backend.grade_monitor import GradeMonitor
 
 
 @pytest.fixture
-def sample_grades() -> ndarray:
+def sample_grades() -> list[tuple[float, str, int, float]]:
     """
     Provides a sample numpy array representing grades data for testing.
     :return: Array of grades data for testing.
     """
-    return np.array(
-        [
-            [4.0, "Math", 5, 1],
-            [5.0, "Math", 5, 2],
-            [3.0, "Physics", 4, 1],
-            [4.0, "Physics", 4, 2],
-        ]
-    )
+    return [
+        (4.0, "Math", 5, 1),
+        (5.0, "Math", 5, 2),
+        (3.0, "Physics", 4, 1),
+        (4.0, "Physics", 4, 2),
+    ]
 
 
-def test_fill_monitor_tables(sample_grades: np.ndarray) -> None:
+def test_fill_monitor_tables(sample_grades: list[tuple[float, str, int, float]]) -> None:
     """
     Tests fill_monitor_tables function.
     :param sample_grades: numpy array representing grades data for testing.
@@ -38,7 +36,7 @@ def test_fill_monitor_tables(sample_grades: np.ndarray) -> None:
     assert len(monitor.grade_table) == 4
 
 
-def test_calculate_subject_average(sample_grades: np.ndarray) -> None:
+def test_calculate_subject_average(sample_grades: list[tuple[float, str, int, float]]) -> None:
     """
     Tests calculate_subject_average function.
     :param sample_grades: numpy array representing grades data for testing.
@@ -51,7 +49,7 @@ def test_calculate_subject_average(sample_grades: np.ndarray) -> None:
     assert pytest.approx(physics_avg, 0.001) == 3.6667
 
 
-def test_calculate_total_grade_average(sample_grades: np.ndarray) -> None:
+def test_calculate_total_grade_average(sample_grades: list[tuple[float, str, int, float]]) -> None:
     """
     Tests calculate_total_grade_average function.
     :param sample_grades: numpy array representing grades data for testing.
@@ -67,7 +65,7 @@ def test_empty_grades() -> None:
     Tests empty grades list.
     :return: Nothing, only provides test.
     """
-    empty_array = np.array([])
+    empty_array: list = []
     monitor = GradeMonitor(empty_array)
     assert monitor.grade_table == []
     assert monitor.subject_table == []
@@ -94,7 +92,7 @@ def test_empty_grades() -> None:
         ),
     ],
 )
-def test_subject_grade_with_zero_value(array: np.ndarray) -> None:
+def test_subject_grade_with_zero_value(array: list[tuple[float, str, int, float]]) -> None:
     """
     Tests behavior with 0 ects.
     :param array: numpy array for tests.
