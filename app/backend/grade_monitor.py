@@ -89,12 +89,14 @@ class GradeMonitor:
                 grade_total_weights += grade.weight
         return grade_total / grade_total_weights
 
-    def grade_counts(self, subject_names: list[str] = []) -> dict[float, int]:
+    def grade_counts(self, subject_names=None) -> dict[float, int]:
         """
         Method counts quantity of each grade, possible filtering by subject name
         :param subject_names: Optional parameter - names of subjects to count grades from
         :return: Dictionary containing counts of each grade
         """
+        if subject_names is None:
+            subject_names = []
         grade_count: dict[float, int] = {}
         for grade in self.grade_table:
             if len(subject_names) == 0:
@@ -111,7 +113,7 @@ def initiate_grade_monitor() -> GradeMonitor | None:
     """
     try:
         grades = fetch_grades()
-        correct_check = 0
+        correct_check: int = 0
         if isinstance(grades, list):
             for item in grades:
                 if isinstance(item, tuple):
