@@ -15,8 +15,8 @@ class ButtonsCreator:
     def __init__(self, parent: ctk.CTk, icons: IconsHolder, views: dict[str, ctk.CTkFrame], app: ctk.CTkFrame) -> None:
         self.parent: ctk.CTk = parent
         self.icons: IconsHolder = icons
-        self.views = views
-        self.app = app
+        self.views: dict[str, ctk.CTkFrame] = views
+        self.app: ctk.CTkFrame = app
         self.create_buttons()
 
     def create_buttons(self) -> None:

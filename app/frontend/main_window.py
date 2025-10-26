@@ -64,7 +64,7 @@ class AppGUI(ctk.CTk):
         self.left_frame: LeftFrame = LeftFrame(self, color="#444444")
         self.right_frame: RightFrame = RightFrame(self, color="#242424")
 
-        self.views = {
+        self.views: dict[str, ctk.CTkFrame] = {
             "calendar": CalendarView(self.right_frame.frame),
             "notifications": NotificationsView(self.right_frame.frame),
             "notes": NotesView(self.right_frame.frame),
@@ -76,10 +76,10 @@ class AppGUI(ctk.CTk):
         self.buttons: ButtonsCreator = ButtonsCreator(self.left_frame.frame, self.icons, self.views, self)
         self.labels: LabelsCreator = LabelsCreator(self.left_frame.frame)
 
-        self.current_view = None
+        self.current_view: None | ctk.CTkFrame = None
         self.show_view(self.views["calendar"])
 
-    def show_view(self, view):
+    def show_view(self, view: None | ctk.CTkFrame):
         if self.current_view:
             self.current_view.pack_forget()
 

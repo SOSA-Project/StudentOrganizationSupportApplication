@@ -16,6 +16,7 @@ class BaseView(ctk.CTkFrame, ABC):
         super().__init__(parent, fg_color="#444444", corner_radius=10)
         [self.grid_rowconfigure(index=i, weight=1, uniform="rowcol") for i in range(32)]
         [self.grid_columnconfigure(index=i, weight=1, uniform="rowcol") for i in range(1)]
+
         self.grid_propagate(False)
         self.update_idletasks()
 
@@ -38,7 +39,7 @@ class CalendarView(BaseView):
         This method creates elements visible on the frame.
         :return: new ctk frame.
         """
-        label_one = ctk.CTkLabel(self, text="Calendar", font=("Roboto", 18))
+        label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Calendar", font=("Roboto", 18))
         label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
 
 
@@ -56,7 +57,7 @@ class NotificationsView(BaseView):
         This method creates elements visible on the frame.
         :return: new ctk frame.
         """
-        label_one = ctk.CTkLabel(self, text="Notifications", font=("Roboto", 18))
+        label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Notifications", font=("Roboto", 18))
         label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
 
 
@@ -70,7 +71,7 @@ class NotesView(BaseView):
         self.create_frame_content()
 
     def create_frame_content(self) -> ctk.CTkFrame:
-        label_one = ctk.CTkLabel(self, text="Notes", font=("Roboto", 18))
+        label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Notes", font=("Roboto", 18))
         label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
 
 
@@ -88,7 +89,7 @@ class GradesView(BaseView):
         This method creates elements visible on the frame.
         :return: new ctk frame.
         """
-        label_one = ctk.CTkLabel(self, text="Grades", font=("Roboto", 18))
+        label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Grades", font=("Roboto", 18))
         label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
 
 
@@ -106,7 +107,7 @@ class AverageView(BaseView):
         This method creates elements visible on the frame.
         :return: new ctk frame.
         """
-        label_one = ctk.CTkLabel(self, text="Average", font=("Roboto", 18))
+        label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Average", font=("Roboto", 18))
         label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
 
 
@@ -124,5 +125,5 @@ class SettingsView(BaseView):
         This method creates elements visible on the frame.
         :return: new ctk frame.
         """
-        label_one = ctk.CTkLabel(self, text="Settings", font=("Roboto", 18))
+        label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Settings", font=("Roboto", 18))
         label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
