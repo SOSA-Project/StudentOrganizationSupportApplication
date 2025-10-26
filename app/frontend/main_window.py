@@ -6,6 +6,7 @@ import customtkinter as ctk
 
 from app.frontend.buttons import ButtonsCreator as ButtonsCreator
 from app.frontend.icons import IconsHolder as IconsHolder
+from app.frontend.views import CalendarView, NotificationsView, NotesView, GradesView, AverageView, SettingsView
 
 
 class GridMaker:
@@ -78,18 +79,6 @@ class FramesCreator:
         self.right_frame.grid(row=0, rowspan=9, column=2, columnspan=22, sticky="nsew", padx=5, pady=5)
 
 
-class ViewOne(ctk.CTkFrame):
-    def __init__(self, parent):
-        super().__init__(parent)
-        ctk.CTkLabel(self, text="Widok 1").pack(pady=20)
-
-
-class ViewTwo(ctk.CTkFrame):
-    def __init__(self, parent):
-        super().__init__(parent)
-        ctk.CTkLabel(self, text="Widok 2").pack(pady=20)
-
-
 class AppGUI(ctk.CTk):
     """
     Main GUI class.
@@ -105,21 +94,24 @@ class AppGUI(ctk.CTk):
         self.icons: IconsHolder = IconsHolder()
         self.frames: FramesCreator = FramesCreator(self)
 
-        self.view_one = ViewOne(self.frames.right_frame)
-        self.view_two = ViewTwo(self.frames.right_frame)
-        self.views = [self.view_one, self.view_two]
+        self.views = {
+            "calendar": CalendarView(self.frames.right_frame),
+            "notifications": NotificationsView(self.frames.right_frame),
+            "notes": NotesView(self.frames.right_frame),
+            "grades": GradesView(self.frames.right_frame),
+            "average": AverageView(self.frames.right_frame),
+            "settings": SettingsView(self.frames.right_frame),
+        }
 
         self.buttons: ButtonsCreator = ButtonsCreator(self.frames.left_frame, self.icons, self.views, self)
         self.labels: LabelsCreator = LabelsCreator(self.frames.left_frame)
 
         self.current_view = None
-        self.show_view(self.view_one)
+        self.show_view(self.views["calendar"])
 
     def show_view(self, view):
-        # Ukryj stary
         if self.current_view:
             self.current_view.pack_forget()
 
-        # Pokaż nowy
         self.current_view = view
         self.current_view.pack(expand=True, fill="both")
