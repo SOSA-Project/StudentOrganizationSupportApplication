@@ -6,7 +6,8 @@ import customtkinter as ctk
 
 from app.frontend.buttons import ButtonsCreator as ButtonsCreator
 from app.frontend.icons import IconsHolder as IconsHolder
-from app.frontend.views import CalendarView, NotificationsView, NotesView, GradesView, AverageView, SettingsView
+from app.frontend.frames import LeftFrame, RightFrame
+from app.frontend.views import CalendarView, NotificationsView#, NotesView, GradesView, AverageView, SettingsView
 
 
 class GridMaker:
@@ -47,38 +48,6 @@ class LabelsCreator:
         label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
 
 
-class FramesCreator:
-    """
-    Class is responsible for storing created frames for GUI.
-    """
-
-    def __init__(self, parent: ctk.CTk) -> None:
-        self.parent: ctk.CTk = parent
-        self.left_frame: ctk.CTkFrame | None = None
-        self.right_frame: ctk.CTkFrame | None = None
-        self.create_left_frame()
-        self.create_right_frame()
-
-    def create_left_frame(self) -> None:
-        """
-        Method creates left frame for GUI.
-        :return: Nothing, only create left frame.
-        """
-        self.left_frame = ctk.CTkFrame(self.parent, fg_color="#444444", corner_radius=10)
-        self.left_frame.grid(row=0, rowspan=9, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
-
-        [self.left_frame.grid_rowconfigure(index=i, weight=1, uniform="rowcol") for i in range(32)]
-        [self.left_frame.grid_columnconfigure(index=i, weight=1, uniform="rowcol") for i in range(1)]
-
-    def create_right_frame(self) -> None:
-        """
-        Method creates right frame for GUI.
-        :return: Nothing, only create right frame.
-        """
-        self.right_frame = ctk.CTkFrame(self.parent, fg_color="#444444", corner_radius=10)
-        self.right_frame.grid(row=0, rowspan=9, column=2, columnspan=22, sticky="nsew", padx=5, pady=5)
-
-
 class AppGUI(ctk.CTk):
     """
     Main GUI class.
@@ -92,19 +61,20 @@ class AppGUI(ctk.CTk):
 
         self.grid_maker: GridMaker = GridMaker(self, rows=9, columns=24)
         self.icons: IconsHolder = IconsHolder()
-        self.frames: FramesCreator = FramesCreator(self)
+        self.left_frame: LeftFrame = LeftFrame(self)
+        self.right_frame: RightFrame = RightFrame(self, "#242424")
 
         self.views = {
-            "calendar": CalendarView(self.frames.right_frame),
-            "notifications": NotificationsView(self.frames.right_frame),
-            "notes": NotesView(self.frames.right_frame),
-            "grades": GradesView(self.frames.right_frame),
-            "average": AverageView(self.frames.right_frame),
-            "settings": SettingsView(self.frames.right_frame),
+            "calendar": CalendarView(self.right_frame.frame),
+            "notifications": NotificationsView(self.right_frame.frame),
+            # "notes": NotesView(self.frames.right_frame),
+            # "grades": GradesView(self.frames.right_frame),
+            # "average": AverageView(self.frames.right_frame),
+            # "settings": SettingsView(self.frames.right_frame),
         }
 
-        self.buttons: ButtonsCreator = ButtonsCreator(self.frames.left_frame, self.icons, self.views, self)
-        self.labels: LabelsCreator = LabelsCreator(self.frames.left_frame)
+        self.buttons: ButtonsCreator = ButtonsCreator(self.left_frame.frame, self.icons, self.views, self)
+        self.labels: LabelsCreator = LabelsCreator(self.left_frame.frame)
 
         self.current_view = None
         self.show_view(self.views["calendar"])
