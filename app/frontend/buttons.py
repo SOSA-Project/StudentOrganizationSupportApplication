@@ -1,4 +1,6 @@
-from __future__ import annotations
+"""
+This file contains buttons implementation for left frame in gui.
+"""
 
 import customtkinter as ctk
 
@@ -10,7 +12,7 @@ class ButtonsCreator:
     Class is responsible for storing created buttons for GUI.
     """
 
-    def __init__(self, parent: ctk.CTk, icons: IconsHolder, views: dict, app) -> None:
+    def __init__(self, parent: ctk.CTk, icons: IconsHolder, views: dict[str, ctk.CTkFrame], app: ctk.CTkFrame) -> None:
         self.parent: ctk.CTk = parent
         self.icons: IconsHolder = icons
         self.views = views

@@ -1,3 +1,7 @@
+"""
+This file contains classes responsible for creating right and left frames for main gui app.
+"""
+
 import customtkinter as ctk
 
 

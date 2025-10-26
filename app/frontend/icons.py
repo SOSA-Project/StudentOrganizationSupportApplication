@@ -1,3 +1,7 @@
+"""
+This file contains class for icons in for buttons.
+"""
+
 from PIL import Image
 
 import customtkinter as ctk
