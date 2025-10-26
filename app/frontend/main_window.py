@@ -79,7 +79,7 @@ class AppGUI(ctk.CTk):
         self.current_view: None | ctk.CTkFrame = None
         self.show_view(self.views["calendar"])
 
-    def show_view(self, view: None | ctk.CTkFrame):
+    def show_view(self, view: ctk.CTkFrame):
         if self.current_view:
             self.current_view.pack_forget()
 
