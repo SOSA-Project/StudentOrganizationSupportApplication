@@ -25,6 +25,10 @@ class LeftFrame:
 
     @property
     def frame(self) -> ctk.CTkFrame:
+        """
+        Method is responsible for returning created frame.
+        :return: ctk frame.
+        """
         return self.left_frame
 
 
@@ -55,4 +59,8 @@ class RightFrame:
 
     @property
     def frame(self) -> ctk.CTkFrame:
+        """
+        Method is responsible for returning created frame.
+        :return: ctk frame.
+        """
         return self.right_frame
