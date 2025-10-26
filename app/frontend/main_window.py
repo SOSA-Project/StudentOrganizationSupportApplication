@@ -7,7 +7,7 @@ import customtkinter as ctk
 from app.frontend.buttons import ButtonsCreator as ButtonsCreator
 from app.frontend.icons import IconsHolder as IconsHolder
 from app.frontend.frames import LeftFrame, RightFrame
-from app.frontend.views import CalendarView, NotificationsView#, NotesView, GradesView, AverageView, SettingsView
+from app.frontend.views import CalendarView, NotificationsView, NotesView, GradesView, AverageView, SettingsView
 
 
 class GridMaker:
@@ -61,16 +61,16 @@ class AppGUI(ctk.CTk):
 
         self.grid_maker: GridMaker = GridMaker(self, rows=9, columns=24)
         self.icons: IconsHolder = IconsHolder()
-        self.left_frame: LeftFrame = LeftFrame(self)
-        self.right_frame: RightFrame = RightFrame(self, "#242424")
+        self.left_frame: LeftFrame = LeftFrame(self, color="#444444")
+        self.right_frame: RightFrame = RightFrame(self, color="#242424")
 
         self.views = {
             "calendar": CalendarView(self.right_frame.frame),
             "notifications": NotificationsView(self.right_frame.frame),
-            # "notes": NotesView(self.frames.right_frame),
-            # "grades": GradesView(self.frames.right_frame),
-            # "average": AverageView(self.frames.right_frame),
-            # "settings": SettingsView(self.frames.right_frame),
+            "notes": NotesView(self.right_frame.frame),
+            "grades": GradesView(self.right_frame.frame),
+            "average": AverageView(self.right_frame.frame),
+            "settings": SettingsView(self.right_frame.frame),
         }
 
         self.buttons: ButtonsCreator = ButtonsCreator(self.left_frame.frame, self.icons, self.views, self)

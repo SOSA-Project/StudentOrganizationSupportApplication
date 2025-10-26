@@ -6,17 +6,18 @@ class LeftFrame:
     Class is responsible for creating left frame for GUI.
     """
 
-    def __init__(self, parent: ctk.CTk) -> None:
+    def __init__(self, parent: ctk.CTk, color: str) -> None:
         self.parent: ctk.CTk = parent
+        self.color = color
         self.left_frame: ctk.CTkFrame | None = None
-        self._create_left_frame()
+        self._create_left_frame(self.color)
 
-    def _create_left_frame(self) -> None:
+    def _create_left_frame(self, color: str) -> None:
         """
         Method creates left frame for GUI.
         :return: Nothing, only create left frame.
         """
-        self.left_frame = ctk.CTkFrame(self.parent, fg_color="#444444", corner_radius=10)
+        self.left_frame = ctk.CTkFrame(self.parent, fg_color=color, corner_radius=10)
         self.left_frame.grid(row=0, rowspan=9, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
         [self.left_frame.grid_rowconfigure(index=i, weight=1, uniform="rowcol") for i in range(32)]
@@ -34,7 +35,7 @@ class RightFrame:
 
     def __init__(self, parent: ctk.CTk, color: str) -> None:
         self.parent: ctk.CTk = parent
-        self.color = color
+        self.color: str = color
         self.right_frame: ctk.CTkFrame | None = None
         self._create_right_frame(self.color)
 
