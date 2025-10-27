@@ -4,15 +4,17 @@ This file contains functions that creates plots
 
 from typing import Callable
 import matplotlib.pyplot as plt
-from collections import Counter
 
 from app.backend.grade_monitor import GradeMonitor
 
-monitor = GradeMonitor([(3, "polski", 4, 2), (5, "matematyka", 3, 1), (2, "historia", 5, 2), (5, "polski", 4, 2)])
+monitor = GradeMonitor([(3, "polski", 4, 2), (5, "matematyka", 3, 1), (2, "historia", 5, 2), (4.5, "polski", 4, 2)])
 
-def histogram_plot(grades: dict[float, int], theme: str) -> None:
+def subject_average():
+    return 0
+
+def all_grades_histogram_plot(grades: dict[float, int], theme: str) -> None:
     """
-    Function that creates a histogram plot
+    Function that creates a histogram plot of grades
     :param grades: dictionary of grades and their count
     :param theme: theme as string
     :return: nothing, only creates a histogram plot
@@ -47,7 +49,7 @@ def histogram_plot(grades: dict[float, int], theme: str) -> None:
 
     plt.xticks(x, labels)
     plt.yticks([])
-    plt.xlabel("Grades")
+    plt.xlabel("Grade")
     plt.title("Histogram of Grades")
 
     for xi, h in zip(x, heights):
@@ -56,9 +58,9 @@ def histogram_plot(grades: dict[float, int], theme: str) -> None:
     plt.show()
 
 
-def pie_plot(grades: dict[float, int], theme: str) -> None:
+def all_grades_pie_plot(grades: dict[float, int], theme: str) -> None:
     """
-    Function that creates a pie plot
+    Function that creates a pie plot of grades
     :param grades: dictionary of grades and their count
     :param theme: theme as string
     :return: nothing, only creates a pie plot
@@ -93,6 +95,55 @@ def pie_plot(grades: dict[float, int], theme: str) -> None:
     plt.title("Pie chart of Grades", color=color)
     plt.show()
 
+def subject_averages_histogram_plot(theme: str) -> None:
+    """
+    Function that creates a histogram plot
+    :param theme:
+    :return:
+    """
+    subjects_average: dict[str, float] = {grade.name: monitor.calculate_subject_average(grade.name) for grade in
+                                          monitor.subject_table}
+    print(subjects_average.keys())
+    print(subjects_average.values())
+    print(subjects_average)
 
-histogram_plot(monitor.grade_counts(), theme="light")
-pie_plot(monitor.grade_counts(), theme="dark")
+    unique_sorted = sorted(subjects_average.keys())
+    labels = [str(g) for g in unique_sorted]
+    heights = subjects_average.values()
+    x = range(len(labels))
+
+    fig = plt.figure(figsize=(10, 6), frameon=False)
+    color = "black"
+
+    if theme == "light":
+        t_color = "black"
+    elif theme == "dark":
+        t_color = "white"
+        color = "white"
+        plt.rcParams["axes.facecolor"] = "#242424"
+
+    ax = fig.add_subplot(1, 1, 1)
+    ax.tick_params(axis="x", colors=color)
+    ax.xaxis.label.set_color(color)
+    ax.title.set_color(color)
+    ax.spines["bottom"].set_color(color)
+    ax.spines["top"].set_color(color)
+    ax.spines["left"].set_color(color)
+    ax.spines["right"].set_color(color)
+    plt.bar(x, heights, width=0.5, edgecolor=color)
+
+    plt.xticks(x, labels)
+    plt.yticks([])
+    plt.xlabel("Subject")
+    plt.title("Histogram of Averages")
+
+    for xi, h in zip(x, heights):
+        plt.text(xi, h + 0.05, str(h), ha="center", va="center", color=t_color)
+
+    plt.show()
+
+#all_grades_histogram_plot(monitor.grade_counts(), theme="light")
+#pie_plot(monitor.grade_counts(), theme="dark")
+
+subject_averages_histogram_plot("light")
+
