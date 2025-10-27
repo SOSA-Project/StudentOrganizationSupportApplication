@@ -59,11 +59,13 @@ class AppGUI(ctk.CTk):
         self.geometry("960x540")
         self.minsize(960, 540)
 
+        # Basic main app window setup
         self.grid_maker: GridMaker = GridMaker(self, rows=9, columns=24)
         self.icons: IconsHolder = IconsHolder()
         self.left_frame: LeftFrame = LeftFrame(self, color="#444444")
         self.right_frame: RightFrame = RightFrame(self, color="#242424")
 
+        # Container for all available views
         self.views: dict[str, ctk.CTkFrame] = {
             "calendar": CalendarView(self.right_frame.frame),
             "notifications": NotificationsView(self.right_frame.frame),
@@ -73,13 +75,20 @@ class AppGUI(ctk.CTk):
             "settings": SettingsView(self.right_frame.frame),
         }
 
+        # Buttons for left gui frame
         self.buttons: ButtonsCreator = ButtonsCreator(self.left_frame.frame, self.icons, self.views, self)
         self.labels: LabelsCreator = LabelsCreator(self.left_frame.frame)
 
+        # Current right frame view
         self.current_view: None | ctk.CTkFrame = None
         self.show_view(self.views["calendar"])
 
-    def show_view(self, view: ctk.CTkFrame):
+    def show_view(self, view: ctk.CTkFrame) -> None:
+        """
+        Method changes visible views on right app panel.
+        :param view: ctk frame contains view.
+        :return: Notching, only changes widgets.
+        """
         if self.current_view:
             self.current_view.pack_forget()
 
