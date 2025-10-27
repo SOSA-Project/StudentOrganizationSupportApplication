@@ -15,7 +15,6 @@ class IconsHolder:
     def __init__(self) -> None:
         self.icon_size: int = 20
         self.icons: dict[str, ctk.CTkImage] = {}
-
         self.icons_paths: dict[str, ctk.CTkImage] = {
             "calendar_path": Image.open("./app/assets/calendar.png"),
             "notification_path": Image.open("./app/assets/bell.png"),
@@ -24,44 +23,29 @@ class IconsHolder:
             "average_path": Image.open("./app/assets/chart.png"),
             "settings_path": Image.open("./app/assets/settings.png"),
         }
+        self.create_icons()
 
-        self.read_icons()
-
-    def read_icons(self) -> None:
+    def create_icons(self) -> None:
         """
         Method is responsible for creating images based on icons
         :return: Nothing, only reads icons form disk.
         """
-        self.icons["calendar_icon"] = ctk.CTkImage(
-            light_image=self.icons_paths["calendar_path"],
-            dark_image=self.icons_paths["calendar_path"],
-            size=(self.icon_size, self.icon_size),
-        )
-        self.icons["notification_icon"] = ctk.CTkImage(
-            light_image=self.icons_paths["notification_path"],
-            dark_image=self.icons_paths["notification_path"],
-            size=(self.icon_size, self.icon_size),
-        )
-        self.icons["notes_icon"] = ctk.CTkImage(
-            light_image=self.icons_paths["notes_path"],
-            dark_image=self.icons_paths["notes_path"],
-            size=(self.icon_size, self.icon_size),
-        )
-        self.icons["grades_icon"] = ctk.CTkImage(
-            light_image=self.icons_paths["grades_path"],
-            dark_image=self.icons_paths["grades_path"],
-            size=(self.icon_size, self.icon_size),
-        )
-        self.icons["average_icon"] = ctk.CTkImage(
-            light_image=self.icons_paths["average_path"],
-            dark_image=self.icons_paths["average_path"],
-            size=(self.icon_size, self.icon_size),
-        )
-        self.icons["settings_icon"] = ctk.CTkImage(
-            light_image=self.icons_paths["settings_path"],
-            dark_image=self.icons_paths["settings_path"],
-            size=(self.icon_size, self.icon_size),
-        )
+        icons_config = {
+            ("calendar_icon", "calendar_path"),
+            ("notifications_icon", "notification_path"),
+            ("notes_icon", "notes_path"),
+            ("grades_icon", "grades_path"),
+            ("average_icon", "average_path"),
+            ("settings_icon", "settings_path")
+        }
+
+        for icon, path in icons_config:
+            self.icons[icon] = ctk.CTkImage(
+                light_image=self.icons_paths[path],
+                dark_image=self.icons_paths[path],
+                size=(self.icon_size, self.icon_size)
+            )
+
 
     def destroy_icons(self) -> None:
         """

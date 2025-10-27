@@ -137,7 +137,7 @@ class AppGUI(ctk.CTk):
             if new_font_img_size is not None:
                 self.btn_icons.destroy_icons()
                 self.btn_icons.icon_size = new_font_img_size
-                self.btn_icons.read_icons()
+                self.btn_icons.create_icons()
                 self.buttons.destroy_buttons()
                 self.buttons.font_size = new_font_img_size
                 self.buttons.create_buttons()
