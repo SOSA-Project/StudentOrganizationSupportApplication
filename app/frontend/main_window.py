@@ -83,6 +83,9 @@ class AppGUI(ctk.CTk):
         self.current_view: None | ctk.CTkFrame = None
         self.show_view(self.views["calendar"])
 
+        self.flag = True
+        self.bind("<Configure>", self.on_resize)
+
     def show_view(self, view: ctk.CTkFrame) -> None:
         """
         Method changes visible views on right app panel.
@@ -94,3 +97,26 @@ class AppGUI(ctk.CTk):
 
         self.current_view = view
         self.current_view.pack(expand=True, fill="both")
+
+    def on_resize(self, event):
+        width = self.winfo_width()
+
+        font_sizes = [(940, 1350, 20), (1351, 1600, 24), (1601, 1919, 28)]
+
+        if self.state() == "zoomed":
+            new_font_size = 30
+            new_flag = "max"
+        else:
+            new_font_size = None
+            new_flag = None
+            for min_w, max_w, size in font_sizes:
+                if min_w < width <= max_w:
+                    new_font_size = size
+                    new_flag = str(size)
+                    break
+
+        if new_flag and new_flag != self.flag:
+            self.flag = new_flag
+            self.buttons.destroy_buttons()
+            self.buttons.font_size = new_font_size
+            self.buttons.create_buttons()
