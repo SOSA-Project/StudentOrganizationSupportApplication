@@ -16,7 +16,7 @@ class IconsHolder:
         self.icon_size: int = 20
         self.icons: dict[str, ctk.CTkImage] = {}
 
-        self.icons_paths = {
+        self.icons_paths: dict[str, ctk.CTkImage] = {
             "calendar_path": Image.open("./app/assets/calendar.png"),
             "notification_path": Image.open("./app/assets/bell.png"),
             "notes_path": Image.open("./app/assets/notes.png"),
@@ -27,7 +27,11 @@ class IconsHolder:
 
         self.read_icons()
 
-    def read_icons(self):
+    def read_icons(self) -> None:
+        """
+        Method is responsible for creating images based on icons
+        :return: Nothing, only reads icons form disk.
+        """
         self.icons["calendar_icon"] = ctk.CTkImage(
             light_image=self.icons_paths["calendar_path"],
             dark_image=self.icons_paths["calendar_path"],
@@ -59,5 +63,9 @@ class IconsHolder:
             size=(self.icon_size, self.icon_size),
         )
 
-    def destroy_icons(self):
+    def destroy_icons(self) -> None:
+        """
+        Method delete icons from class.
+        :return: Nothing, only delete icons from class.
+        """
         self.icons.clear()

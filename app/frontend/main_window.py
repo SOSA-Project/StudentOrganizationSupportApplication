@@ -83,7 +83,8 @@ class AppGUI(ctk.CTk):
         self.current_view: None | ctk.CTkFrame = None
         self.show_view(self.views["calendar"])
 
-        self.flag = True
+        # Resizable text and images in buttons
+        self.flag: str | None = None
         self.bind("<Configure>", self.on_resize)
 
     def show_view(self, view: ctk.CTkFrame) -> None:
@@ -98,28 +99,45 @@ class AppGUI(ctk.CTk):
         self.current_view = view
         self.current_view.pack(expand=True, fill="both")
 
-    def on_resize(self, event):
-        width = self.winfo_width()
+    def on_resize(self, event) -> None:
+        """
+        Method is responsible for scaling the sizes of texts and icons in buttons depending on the width of the window
+        :param event: built in variable
+        :return: Nothing, only resize text in buttons and images.
+        """
+        width: int = self.winfo_width()
 
-        font_sizes = [(940, 1350, 20), (1351, 1600, 24), (1601, 1919, 28)]
+        new_sizes: dict[str, tuple[int, int, int]] = {
+            "1": (940, 1100, 18),
+            "2": (1101, 1250, 20),
+            "3": (1251, 1400, 22),
+            "4": (1401, 1550, 24),
+            "5": (1551, 1700, 26),
+            "6": (1701, 1850, 28),
+        }
+
+        new_font_img_size: int | None
+        new_flag: str | None
 
         if self.state() == "zoomed":
-            new_font_size = 30
+            new_font_img_size = 30
             new_flag = "max"
         else:
-            new_font_size = None
+            new_font_img_size = None
             new_flag = None
-            for min_w, max_w, size in font_sizes:
+            for min_w, max_w, size in new_sizes.values():
                 if min_w < width <= max_w:
-                    new_font_size = size
+                    new_font_img_size = size
                     new_flag = str(size)
                     break
 
-        if new_flag and new_flag != self.flag:
+        if new_flag is not None and new_flag != self.flag:
             self.flag = new_flag
-            self.btn_icons.destroy_icons()
-            self.btn_icons.icon_size = new_font_size
-            self.btn_icons.read_icons()
-            self.buttons.destroy_buttons()
-            self.buttons.font_size = new_font_size
-            self.buttons.create_buttons()
+
+            if new_font_img_size is not None:
+                self.btn_icons.destroy_icons()
+                self.btn_icons.icon_size = new_font_img_size
+                self.btn_icons.read_icons()
+                self.buttons.destroy_buttons()
+                self.buttons.font_size = new_font_img_size
+                self.buttons.create_buttons()

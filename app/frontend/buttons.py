@@ -80,7 +80,11 @@ class ButtonsCreator:
         )
         self.buttons["settings"].grid(row=29, rowspan=3, column=0, columnspan=1, sticky="nsew", padx=8, pady=6)
 
-    def destroy_buttons(self):
+    def destroy_buttons(self) -> None:
+        """
+        Method delete buttons from class.
+        :return: Nothing, only delete buttons.
+        """
         for button in self.buttons.values():
             button.configure(image=None)
             button.destroy()
