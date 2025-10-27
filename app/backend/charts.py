@@ -6,22 +6,23 @@ from typing import Callable
 import matplotlib.pyplot as plt
 from collections import Counter
 
+from app.backend.grade_monitor import GradeMonitor
 
-colors = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
+monitor = GradeMonitor([(3, "polski", 4, 2), (5, "matematyka", 3, 1), (2, "historia", 5, 2), (5, "polski", 4, 2)])
 
-
-def histogram_plot(grades: list[float], theme: str) -> None:
+def histogram_plot(grades: dict[float, int], theme: str) -> None:
     """
     Function that creates a histogram plot
-    :param grades: list of grades
+    :param grades: dictionary of grades and their count
     :param theme: theme as string
     :return: nothing, only creates a histogram plot
     """
+    colors = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
     plt.rcParams["axes.facecolor"] = "white"
-    grade_counts = Counter(grades)
-    unique_sorted = sorted(grade_counts.keys())
+
+    unique_sorted = sorted(grades.keys())
     labels = [str(g) for g in unique_sorted]
-    heights = [grade_counts[g] for g in unique_sorted]
+    heights = [grades[g] for g in unique_sorted]
     x = range(len(labels))
 
     fig = plt.figure(figsize=(10, 6), frameon=False)
@@ -55,15 +56,16 @@ def histogram_plot(grades: list[float], theme: str) -> None:
     plt.show()
 
 
-def pie_plot(grades: list[float], theme: str) -> None:
+def pie_plot(grades: dict[float, int], theme: str) -> None:
     """
     Function that creates a pie plot
-    :param grades: list of grades
+    :param grades: dictionary of grades and their count
     :param theme: theme as string
     :return: nothing, only creates a pie plot
     """
-    grade_counts = Counter(grades)
-    values = list(grade_counts.values())
+    colors = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
+
+    values = list(grades.values())
 
     if theme == "light":
         color = "black"
@@ -80,8 +82,8 @@ def pie_plot(grades: list[float], theme: str) -> None:
 
     plt.figure(figsize=(6, 6), frameon=False)
     plt.pie(
-        list(grade_counts.values()),
-        labels=[str(k) for k in grade_counts.keys()],
+        list(grades.values()),
+        labels=[str(k) for k in grades.keys()],
         autopct=make_autopct(values),
         startangle=90,
         colors=colors,
@@ -90,3 +92,7 @@ def pie_plot(grades: list[float], theme: str) -> None:
 
     plt.title("Pie chart of Grades", color=color)
     plt.show()
+
+
+histogram_plot(monitor.grade_counts(), theme="light")
+pie_plot(monitor.grade_counts(), theme="dark")
