@@ -22,55 +22,69 @@ class StatisticsManager:
         Method that calculates the average subject grade
         :return: Dictionary containing subject and the average subject grade
         """
-        subjects_averages: dict[str, float] = {grade.name: self.monitor.calculate_subject_average(grade.name) for grade in
-                                              self.monitor.subject_table}
+        subjects_averages: dict[str, float] = {
+            grade.name: self.monitor.calculate_subject_average(grade.name) for grade in self.monitor.subject_table
+        }
         subjects_averages["All subjects"] = self.monitor.calculate_total_grade_average()
 
         return subjects_averages
 
 
+def _configure_theme(theme: str) -> tuple[str, str]:
+    """
+    Function that configures colors based on theme.
+    :param theme: 'light' or 'dark'
+    :return: Tuple containing colors
+    """
+    if theme == "dark":
+        plt.rcParams["axes.facecolor"] = "#242424"
+        return "white", "white"
+    else:
+        plt.rcParams["axes.facecolor"] = "white"
+        return "black", "black"
+
+
+def _setup_axes(ax: plt.Axes, color: str) -> None:
+    """
+    Function that configures axes based on color.
+    :param ax: Axes object to configure
+    :param color: Color of axes
+    :return: Nothing, only configures axes
+    """
+    ax.tick_params(axis="x", colors=color)
+    ax.xaxis.label.set_color(color)
+    ax.title.set_color(color)
+    for side in ["bottom", "top", "left", "right"]:
+        ax.spines[side].set_color(color)
+
+
 def all_grades_histogram_plot(grades: dict[float, int], theme: str) -> None:
     """
     Function that creates a histogram plot of grades
-    :param grades: dictionary of grades and their count
-    :param theme: theme as string
-    :return: nothing, only creates a histogram plot
+    :param grades: Dictionary of grades and their count
+    :param theme: 'light' or 'dark'
+    :return: Nothing, only creates a histogram plot
     """
-    colors: list[str] = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
-    plt.rcParams["axes.facecolor"] = "white"
+    colors = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
+    t_color, edge_color = _configure_theme(theme)
 
     unique_sorted = sorted(grades.keys())
     labels = [str(g) for g in unique_sorted]
     heights = [grades[g] for g in unique_sorted]
     x = range(len(labels))
 
-    fig = plt.figure(figsize=(10, 6), frameon=False)
-    color = "black"
+    fig, ax = plt.subplots(figsize=(10, 6), frameon=False)
+    _setup_axes(ax, edge_color)
 
-    if theme == "light":
-        t_color = "black"
-    elif theme == "dark":
-        t_color = "white"
-        color = "white"
-        plt.rcParams["axes.facecolor"] = "#242424"
-
-    ax = fig.add_subplot(1, 1, 1)
-    ax.tick_params(axis="x", colors=color)
-    ax.xaxis.label.set_color(color)
-    ax.title.set_color(color)
-    ax.spines["bottom"].set_color(color)
-    ax.spines["top"].set_color(color)
-    ax.spines["left"].set_color(color)
-    ax.spines["right"].set_color(color)
-    plt.bar(x, heights, color=colors, width=0.5, edgecolor=color)
-
-    plt.xticks(x, labels)
-    plt.yticks([])
-    plt.xlabel("Grade")
-    plt.title("Histogram of Grades")
+    ax.bar(x, heights, color=colors[: len(heights)], width=0.5, edgecolor=edge_color)
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(labels)
+    ax.set_xlabel("Grade", color=edge_color)
+    ax.set_title("Histogram of Grades", color=edge_color)
+    ax.set_yticks([])
 
     for xi, h in zip(x, heights):
-        plt.text(xi, h + 0.05, str(h), ha="center", va="center", color=t_color)
+        ax.text(xi, h + 0.05, str(h), ha="center", va="center", color=t_color)
 
     plt.show()
 
@@ -78,18 +92,15 @@ def all_grades_histogram_plot(grades: dict[float, int], theme: str) -> None:
 def all_grades_pie_plot(grades: dict[float, int], theme: str) -> None:
     """
     Function that creates a pie plot of grades
-    :param grades: dictionary of grades and their count
-    :param theme: theme as string
-    :return: nothing, only creates a pie plot
+    :param grades: Dictionary of grades and their count
+    :param theme: 'light' or 'dark'
+    :return: Nothing, only creates a pie plot
     """
     colors: list[str] = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
 
     values = list(grades.values())
 
-    if theme == "light":
-        color = "black"
-    elif theme == "dark":
-        color = "white"
+    color = _configure_theme(theme)[1]
 
     def make_autopct(values: list[int]) -> Callable[[float], str]:
         def my_autopct(pct: float) -> str:
@@ -113,57 +124,46 @@ def all_grades_pie_plot(grades: dict[float, int], theme: str) -> None:
     plt.show()
 
 
-def subjects_averages_histogram_plot(monitor: GradeMonitor,theme: str) -> None:
+def subjects_averages_histogram_plot(averages: dict[str, float], theme: str) -> None:
     """
-    Function that creates a histogram plot
-    :param theme:
-    :return:
+    Function that creates a histogram plot of subjects averages
+    :param averages: Dictionary of subjects and their averages
+    :param theme: 'light' or 'dark'
+    :return: Nothing, only creates a histogram plot
     """
 
-    stats = StatisticsManager(monitor)
+    t_color, edge_color = _configure_theme(theme)
 
-    unique_sorted = stats.subjects_averages().keys()
+    unique_sorted = averages.keys()
     labels = [str(g) for g in unique_sorted]
-    heights = stats.subjects_averages().values()
+    heights: list[float] = [averages[s] for s in labels]
     x = range(len(labels))
 
-    fig = plt.figure(figsize=(10, 6), frameon=False)
-    color: str = "black"
+    fig, ax = plt.subplots(figsize=(10, 6), frameon=False)
+    _setup_axes(ax, edge_color)
 
-    if theme == "light":
-        t_color = "black"
-    elif theme == "dark":
-        t_color = "white"
-        color = "white"
-        plt.rcParams["axes.facecolor"] = "#242424"
-
-    ax = fig.add_subplot(1, 1, 1)
-    ax.tick_params(axis="x", colors=color)
-    ax.xaxis.label.set_color(color)
-    ax.title.set_color(color)
-    ax.spines["bottom"].set_color(color)
-    ax.spines["top"].set_color(color)
-    ax.spines["left"].set_color(color)
-    ax.spines["right"].set_color(color)
-    plt.bar(x, heights, width=0.5, edgecolor=color)
-
-    plt.xticks(x, labels)
-    plt.yticks([])
-    plt.xlabel("Subject")
-    plt.title("Histogram of Averages")
+    ax.bar(x, heights, width=0.5, edgecolor=edge_color)
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(labels)
+    ax.set_xlabel("Average", color=edge_color)
+    ax.set_title("Histogram of Averages", color=edge_color)
+    ax.set_yticks([])
 
     for xi, h in zip(x, heights):
-        plt.text(xi, h + 0.05, str(h), ha="center", va="center", color=t_color)
+        ax.text(xi, h + 0.05, str(h), ha="center", va="center", color=t_color)
 
     plt.show()
 
 
-mon = GradeMonitor([(3, "polski", 4, 2), (5, "matematyka", 3, 1), (2, "historia", 5, 2), (4.5, "polski", 4, 2)])
+mon = GradeMonitor(
+    [(3, "polski", 4, 2), (5, "matematyka", 3, 1), (2, "historia", 5, 2), (4.5, "polski", 4, 2), (4.5, "polski", 4, 2)]
+)
 
-#all_grades_histogram_plot(mon.grade_counts(), theme="light")
-# pie_plot(monitor.grade_counts(), theme="dark")
+all_grades_histogram_plot(mon.grade_counts(), "light")
+all_grades_pie_plot(mon.grade_counts(), "dark")
+all_grades_pie_plot(mon.grade_counts(), "light")
 
+stats = StatisticsManager(mon)
+# print(mon.calculate_total_grade_average())
 
-print(mon.calculate_total_grade_average())
-
-subjects_averages_histogram_plot(mon, "light")
+subjects_averages_histogram_plot(stats.subjects_averages(), "dark")
