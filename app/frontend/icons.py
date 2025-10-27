@@ -13,33 +13,51 @@ class IconsHolder:
     """
 
     def __init__(self) -> None:
-        self.calendar_icon: ctk.CTkImage = ctk.CTkImage(
-            light_image=Image.open("./app/assets/calendar.png"),
-            dark_image=Image.open("./app/assets/calendar.png"),
-            size=(20, 20),
+        self.icon_size: int = 20
+        self.icons: dict[str, ctk.CTkImage] = {}
+
+        self.icons_paths = {
+            "calendar_path": Image.open("./app/assets/calendar.png"),
+            "notification_path": Image.open("./app/assets/bell.png"),
+            "notes_path": Image.open("./app/assets/notes.png"),
+            "grades_path": Image.open("./app/assets/grades.png"),
+            "average_path": Image.open("./app/assets/chart.png"),
+            "settings_path": Image.open("./app/assets/settings.png"),
+        }
+
+        self.read_icons()
+
+    def read_icons(self):
+        self.icons["calendar_icon"] = ctk.CTkImage(
+            light_image=self.icons_paths["calendar_path"],
+            dark_image=self.icons_paths["calendar_path"],
+            size=(self.icon_size, self.icon_size),
         )
-        self.notification_icon: ctk.CTkImage = ctk.CTkImage(
-            light_image=Image.open("./app/assets/bell.png"),
-            dark_image=Image.open("./app/assets/bell.png"),
-            size=(20, 20),
+        self.icons["notification_icon"] = ctk.CTkImage(
+            light_image=self.icons_paths["notification_path"],
+            dark_image=self.icons_paths["notification_path"],
+            size=(self.icon_size, self.icon_size),
         )
-        self.notes_icon: ctk.CTkImage = ctk.CTkImage(
-            light_image=Image.open("./app/assets/notes.png"),
-            dark_image=Image.open("./app/assets/notes.png"),
-            size=(20, 20),
+        self.icons["notes_icon"] = ctk.CTkImage(
+            light_image=self.icons_paths["notes_path"],
+            dark_image=self.icons_paths["notes_path"],
+            size=(self.icon_size, self.icon_size),
         )
-        self.grades_icon: ctk.CTkImage = ctk.CTkImage(
-            light_image=Image.open("./app/assets/grades.png"),
-            dark_image=Image.open("./app/assets/grades.png"),
-            size=(20, 20),
+        self.icons["grades_icon"] = ctk.CTkImage(
+            light_image=self.icons_paths["grades_path"],
+            dark_image=self.icons_paths["grades_path"],
+            size=(self.icon_size, self.icon_size),
         )
-        self.average_icon: ctk.CTkImage = ctk.CTkImage(
-            light_image=Image.open("./app/assets/chart.png"),
-            dark_image=Image.open("./app/assets/chart.png"),
-            size=(20, 20),
+        self.icons["average_icon"] = ctk.CTkImage(
+            light_image=self.icons_paths["average_path"],
+            dark_image=self.icons_paths["average_path"],
+            size=(self.icon_size, self.icon_size),
         )
-        self.settings_icon: ctk.CTkImage = ctk.CTkImage(
-            light_image=Image.open("./app/assets/settings.png"),
-            dark_image=Image.open("./app/assets/settings.png"),
-            size=(20, 20),
+        self.icons["settings_icon"] = ctk.CTkImage(
+            light_image=self.icons_paths["settings_path"],
+            dark_image=self.icons_paths["settings_path"],
+            size=(self.icon_size, self.icon_size),
         )
+
+    def destroy_icons(self):
+        self.icons.clear()

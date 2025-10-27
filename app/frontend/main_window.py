@@ -61,7 +61,7 @@ class AppGUI(ctk.CTk):
 
         # Basic main app window setup
         self.grid_maker: GridMaker = GridMaker(self, rows=9, columns=24)
-        self.icons: IconsHolder = IconsHolder()
+        self.btn_icons: IconsHolder = IconsHolder()
         self.left_frame: LeftFrame = LeftFrame(self, color="#444444")
         self.right_frame: RightFrame = RightFrame(self, color="#242424")
 
@@ -76,7 +76,7 @@ class AppGUI(ctk.CTk):
         }
 
         # Buttons for left gui frame
-        self.buttons: ButtonsCreator = ButtonsCreator(self.left_frame.frame, self.icons, self.views, self)
+        self.buttons: ButtonsCreator = ButtonsCreator(self.left_frame.frame, self.btn_icons.icons, self.views, self)
         self.labels: LabelsCreator = LabelsCreator(self.left_frame.frame)
 
         # Current right frame view
@@ -117,6 +117,9 @@ class AppGUI(ctk.CTk):
 
         if new_flag and new_flag != self.flag:
             self.flag = new_flag
+            self.btn_icons.destroy_icons()
+            self.btn_icons.icon_size = new_font_size
+            self.btn_icons.read_icons()
             self.buttons.destroy_buttons()
             self.buttons.font_size = new_font_size
             self.buttons.create_buttons()
