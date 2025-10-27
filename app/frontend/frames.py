@@ -54,10 +54,8 @@ class RightFrame:
         """
         self.right_frame = ctk.CTkFrame(self.parent, fg_color=color, corner_radius=10)
         self.right_frame.grid(row=0, rowspan=9, column=2, columnspan=22, sticky="nsew", padx=5, pady=5)
-
-        [self.right_frame.grid_rowconfigure(index=i, weight=1, uniform="rowcol") for i in range(32)]
-        [self.right_frame.grid_columnconfigure(index=i, weight=1, uniform="rowcol") for i in range(1)]
-
+        self.right_frame.grid_rowconfigure(index=0, weight=1, uniform="rowcol")
+        self.right_frame.grid_columnconfigure(index=0, weight=1, uniform="rowcol")
         self.right_frame.grid_propagate(False)
         self.right_frame.update_idletasks()
 
