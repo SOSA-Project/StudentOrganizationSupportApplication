@@ -7,10 +7,27 @@ import matplotlib.pyplot as plt
 
 from app.backend.grade_monitor import GradeMonitor
 
-monitor = GradeMonitor([(3, "polski", 4, 2), (5, "matematyka", 3, 1), (2, "historia", 5, 2), (4.5, "polski", 4, 2)])
 
-def subject_average():
-    return 0
+class StatisticsManager:
+    """
+    Class provides methods to calculate averages and other statistics
+    based on GradeMonitor data.
+    """
+
+    def __init__(self, monitor: GradeMonitor) -> None:
+        self.monitor = monitor
+
+    def subjects_averages(self) -> dict[str, float]:
+        """
+        Method that calculates the average subject grade
+        :return: Dictionary containing subject and the average subject grade
+        """
+        subjects_averages: dict[str, float] = {grade.name: self.monitor.calculate_subject_average(grade.name) for grade in
+                                              self.monitor.subject_table}
+        subjects_averages["All subjects"] = self.monitor.calculate_total_grade_average()
+
+        return subjects_averages
+
 
 def all_grades_histogram_plot(grades: dict[float, int], theme: str) -> None:
     """
@@ -19,7 +36,7 @@ def all_grades_histogram_plot(grades: dict[float, int], theme: str) -> None:
     :param theme: theme as string
     :return: nothing, only creates a histogram plot
     """
-    colors = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
+    colors: list[str] = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
     plt.rcParams["axes.facecolor"] = "white"
 
     unique_sorted = sorted(grades.keys())
@@ -65,7 +82,7 @@ def all_grades_pie_plot(grades: dict[float, int], theme: str) -> None:
     :param theme: theme as string
     :return: nothing, only creates a pie plot
     """
-    colors = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
+    colors: list[str] = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
 
     values = list(grades.values())
 
@@ -95,25 +112,23 @@ def all_grades_pie_plot(grades: dict[float, int], theme: str) -> None:
     plt.title("Pie chart of Grades", color=color)
     plt.show()
 
-def subject_averages_histogram_plot(theme: str) -> None:
+
+def subjects_averages_histogram_plot(monitor: GradeMonitor,theme: str) -> None:
     """
     Function that creates a histogram plot
     :param theme:
     :return:
     """
-    subjects_average: dict[str, float] = {grade.name: monitor.calculate_subject_average(grade.name) for grade in
-                                          monitor.subject_table}
-    print(subjects_average.keys())
-    print(subjects_average.values())
-    print(subjects_average)
 
-    unique_sorted = sorted(subjects_average.keys())
+    stats = StatisticsManager(monitor)
+
+    unique_sorted = stats.subjects_averages().keys()
     labels = [str(g) for g in unique_sorted]
-    heights = subjects_average.values()
+    heights = stats.subjects_averages().values()
     x = range(len(labels))
 
     fig = plt.figure(figsize=(10, 6), frameon=False)
-    color = "black"
+    color: str = "black"
 
     if theme == "light":
         t_color = "black"
@@ -142,8 +157,13 @@ def subject_averages_histogram_plot(theme: str) -> None:
 
     plt.show()
 
-#all_grades_histogram_plot(monitor.grade_counts(), theme="light")
-#pie_plot(monitor.grade_counts(), theme="dark")
 
-subject_averages_histogram_plot("light")
+mon = GradeMonitor([(3, "polski", 4, 2), (5, "matematyka", 3, 1), (2, "historia", 5, 2), (4.5, "polski", 4, 2)])
 
+#all_grades_histogram_plot(mon.grade_counts(), theme="light")
+# pie_plot(monitor.grade_counts(), theme="dark")
+
+
+print(mon.calculate_total_grade_average())
+
+subjects_averages_histogram_plot(mon, "light")
