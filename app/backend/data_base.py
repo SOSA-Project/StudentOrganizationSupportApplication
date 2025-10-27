@@ -32,6 +32,7 @@ def connect_to_database() -> sqlite3.Connection:
         return conn
 
 
+# region grades
 def fetch_grades() -> list[tuple[int | float]] | None:
     """
     This function fetches the grades from the database.
@@ -122,3 +123,107 @@ def delete_grade(grade_id: int) -> bool:
     except Exception as e:
         print(e)
         return False
+
+
+# endregion
+
+
+# region notes
+def fetch_notes() -> list[tuple[str | int]] | None:
+    """
+    This function fetches notes from the database.
+    :return list of tuple: list of tuple representing notes
+    """
+    try:
+        conn = connect_to_database()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM notes")
+        notes = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        return notes
+    except Exception as e:
+        print(e)
+        return None
+
+
+def insert_note(title: str, content: str, created_at: str, user_id: int) -> bool:
+    """
+    This function inserts note into the database.
+    :param title: note title
+    :param content: note content
+    :param created_at: note creation date
+    :param user_id: user id
+    :return success status: whether insert was successful or not
+    """
+    try:
+        conn = connect_to_database()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+                       INSERT INTO notes (title, content, created_at, user_id)
+                       VALUES (?, ?, ?, ?)
+                       """,
+            (title, content, created_at, user_id),
+        )
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+
+def update_note(
+    note_id: int, title: str, content: str, created_at: str, user_id: int
+) -> bool:
+    """
+    This function updates note in the database.
+    :param note_id: id of a note to update
+    :param title: note title
+    :param content: note content
+    :param created_at: note creation date
+    :param user_id: user id
+    :return success status: whether update was successful or not
+    """
+    try:
+        conn = connect_to_database()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+                       UPDATE notes
+                       SET title     = ?,
+                           content   = ?,
+                           created_at = ?,
+                           user_id   = ?
+                       WHERE id      = ?
+                       """,
+            (title, content, created_at, user_id, note_id),
+        )
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+
+def delete_note(note_id: int) -> bool:
+    """
+    This function deletes the note in the database.
+    :param note_id: id of a note to delete
+    :return success status: whether delete was successful or not
+    """
+    try:
+        conn = connect_to_database()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM notes WHERE id = ?", (note_id,))
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+
+# endregion
