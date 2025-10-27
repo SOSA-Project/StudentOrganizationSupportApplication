@@ -155,15 +155,3 @@ def subjects_averages_histogram_plot(averages: dict[str, float], theme: str) -> 
     plt.show()
 
 
-mon = GradeMonitor(
-    [(3, "polski", 4, 2), (5, "matematyka", 3, 1), (2, "historia", 5, 2), (4.5, "polski", 4, 2), (4.5, "polski", 4, 2)]
-)
-
-all_grades_histogram_plot(mon.grade_counts(), "light")
-all_grades_pie_plot(mon.grade_counts(), "dark")
-all_grades_pie_plot(mon.grade_counts(), "light")
-
-stats = StatisticsManager(mon)
-# print(mon.calculate_total_grade_average())
-
-subjects_averages_histogram_plot(stats.subjects_averages(), "dark")
