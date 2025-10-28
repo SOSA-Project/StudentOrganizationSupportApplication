@@ -23,6 +23,7 @@ def connect_to_database() -> sqlite3.Connection:
                CREATE TABLE "grades" (
                     "id"	INTEGER NOT NULL,
                     "value"	REAL NOT NULL,
+                    "weight"	REAL,
                     "type"	INTEGER NOT NULL,
                     "semester"	TEXT NOT NULL,
                     "subject_id"	INTEGER NOT NULL,
@@ -80,7 +81,6 @@ def connect_to_database() -> sqlite3.Connection:
             CREATE TABLE "subjects" (
                 "id"	INTEGER,
                 "name"	TEXT,
-                "weight"	REAL,
                 "ects"	INTEGER,
                 PRIMARY KEY("id")
             )
@@ -101,7 +101,7 @@ def fetch_grades() -> list[tuple[float, str, int, float, int, int]] | None:
         cursor = conn.cursor()
         cursor.execute(
             """
-                    SELECT g.value, s.name, s.ects, s.weight, g.type, g.id
+                    SELECT g.value, s.name, s.ects, g.weight, g.type, g.id
                     FROM grades AS g JOIN subjects AS s ON g.subject_id = s.id
                        """
         )
@@ -114,10 +114,11 @@ def fetch_grades() -> list[tuple[float, str, int, float, int, int]] | None:
         return None
 
 
-def insert_grade(value: float, ects: int, semester_id: int) -> bool:
+def insert_grade(value: float, weight: float, ects: int, semester_id: int) -> bool:
     """
     This function inserts grades into the database.
     :param value: grade value
+    :param weight: grade weight
     :param ects: ects points associated with grade
     :param semester_id: corresponding semester id
     :return success status: whether insert was successful or not
@@ -127,10 +128,10 @@ def insert_grade(value: float, ects: int, semester_id: int) -> bool:
         cursor = conn.cursor()
         cursor.execute(
             """
-                   INSERT INTO grades (value, ects, semester_id)
+                   INSERT INTO grades (value, weight, ects, semester_id)
                    VALUES (?, ?, ?)
                """,
-            (value, ects, semester_id),
+            (value, weight, ects, semester_id),
         )
         conn.commit()
         conn.close()
@@ -140,11 +141,14 @@ def insert_grade(value: float, ects: int, semester_id: int) -> bool:
         return False
 
 
-def update_grade(grade_id: int, value: float, ects: int, semester_id: int) -> bool:
+def update_grade(
+    grade_id: int, value: float, weight: float, ects: int, semester_id: int
+) -> bool:
     """
     This function updates the grade in the database.
     :param grade_id: id of a grade to update
     :param value: new grade value
+    :param weight: new grade weight
     :param ects: new ects points
     :param semester_id: new corresponding semester id
     :return success status: whether update was successful or not
@@ -156,11 +160,12 @@ def update_grade(grade_id: int, value: float, ects: int, semester_id: int) -> bo
             """
                    UPDATE grades
                    SET value       = ?,
+                       weight      = ?,
                        ects        = ?,
                        semester_id = ?
                    WHERE id = ?
                    """,
-            (value, ects, semester_id, grade_id),
+            (value, weight, ects, semester_id, grade_id),
         )
         conn.commit()
         conn.close()
@@ -293,7 +298,7 @@ def delete_note(note_id: int) -> bool:
 
 
 # region subjects
-def fetch_subjects() -> list[tuple[int, str, float, int]] | None:
+def fetch_subjects() -> list[tuple[int, str, int]] | None:
     """
     This function fetches subjects from the database.
     :return list of tuple: list of tuple representing subjects
@@ -311,11 +316,10 @@ def fetch_subjects() -> list[tuple[int, str, float, int]] | None:
         return None
 
 
-def insert_subject(name: str, weight: float, ects: int) -> bool:
+def insert_subject(name: str, ects: int) -> bool:
     """
     This function inserts subject into the database.
     :param name: subject name
-    :param weight: subject weight
     :param ects: subject ects
     :return success status: whether insert was successful or not
     """
@@ -324,10 +328,10 @@ def insert_subject(name: str, weight: float, ects: int) -> bool:
         cursor = conn.cursor()
         cursor.execute(
             """
-                   INSERT INTO subjects (name, weight, ects)
+                   INSERT INTO subjects (name, ects)
                    VALUES (?, ?, ?)
                """,
-            (name, weight, ects),
+            (name, ects),
         )
         conn.commit()
         conn.close()
@@ -337,11 +341,10 @@ def insert_subject(name: str, weight: float, ects: int) -> bool:
         return False
 
 
-def update_subject(subject_id: int, name: str, weight: float, ects: int) -> bool:
+def update_subject(subject_id: int, name: str, ects: int) -> bool:
     """
     This function updates subject in the database.
     :param name: subject name
-    :param weight: subject weight
     :param ects: subject ects
     :return success status: whether update was successful or not
     """
@@ -352,11 +355,10 @@ def update_subject(subject_id: int, name: str, weight: float, ects: int) -> bool
             """
                    UPDATE subjects
                    SET name   = ?,
-                       weight = ?,
                        ects   = ?
                    WHERE id   = ?
                """,
-            (name, weight, ects, subject_id),
+            (name, ects, subject_id),
         )
         conn.commit()
         conn.close()
