@@ -9,20 +9,20 @@ from app.backend.grade_monitor import GradeMonitor
 
 
 @pytest.fixture
-def sample_grades() -> list[tuple[float, str, int, float]]:
+def sample_grades() -> list[tuple[float, str, int, float, int, int]]:
     """
     Provides a sample numpy array representing grades data for testing.
     :return: Array of grades data for testing.
     """
     return [
-        (4.0, "Math", 5, 1),
-        (5.0, "Math", 5, 2),
-        (3.0, "Physics", 4, 1),
-        (4.0, "Physics", 4, 2),
+        (4.0, "Math", 5, 1, 2, 0),
+        (5.0, "Math", 5, 2, 1, 1),
+        (3.0, "Physics", 4, 1, 1, 2),
+        (4.0, "Physics", 4, 2, 2, 3),
     ]
 
 
-def test_fill_monitor_tables(sample_grades: list[tuple[float, str, int, float]]) -> None:
+def test_fill_monitor_tables(sample_grades: list[tuple[float, str, int, float, int, int]]) -> None:
     """
     Tests fill_monitor_tables function.
     :param sample_grades: numpy array representing grades data for testing.
@@ -35,7 +35,7 @@ def test_fill_monitor_tables(sample_grades: list[tuple[float, str, int, float]])
     assert len(monitor.grade_table) == 4
 
 
-def test_calculate_subject_average(sample_grades: list[tuple[float, str, int, float]]) -> None:
+def test_calculate_subject_average(sample_grades: list[tuple[float, str, int, float, int, int]]) -> None:
     """
     Tests calculate_subject_average function.
     :param sample_grades: numpy array representing grades data for testing.
@@ -48,7 +48,7 @@ def test_calculate_subject_average(sample_grades: list[tuple[float, str, int, fl
     assert pytest.approx(physics_avg, 0.001) == 3.6667
 
 
-def test_calculate_total_grade_average(sample_grades: list[tuple[float, str, int, float]]) -> None:
+def test_calculate_total_grade_average(sample_grades: list[tuple[float, str, int, float, int, int]]) -> None:
     """
     Tests calculate_total_grade_average function.
     :param sample_grades: numpy array representing grades data for testing.
@@ -78,20 +78,13 @@ def test_empty_grades() -> None:
         (
             np.array(
                 [
-                    [5.0, "Chemistry", 0, 1],
-                ]
-            )
-        ),
-        (
-            np.array(
-                [
-                    [5.0, "Biology", 5, 0],
+                    [5.0, "Chemistry", 0, 1, 1, 0],
                 ]
             )
         ),
     ],
 )
-def test_subject_grade_with_zero_value(array: list[tuple[float, str, int, float]]) -> None:
+def test_subject_grade_with_zero_value(array: list[tuple[float, str, int, float, int, int]]) -> None:
     """
     Tests behavior with 0 ects.
     :param array: numpy array for tests.

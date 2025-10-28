@@ -32,8 +32,7 @@ def connect_to_database() -> sqlite3.Connection:
         return conn
 
 
-# region grades
-def fetch_grades() -> list[tuple[int | float]] | None:
+def fetch_grades() -> list[tuple[float, str, int, float, int, int]] | None:
     """
     This function fetches the grades from the database.
     :return list of tuple: list of tuple representing grades
