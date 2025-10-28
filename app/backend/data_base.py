@@ -75,6 +75,17 @@ def connect_to_database() -> sqlite3.Connection:
             )
             """
         )
+        cursor.execute(
+            """
+            CREATE TABLE "subjects" (
+                "id"	INTEGER,
+                "name"	TEXT,
+                "weight"	REAL,
+                "ects"	INTEGER,
+                PRIMARY KEY("id")
+            )
+            """
+        )
         conn.commit()
         return conn
 
@@ -143,7 +154,7 @@ def update_grade(grade_id: int, value: float, ects: int, semester_id: int) -> bo
         cursor = conn.cursor()
         cursor.execute(
             """
-                   UPDATE grades 
+                   UPDATE grades
                    SET value       = ?,
                        ects        = ?,
                        semester_id = ?
@@ -281,7 +292,7 @@ def delete_note(note_id: int) -> bool:
 # endregion
 
 
-# region subject
+# region subjects
 def fetch_subjects() -> list[tuple[int, str, float, int]] | None:
     """
     This function fetches subjects from the database.
@@ -373,7 +384,7 @@ def delete_subject(subject_id: int) -> bool:
         return False
 
 
-# endregion
+# endregions
 
 
 # region events
