@@ -4,7 +4,6 @@ File contains tests for grade_monitor file.
 
 import pytest
 import numpy as np
-from numpy import ndarray
 
 from app.backend.grade_monitor import GradeMonitor
 
