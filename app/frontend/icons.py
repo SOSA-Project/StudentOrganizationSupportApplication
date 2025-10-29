@@ -36,16 +36,15 @@ class IconsHolder:
             ("notes_icon", "notes_path"),
             ("grades_icon", "grades_path"),
             ("average_icon", "average_path"),
-            ("settings_icon", "settings_path")
+            ("settings_icon", "settings_path"),
         }
 
         for icon, path in icons_config:
             self.icons[icon] = ctk.CTkImage(
                 light_image=self.icons_paths[path],
                 dark_image=self.icons_paths[path],
-                size=(self.icon_size, self.icon_size)
+                size=(self.icon_size, self.icon_size),
             )
-
 
     def destroy_icons(self) -> None:
         """

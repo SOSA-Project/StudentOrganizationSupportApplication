@@ -141,9 +141,7 @@ def insert_grade(value: float, weight: float, ects: int, semester_id: int) -> bo
         return False
 
 
-def update_grade(
-    grade_id: int, value: float, weight: float, ects: int, semester_id: int
-) -> bool:
+def update_grade(grade_id: int, value: float, weight: float, ects: int, semester_id: int) -> bool:
     """
     This function updates the grade in the database.
     :param grade_id: id of a grade to update
@@ -242,9 +240,7 @@ def insert_note(title: str, content: str, created_at: str, user_id: int) -> bool
         return False
 
 
-def update_note(
-    note_id: int, title: str, content: str, created_at: str, user_id: int
-) -> bool:
+def update_note(note_id: int, title: str, content: str, created_at: str, user_id: int) -> bool:
     """
     This function updates note in the database.
     :param note_id: id of a note to update
