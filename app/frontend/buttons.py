@@ -42,10 +42,9 @@ class ButtonsCreator:
                 text=text,
                 font=(self.font_family, self.font_size),
                 image=self.icons[f"{key}_icon"],
-                command=lambda k=key: self.app.show_view(self.views[k])
+                command=lambda k=key: self.app.show_view(self.views[k]),
             )
             self.buttons[key].grid(row=row, rowspan=3, column=0, columnspan=1, sticky="nsew", padx=8, pady=6)
-
 
     def destroy_buttons(self) -> None:
         """

@@ -153,5 +153,3 @@ def subjects_averages_histogram_plot(averages: dict[str, float], theme: str) -> 
         ax.text(xi, h + 0.05, str(h), ha="center", va="center", color=t_color)
 
     plt.show()
-
-
