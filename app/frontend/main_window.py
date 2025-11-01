@@ -160,4 +160,3 @@ class AppGUI(ctk.CTk):
                 self.buttons.destroy_buttons()
                 self.buttons.font_size = new_font_img_size
                 self.buttons.create_buttons()
-        self._resize_job = None
