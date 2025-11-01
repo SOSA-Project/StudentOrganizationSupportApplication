@@ -84,6 +84,7 @@ class AppGUI(ctk.CTk):
         self.show_view(self.views["calendar"])
 
         # Resizable text and images in buttons
+        self._resize_job = None
         self.flag: str | None = None
         self.bind("<Configure>", self.on_resize)
 
@@ -105,15 +106,24 @@ class AppGUI(ctk.CTk):
         :param event: built in variable
         :return: Nothing, only resize text in buttons and images.
         """
-        width: int = self.winfo_width()
+        if self._resize_job is not None:
+            self.after_cancel(self._resize_job)
+        self._resize_job = self.after(25, self._resize_end)
 
+    def _resize_end(self):
+        width: int = self.winfo_width()
         new_sizes: dict[str, tuple[int, int, int]] = {
             "1": (940, 1100, 18),
-            "2": (1101, 1250, 20),
-            "3": (1251, 1400, 22),
-            "4": (1401, 1550, 24),
-            "5": (1551, 1700, 26),
-            "6": (1701, 1850, 28),
+            "2": (1101, 1200, 19),
+            "3": (1201, 1250, 20),
+            "4": (1251, 1300, 21),
+            "5": (1301, 1400, 22),
+            "6": (1401, 1450, 23),
+            "7": (1451, 1550, 24),
+            "8": (1551, 1600, 25),
+            "9": (1601, 1700, 26),
+            "10": (1701, 1750, 27),
+            "11": (1751, 1850, 28),
         }
 
         new_font_img_size: int | None
@@ -141,3 +151,4 @@ class AppGUI(ctk.CTk):
                 self.buttons.destroy_buttons()
                 self.buttons.font_size = new_font_img_size
                 self.buttons.create_buttons()
+        self._resize_job = None
