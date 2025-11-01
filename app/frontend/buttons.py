@@ -33,6 +33,7 @@ class ButtonsCreator:
             ("notes", "Notes", 12),
             ("grades", "Grades", 15),
             ("average", "Average", 18),
+            ("chat", "Chat", 21),
             ("settings", "Settings", 29),
         }
 

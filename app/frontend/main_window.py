@@ -84,7 +84,7 @@ class AppGUI(ctk.CTk):
         self.show_view(self.views["calendar"])
 
         # Resizable text and images in buttons
-        self._resize_job = None
+        self.counter = 0
         self.flag: str | None = None
         self.bind("<Configure>", self.on_resize)
 
@@ -100,17 +100,17 @@ class AppGUI(ctk.CTk):
         self.current_view = view
         self.current_view.pack(expand=True, fill="both")
 
-    def on_resize(self, event) -> None:
+    def on_resize(self, event):
         """
         Method is responsible for scaling the sizes of texts and icons in buttons depending on the width of the window
         :param event: built in variable
         :return: Nothing, only resize text in buttons and images.
         """
-        if self._resize_job is not None:
-            self.after_cancel(self._resize_job)
-        self._resize_job = self.after(25, self._resize_end)
+        self.counter += 1
+        if not self.counter % 7 == 0:
+            return None
+        self.counter = 0
 
-    def _resize_end(self):
         width: int = self.winfo_width()
         new_sizes: dict[str, tuple[int, int, int]] = {
             "1": (940, 1100, 18),
