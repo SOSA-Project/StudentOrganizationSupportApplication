@@ -7,7 +7,7 @@ import customtkinter as ctk
 from app.frontend.buttons import ButtonsCreator as ButtonsCreator
 from app.frontend.icons import IconsHolder as IconsHolder
 from app.frontend.frames import LeftFrame, RightFrame
-from app.frontend.views import CalendarView, NotificationsView, NotesView, GradesView, AverageView, SettingsView
+from app.frontend.views import CalendarView, NotificationsView, NotesView, GradesView, AverageView, SettingsView, ChatView
 
 
 class GridMaker:
@@ -73,6 +73,7 @@ class AppGUI(ctk.CTk):
             "grades": GradesView(self.right_frame.frame),
             "average": AverageView(self.right_frame.frame),
             "settings": SettingsView(self.right_frame.frame),
+            "chat": ChatView(self.right_frame.frame)
         }
 
         # Buttons for left gui frame

@@ -119,6 +119,24 @@ class AverageView(BaseView):
         label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
 
 
+class ChatView(BaseView):
+    """
+    View for chat widget.
+    """
+
+    def __init__(self, parent: ctk.CTk) -> None:
+        super().__init__(parent)
+        self.create_frame_content()
+
+    def create_frame_content(self) -> ctk.CTkFrame:
+        """
+        This method creates elements visible on the frame.
+        :return: new ctk frame.
+        """
+        label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Chat", font=("Roboto", 18))
+        label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
+
+
 class SettingsView(BaseView):
     """
     View for settings widget.
