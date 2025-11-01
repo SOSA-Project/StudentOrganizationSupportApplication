@@ -7,7 +7,15 @@ import customtkinter as ctk
 from app.frontend.buttons import ButtonsCreator as ButtonsCreator
 from app.frontend.icons import IconsHolder as IconsHolder
 from app.frontend.frames import LeftFrame, RightFrame
-from app.frontend.views import CalendarView, NotificationsView, NotesView, GradesView, AverageView, SettingsView, ChatView
+from app.frontend.views import (
+    CalendarView,
+    NotificationsView,
+    NotesView,
+    GradesView,
+    AverageView,
+    SettingsView,
+    ChatView,
+)
 
 
 class GridMaker:
@@ -73,7 +81,7 @@ class AppGUI(ctk.CTk):
             "grades": GradesView(self.right_frame.frame),
             "average": AverageView(self.right_frame.frame),
             "settings": SettingsView(self.right_frame.frame),
-            "chat": ChatView(self.right_frame.frame)
+            "chat": ChatView(self.right_frame.frame),
         }
 
         # Buttons for left gui frame
@@ -101,7 +109,7 @@ class AppGUI(ctk.CTk):
         self.current_view = view
         self.current_view.pack(expand=True, fill="both")
 
-    def on_resize(self, event):
+    def on_resize(self, event) -> None:
         """
         Method is responsible for scaling the sizes of texts and icons in buttons depending on the width of the window
         :param event: built in variable

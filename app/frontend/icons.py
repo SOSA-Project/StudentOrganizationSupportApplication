@@ -22,7 +22,7 @@ class IconsHolder:
             "grades_path": Image.open("./app/assets/grades.png"),
             "average_path": Image.open("./app/assets/chart.png"),
             "settings_path": Image.open("./app/assets/settings.png"),
-            "chat_path": Image.open("./app/assets/chat.png")
+            "chat_path": Image.open("./app/assets/chat.png"),
         }
         self.create_icons()
 
@@ -38,7 +38,7 @@ class IconsHolder:
             ("grades_icon", "grades_path"),
             ("average_icon", "average_path"),
             ("settings_icon", "settings_path"),
-            ("chat_icon", "chat_path")
+            ("chat_icon", "chat_path"),
         }
 
         for icon, path in icons_config:
