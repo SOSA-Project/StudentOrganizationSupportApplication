@@ -4,6 +4,7 @@ This file contains functions that creates plots
 
 from typing import Callable
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 
 from app.backend.grade_monitor import GradeMonitor
 
@@ -58,12 +59,12 @@ def _setup_axes(ax: plt.Axes, color: str) -> None:
         ax.spines[side].set_color(color)
 
 
-def all_grades_histogram_plot(grades: dict[float, int], theme: str) -> None:
+def all_grades_histogram_plot(grades: dict[float, int], theme: str) -> Figure:
     """
     Function that creates a histogram plot of grades
     :param grades: Dictionary of grades and their count
     :param theme: 'light' or 'dark'
-    :return: Nothing, only creates a histogram plot
+    :return: Figure that can be displayed in application GUI
     """
     colors = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
     t_color, edge_color = _configure_theme(theme)
@@ -86,15 +87,15 @@ def all_grades_histogram_plot(grades: dict[float, int], theme: str) -> None:
     for xi, h in zip(x, heights):
         ax.text(xi, h + 0.05, str(h), ha="center", va="center", color=t_color)
 
-    plt.show()
+    return fig
 
 
-def all_grades_pie_plot(grades: dict[float, int], theme: str) -> None:
+def all_grades_pie_plot(grades: dict[float, int], theme: str) -> Figure:
     """
     Function that creates a pie plot of grades
     :param grades: Dictionary of grades and their count
     :param theme: 'light' or 'dark'
-    :return: Nothing, only creates a pie plot
+    :return: Figure that can be displayed in application GUI
     """
     colors: list[str] = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
 
@@ -110,8 +111,8 @@ def all_grades_pie_plot(grades: dict[float, int], theme: str) -> None:
 
         return my_autopct
 
-    plt.figure(figsize=(6, 6), frameon=False)
-    plt.pie(
+    fig, ax = plt.subplots(figsize=(6, 6), frameon=False)
+    ax.pie(
         list(grades.values()),
         labels=[str(k) for k in grades.keys()],
         autopct=make_autopct(values),
@@ -120,16 +121,16 @@ def all_grades_pie_plot(grades: dict[float, int], theme: str) -> None:
         textprops=dict(color=color),
     )
 
-    plt.title("Pie chart of Grades", color=color)
-    plt.show()
+    ax.set_title("Pie chart of Grades", color=color)
+    return fig
 
 
-def subjects_averages_histogram_plot(averages: dict[str, float], theme: str) -> None:
+def subjects_averages_histogram_plot(averages: dict[str, float], theme: str) -> Figure:
     """
     Function that creates a histogram plot of subjects averages
     :param averages: Dictionary of subjects and their averages
     :param theme: 'light' or 'dark'
-    :return: Nothing, only creates a histogram plot
+    :return: Figure that can be displayed in application GUI
     """
 
     t_color, edge_color = _configure_theme(theme)
@@ -139,7 +140,7 @@ def subjects_averages_histogram_plot(averages: dict[str, float], theme: str) -> 
     heights: list[float] = [averages[s] for s in labels]
     x = range(len(labels))
 
-    fig, ax = plt.subplots(figsize=(10, 6), frameon=False)
+    fig, ax = plt.subplots(figsize=(15, 10), frameon=False)
     _setup_axes(ax, edge_color)
 
     ax.bar(x, heights, width=0.5, edgecolor=edge_color)
@@ -152,4 +153,4 @@ def subjects_averages_histogram_plot(averages: dict[str, float], theme: str) -> 
     for xi, h in zip(x, heights):
         ax.text(xi, h + 0.05, str(h), ha="center", va="center", color=t_color)
 
-    plt.show()
+    return fig
