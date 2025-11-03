@@ -64,7 +64,7 @@ def all_grades_histogram_plot(grades: dict[float, int], theme: str) -> Figure:
     Function that creates a histogram plot of grades
     :param grades: Dictionary of grades and their count
     :param theme: 'light' or 'dark'
-    :return: Nothing, only creates a histogram plot
+    :return: Figure that can be displayed in application GUI
     """
     colors = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
     t_color, edge_color = _configure_theme(theme)
@@ -95,7 +95,7 @@ def all_grades_pie_plot(grades: dict[float, int], theme: str) -> Figure:
     Function that creates a pie plot of grades
     :param grades: Dictionary of grades and their count
     :param theme: 'light' or 'dark'
-    :return: Nothing, only creates a pie plot
+    :return: Figure that can be displayed in application GUI
     """
     colors: list[str] = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
 
@@ -130,7 +130,7 @@ def subjects_averages_histogram_plot(averages: dict[str, float], theme: str) -> 
     Function that creates a histogram plot of subjects averages
     :param averages: Dictionary of subjects and their averages
     :param theme: 'light' or 'dark'
-    :return: Nothing, only creates a histogram plot
+    :return: Figure that can be displayed in application GUI
     """
 
     t_color, edge_color = _configure_theme(theme)
