@@ -114,13 +114,16 @@ def fetch_grades() -> list[tuple[float, str, int, float, int, int]] | None:
         return None
 
 
-def insert_grade(value: float, weight: float, ects: int, semester_id: int) -> bool:
+def insert_grade(grade_id: int, value: float, weight: float, sub_type: int, semester: int, subject_id: int, user_id: int) -> bool:
     """
     This function inserts grades into the database.
+    :param grade_id: grade id
     :param value: grade value
     :param weight: grade weight
-    :param ects: ects points associated with grade
-    :param semester_id: corresponding semester id
+    :param sub_type: subject type
+    :param semester: corresponding semester id
+    :param subject_id: subject id
+    :param user_id: user id
     :return success status: whether insert was successful or not
     """
     try:
@@ -128,10 +131,10 @@ def insert_grade(value: float, weight: float, ects: int, semester_id: int) -> bo
         cursor = conn.cursor()
         cursor.execute(
             """
-                   INSERT INTO grades (value, weight, ects, semester_id)
-                   VALUES (?, ?, ?)
+                   INSERT INTO grades (id, value, weight, type, semester, subject_id, user_id)
+                   VALUES (?, ?, ?, ?, ?, ?, ?)
                """,
-            (value, weight, ects, semester_id),
+            (grade_id, value, weight, sub_type, semester, subject_id, user_id),
         )
         conn.commit()
         conn.close()
@@ -312,9 +315,10 @@ def fetch_subjects() -> list[tuple[int, str, int]] | None:
         return None
 
 
-def insert_subject(name: str, ects: int) -> bool:
+def insert_subject(sub_id: int, name: str, ects: int) -> bool:
     """
     This function inserts subject into the database.
+    :param sub_id: subject id
     :param name: subject name
     :param ects: subject ects
     :return success status: whether insert was successful or not
@@ -324,10 +328,10 @@ def insert_subject(name: str, ects: int) -> bool:
         cursor = conn.cursor()
         cursor.execute(
             """
-                   INSERT INTO subjects (name, ects)
+                   INSERT INTO subjects (id, name, ects)
                    VALUES (?, ?, ?)
                """,
-            (name, ects),
+            (sub_id, name, ects),
         )
         conn.commit()
         conn.close()
