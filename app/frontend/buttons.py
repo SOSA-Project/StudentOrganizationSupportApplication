@@ -33,6 +33,7 @@ class ButtonsCreator:
             ("notes", "Notes", 12),
             ("grades", "Grades", 15),
             ("average", "Average", 18),
+            ("chat", "Chat", 21),
             ("settings", "Settings", 29),
         }
 
@@ -44,7 +45,7 @@ class ButtonsCreator:
                 image=self.icons[f"{key}_icon"],
                 command=lambda k=key: self.app.show_view(self.views[k]),
             )
-            self.buttons[key].grid(row=row, rowspan=3, column=0, columnspan=1, sticky="nsew", padx=8, pady=6)
+            self.buttons[key].grid(row=row, rowspan=3, column=0, columnspan=1, sticky="nsew", padx=8, pady=5)
 
     def destroy_buttons(self) -> None:
         """

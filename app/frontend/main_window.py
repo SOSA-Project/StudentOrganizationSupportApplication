@@ -7,7 +7,15 @@ import customtkinter as ctk
 from app.frontend.buttons import ButtonsCreator as ButtonsCreator
 from app.frontend.icons import IconsHolder as IconsHolder
 from app.frontend.frames import LeftFrame, RightFrame
-from app.frontend.views import CalendarView, NotificationsView, NotesView, GradesView, AverageView, SettingsView
+from app.frontend.views import (
+    CalendarView,
+    NotificationsView,
+    NotesView,
+    GradesView,
+    AverageView,
+    SettingsView,
+    ChatView,
+)
 
 
 class GridMaker:
@@ -73,6 +81,7 @@ class AppGUI(ctk.CTk):
             "grades": GradesView(self.right_frame.frame),
             "average": AverageView(self.right_frame.frame),
             "settings": SettingsView(self.right_frame.frame),
+            "chat": ChatView(self.right_frame.frame),
         }
 
         # Buttons for left gui frame
@@ -84,6 +93,7 @@ class AppGUI(ctk.CTk):
         self.show_view(self.views["calendar"])
 
         # Resizable text and images in buttons
+        self.counter = 0
         self.flag: str | None = None
         self.bind("<Configure>", self.on_resize)
 
@@ -105,15 +115,24 @@ class AppGUI(ctk.CTk):
         :param event: built in variable
         :return: Nothing, only resize text in buttons and images.
         """
-        width: int = self.winfo_width()
+        self.counter += 1
+        if not self.counter % 7 == 0:
+            return None
+        self.counter = 0
 
+        width: int = self.winfo_width()
         new_sizes: dict[str, tuple[int, int, int]] = {
             "1": (940, 1100, 18),
-            "2": (1101, 1250, 20),
-            "3": (1251, 1400, 22),
-            "4": (1401, 1550, 24),
-            "5": (1551, 1700, 26),
-            "6": (1701, 1850, 28),
+            "2": (1101, 1200, 19),
+            "3": (1201, 1250, 20),
+            "4": (1251, 1300, 21),
+            "5": (1301, 1400, 22),
+            "6": (1401, 1450, 23),
+            "7": (1451, 1550, 24),
+            "8": (1551, 1600, 25),
+            "9": (1601, 1700, 26),
+            "10": (1701, 1750, 27),
+            "11": (1751, 1850, 28),
         }
 
         new_font_img_size: int | None
