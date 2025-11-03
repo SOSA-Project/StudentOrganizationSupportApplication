@@ -197,7 +197,7 @@ def initiate_grade_monitor(ignore_ects: bool = False) -> GradeMonitor | None:
             return None
 
         def valid_item(item: tuple) -> bool:
-            expected_types = (float, str, int, float, float, int)
+            expected_types = (float, str, int, float, int, int)
             if not isinstance(item, tuple) or len(item) != len(expected_types):
                 return False
             return all(isinstance(x, t) for x, t in zip(item, expected_types))
