@@ -1,10 +1,18 @@
 """
 This file contains views for all widgets.
 """
-
+import io
 from abc import ABC, abstractmethod
+from tkinter import Image
+
+from PIL import Image, ImageTk
 
 import customtkinter as ctk
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+from app.backend.grade_monitor import initiate_grade_monitor
+from app.backend.charts import StatisticsManager, subjects_averages_histogram_plot
 
 
 class BaseView(ctk.CTkFrame, ABC):
@@ -115,8 +123,21 @@ class AverageView(BaseView):
         This method creates elements visible on the frame.
         :return: new ctk frame.
         """
-        label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Average", font=("Roboto", 18))
-        label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
+        grades_data = initiate_grade_monitor()
+        charts_manager = StatisticsManager(grades_data)
+        grades_avg = charts_manager.subjects_averages()
+        histogram = subjects_averages_histogram_plot(grades_avg, "dark")
+        canvas = FigureCanvasTkAgg(histogram, master=self)
+        canvas.draw()
+        plt.close(histogram)
+        canvas_widget = canvas.get_tk_widget()
+        canvas_widget.configure(bg=self.cget("fg_color"), highlightthickness=0, bd=0)
+        canvas_widget.grid(row=0, rowspan=32, column=0, columnspan=1, padx=3, pady=3, sticky="nsew")
+
+
+
+
+
 
 
 class SettingsView(BaseView):
