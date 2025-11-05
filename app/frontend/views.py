@@ -2,6 +2,7 @@
 This file contains views for all widgets.
 """
 
+import random
 from abc import ABC, abstractmethod
 
 
@@ -70,7 +71,12 @@ class CalendarView(BaseView):
 
         self.update_calendar()
 
-    def update_calendar(self):
+    def update_calendar(self) -> None:
+        """
+        This method updates the calendar view with the according month and a year destroying previous widgets
+        and creating new ones in their place
+        :return: Nothing
+        """
         for widget in self.calendar_frame.winfo_children():
             widget.destroy()
 
@@ -86,36 +92,43 @@ class CalendarView(BaseView):
             )
 
         cal = calendar.monthcalendar(year, month)
-        for row, week in enumerate(cal, start=1):
-            for col, day in enumerate(week):
-                if day == 0:
+        for r, w in enumerate(cal, start=1):
+            for c, d in enumerate(w):
+                if d == 0:
                     continue
-                btn = ctk.CTkButton(
-                    self.calendar_frame,
-                    text=str(day),
-                    width=40,
-                    height=30,
-                    command=lambda d=day: self.select_day(d),
-                    font=("Roboto", 18, "bold"),
-                )
-                btn.grid(row=row, column=col, padx=3, pady=3, sticky="nsew")
+                btn = ctk.CTkButton(self.calendar_frame, text=str(d), width=40, height=30, font=("Roboto", 18, "bold"))
+                btn.configure(command=lambda b=btn: self.placeholder_action(b))
+                btn.grid(row=r, column=c, padx=3, pady=3, sticky="nsew")
 
         for col in range(7):
             self.calendar_frame.grid_columnconfigure(col, weight=1)
         for row in range(len(cal) + 1):
             self.calendar_frame.grid_rowconfigure(row, weight=1)
 
-    def select_day(self, day):
-        print(f"Wybrano: {day}/{self.current_date.month}/{self.current_date.year}")
+    def placeholder_action(self, btn: ctk.CTkButton) -> None:
+        """
+        This method is just a placeholder and will be removed in the future
+        :param btn: Day button placeholder
+        :return: Nothing
+        """
+        btn.configure(fg_color="#" + str(random.randint(100000, 999999)))
 
-    def prev_month(self):
+    def prev_month(self) -> None:
+        """
+        Changes currently viewed month to a previous month and updates the calendar view
+        :return: Nothing
+        """
         if self.current_date.month == 1:
             self.current_date = self.current_date.replace(year=self.current_date.year - 1, month=12)
         else:
             self.current_date = self.current_date.replace(month=self.current_date.month - 1)
         self.update_calendar()
 
-    def next_month(self):
+    def next_month(self) -> None:
+        """
+        Changes currently viewed month to a following month and updates the calendar view
+        :return: Nothing
+        """
         if self.current_date.month == 12:
             self.current_date = self.current_date.replace(year=self.current_date.year + 1, month=1)
         else:
