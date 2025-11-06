@@ -109,9 +109,9 @@ class CalendarView(BaseView):
                     btn.grid_configure(pady=(3, 6))
 
         for col in range(7):
-            self.calendar_frame.grid_columnconfigure(col, weight=1, pad=10)
+            self.calendar_frame.grid_columnconfigure(col, weight=1)
         for row in range(len(cal) + 1):
-            self.calendar_frame.grid_rowconfigure(row, weight=1, pad=10)
+            self.calendar_frame.grid_rowconfigure(row, weight=1)
 
     def placeholder_action(self, btn: ctk.CTkButton) -> None:
         """
