@@ -61,11 +61,7 @@ def chat_loop(conn: socket.socket) -> None:
     """
     # example auth
     local_uuid = uuid.uuid4()
-    conn.send(
-        (
-            '{ "name": "' + str(local_uuid) + '", "uuid": "' + str(local_uuid) + '" }'
-        ).encode("utf-8")
-    )
+    conn.send(('{ "name": "' + str(local_uuid) + '", "uuid": "' + str(local_uuid) + '" }').encode("utf-8"))
     print("Chat\n")
     while True:
         msg = input()

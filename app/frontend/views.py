@@ -171,6 +171,24 @@ class NotesView(BaseView):
         label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Notes", font=("Roboto", 18))
         label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
 
+        scrollable_frame: ctk.CTkScrollableFrame = ctk.CTkScrollableFrame(self)
+        scrollable_frame.grid(row=2, column=0, padx=5, pady=5, columnspan=1, sticky="nsew", rowspan=50)
+
+        colors: list[str] = ["#ada132", "#2d7523", "#1e6a6e"]
+
+        for x in range(10):
+            note_frame: ctk.CTkFrame = ctk.CTkFrame(scrollable_frame, fg_color=colors[x % len(colors)])
+            note_frame.pack(fill="x", pady=10, padx=10)
+
+            title_label = ctk.CTkLabel(note_frame, text=f"Title {x}", font=("Roboto", 18, "bold"))
+            title_label.pack(anchor="w")
+
+            date_label = ctk.CTkLabel(note_frame, text="Created at Date", font=("Roboto", 10))
+            date_label.pack(anchor="w")
+
+            content_label = ctk.CTkLabel(note_frame, text="Content", wraplength=1000, font=("Roboto", 12))
+            content_label.pack(anchor="w", pady=(0, 5))
+
 
 class GradesView(BaseView):
     """
