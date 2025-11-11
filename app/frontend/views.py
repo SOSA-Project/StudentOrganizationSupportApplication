@@ -48,23 +48,24 @@ class CalendarView(BaseView):
         super().__init__(parent)
         self.current_date = datetime.now()
         self.create_frame_content()
+        self.pack_propagate(False)
 
-    def create_frame_content(self) -> ctk.CTkFrame:
+    def create_frame_content(self) -> None:
         """
         This method creates elements visible on the frame.
         :return: new ctk frame.
         """
         header_frame = ctk.CTkFrame(self)
-        header_frame.pack(pady=10, padx=20, fill="both")
+        header_frame.pack(pady=10, padx=20, fill="x")
 
         prev_btn = ctk.CTkButton(header_frame, text="<", width=40, command=self.prev_month)
-        prev_btn.pack(side="left", padx=10)
+        prev_btn.pack(side="left", padx=10, pady=10)
 
         self.header = ctk.CTkLabel(header_frame, text="", font=("Roboto", 18))
         self.header.pack(side="left", expand=True)
 
         next_btn = ctk.CTkButton(header_frame, text=">", width=40, command=self.next_month)
-        next_btn.pack(side="right", padx=10)
+        next_btn.pack(side="right", padx=10, pady=10)
 
         self.calendar_frame = ctk.CTkFrame(self)
         self.calendar_frame.pack(pady=10, padx=20, fill="both", expand=True)
@@ -85,11 +86,12 @@ class CalendarView(BaseView):
 
         week_days = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
         for idx, day in enumerate(week_days):
-            (
-                ctk.CTkLabel(self.calendar_frame, text=day, font=("Roboto", 20, "bold")).grid(
-                    row=0, column=idx, padx=5, pady=5
-                )
-            )
+            lab = ctk.CTkLabel(self.calendar_frame, text=day, font=("Roboto", 20, "bold"))
+            lab.grid(row=0, column=idx, padx=3, pady=(6, 3))
+            if idx == 0:
+                lab.grid_configure(padx=(6, 3))
+            if idx == len(week_days) - 1:
+                lab.grid_configure(padx=(3, 6))
 
         cal = calendar.monthcalendar(year, month)
         for r, w in enumerate(cal, start=1):
@@ -99,6 +101,12 @@ class CalendarView(BaseView):
                 btn = ctk.CTkButton(self.calendar_frame, text=str(d), width=40, height=30, font=("Roboto", 18, "bold"))
                 btn.configure(command=lambda b=btn: self.placeholder_action(b))
                 btn.grid(row=r, column=c, padx=3, pady=3, sticky="nsew")
+                if c == 0:
+                    btn.grid_configure(padx=(6, 3))
+                if c == len(w) - 1:
+                    btn.grid_configure(padx=(3, 6))
+                if r == len(cal):
+                    btn.grid_configure(pady=(3, 6))
 
         for col in range(7):
             self.calendar_frame.grid_columnconfigure(col, weight=1)
