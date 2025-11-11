@@ -14,7 +14,7 @@ import calendar
 
 from app.backend.grade_monitor import initiate_grade_monitor
 from app.backend.charts import StatisticsManager, subjects_averages_histogram_plot
-from app.backend.data_base import fetch_subjects
+from app.backend.data_base import fetch_subjects, insert_grade
 
 
 class BaseView(ctk.CTkFrame, ABC):
@@ -236,8 +236,25 @@ class GradesView(BaseView):
         """
         Method will be completed in next PR
         """
-        for test in self.options_container.items():
-            print(test[0], test[1].get())
+        type_convert: dict[str, int] = {"Lecture": 1, "Laboratory": 2, "Exercise": 3, "Seminar": 4}
+        subjects_convert: dict[str, int] = {name: sub_id for sub_id, name, ect in tuple(fetch_subjects() or [])}
+        temp_user_id: int = 1
+        option_data: dict[str, int | str] = dict()
+
+        for data in self.options_container.items():
+            option_data[data[0]] = str(data[1].get())
+
+        option_data["type"] = type_convert[str(option_data["type"])]
+        option_data["subject"] = subjects_convert[str(option_data["subject"])]
+
+        insert_grade(
+            float(option_data["value"]),
+            float(option_data["weight"]),
+            int(option_data["subject"]),
+            int(option_data["semester"]),
+            int(option_data["type"]),
+            temp_user_id,
+        )
 
     def add_new_grade_gui(self) -> None:
         """

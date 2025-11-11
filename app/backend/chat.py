@@ -14,7 +14,8 @@ def handle_incoming(conn) -> None:
             if msg:
                 print(msg)
                 break
-        except:
+        except Exception as e:
+            print(f"Error in handle_incoming: {e}")
             break
 
     while True:  # text
@@ -22,7 +23,8 @@ def handle_incoming(conn) -> None:
             msg = conn.recv(1024).decode("utf-8")
             if msg:
                 print(f"\nPeer: {msg}")  # place for integration with gui/db
-        except:
+        except Exception as e:
+            print(f"Error in handle_incoming: {e}")
             break
 
 
@@ -74,7 +76,8 @@ def chat_loop(conn: socket.socket) -> None:
 if __name__ == "__main__":
     try:
         conn = listener()
-    except:
+    except Exception as e:
+        print(f"Error in chat file: {e}")
         conn = initiator()
     print(type(conn))
     chat_loop(conn)

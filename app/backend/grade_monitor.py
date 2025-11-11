@@ -106,7 +106,7 @@ class GradeMonitor:
             total_ects += ects_value
             grade_total += self.calculate_subject_average(subject.name) * ects_value
 
-        return grade_total / total_ects
+        return round(grade_total / total_ects, 2)
 
     def calculate_subject_average(self, subject_name: str) -> float:
         """

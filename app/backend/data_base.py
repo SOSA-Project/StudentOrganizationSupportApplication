@@ -112,9 +112,7 @@ def fetch_grades() -> list[tuple[float, str, int, float, int, int]] | None:
         return None
 
 
-def insert_grade(
- value: float, weight: float, sub_type: int, semester: int, subject_id: int, user_id: int
-) -> bool:
+def insert_grade(value: float, weight: float, sub_type: int, semester: int, subject_id: int, user_id: int) -> bool:
     """
     This function inserts grades into the database.
     :param value: grade value
