@@ -123,7 +123,7 @@ class GradeMonitor:
             for tp in subject_types_grades.values():
                 grade_total += tp[0] * tp[1]
                 grade_total_weights += tp[1]
-            return grade_total / grade_total_weights
+            return round(grade_total / grade_total_weights, 2)
 
     def calculate_subject_regular_average(self, subject_name: str) -> float:
         """
@@ -142,7 +142,7 @@ class GradeMonitor:
                     grade_weight = grade.weight
                 grade_total += grade.value * grade_weight
                 grade_total_weights += grade_weight
-        return grade_total / grade_total_weights
+        return round(grade_total / grade_total_weights, 2)
 
     def calculate_subject_type_average(self, subject_name: str) -> dict[GradeType, tuple[float, float]]:
         """

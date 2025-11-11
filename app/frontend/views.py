@@ -234,7 +234,8 @@ class GradesView(BaseView):
 
     def add_grade(self) -> None:
         """
-        Method will be completed in next PR
+        Method add new grade into database.
+        :return: Nothing, only add grade into database.
         """
         type_convert: dict[str, int] = {"Lecture": 1, "Laboratory": 2, "Exercise": 3, "Seminar": 4}
         subjects_convert: dict[str, int] = {name: sub_id for sub_id, name, ect in tuple(fetch_subjects() or [])}
@@ -248,12 +249,12 @@ class GradesView(BaseView):
         option_data["subject"] = subjects_convert[str(option_data["subject"])]
 
         insert_grade(
-            float(option_data["value"]),
-            float(option_data["weight"]),
-            int(option_data["subject"]),
-            int(option_data["semester"]),
-            int(option_data["type"]),
-            temp_user_id,
+            value=float(option_data["value"]),
+            weight=float(option_data["weight"]),
+            subject_id=int(option_data["subject"]),
+            semester=int(option_data["semester"]),
+            sub_type=int(option_data["type"]),
+            user_id=temp_user_id,
         )
 
     def add_new_grade_gui(self) -> None:
@@ -342,6 +343,13 @@ class AverageView(BaseView):
         canvas_widget = canvas.get_tk_widget()
         canvas_widget.configure(bg=self.cget("fg_color"), highlightthickness=0, bd=0)
         canvas_widget.grid(row=0, rowspan=32, column=0, columnspan=8, padx=3, pady=3, sticky="nsew")
+
+    def refresh(self) -> None:
+        """
+        Method refresh chart.
+        :return: Nothing, only refresh chart
+        """
+        self.create_frame_content()
 
 
 class ChatView(BaseView):
