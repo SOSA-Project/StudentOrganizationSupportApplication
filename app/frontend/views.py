@@ -5,7 +5,6 @@ This file contains views for all widgets.
 import random
 from abc import ABC, abstractmethod
 
-
 import customtkinter as ctk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -15,6 +14,7 @@ import calendar
 
 from app.backend.grade_monitor import initiate_grade_monitor
 from app.backend.charts import StatisticsManager, subjects_averages_histogram_plot
+from app.backend.data_base import fetch_subjects
 
 
 class BaseView(ctk.CTkFrame, ABC):
@@ -25,7 +25,7 @@ class BaseView(ctk.CTkFrame, ABC):
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent, fg_color="#444444", corner_radius=10)
         [self.grid_rowconfigure(index=i, weight=1, uniform="rowcol") for i in range(32)]
-        [self.grid_columnconfigure(index=i, weight=1, uniform="rowcol") for i in range(1)]
+        [self.grid_columnconfigure(index=i, weight=1, uniform="rowcol") for i in range(8)]
 
         self.grid_propagate(False)
         self.update_idletasks()
@@ -159,7 +159,7 @@ class NotificationsView(BaseView):
         :return: new ctk frame.
         """
         label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Notifications", font=("Roboto", 18))
-        label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
+        label_one.grid(row=0, rowspan=2, column=0, columnspan=8, padx=5, pady=5)
 
 
 class NotesView(BaseView):
@@ -177,10 +177,10 @@ class NotesView(BaseView):
         :return: new ctk frame.
         """
         label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Notes", font=("Roboto", 18))
-        label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
+        label_one.grid(row=0, rowspan=2, column=0, columnspan=8, padx=5, pady=5)
 
         scrollable_frame: ctk.CTkScrollableFrame = ctk.CTkScrollableFrame(self)
-        scrollable_frame.grid(row=2, column=0, padx=5, pady=5, columnspan=1, sticky="nsew", rowspan=50)
+        scrollable_frame.grid(row=2, column=0, padx=5, pady=5, columnspan=8, sticky="nsew", rowspan=50)
 
         colors: list[str] = ["#ada132", "#2d7523", "#1e6a6e"]
 
@@ -205,15 +205,96 @@ class GradesView(BaseView):
 
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
+        self.bg_frame: ctk.CTkFrame | None = None
+        self.add_grade_bnt: ctk.CTkButton | None = None
+        self.menu_values: tuple[str, ...] = ("Add new grade", "Show grades")
+        self.grades: tuple[str, ...] = ("1", "2", "3", "3.5", "4", "4.5", "5", "6")
+        self.grade_weight_sem: tuple[str, ...] = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+        self.grade_types: tuple[str, ...] = ("Lecture", "Laboratory", "Exercise", "Seminar")
+        self.subjects = fetch_subjects()
+        self.subject_data: tuple[str, ...] = (
+            tuple(subject[1] for subject in self.subjects) if self.subjects is not None else ("None",)
+        )
+        self.labels_container: dict[str, ctk.CTkLabel] = {}
+        self.options_container: dict[str, ctk.CTkOptionMenu] = {}
         self.create_frame_content()
+        self.add_new_grade_gui()
+
+    def show_grades_gui(self) -> None:
+        """
+        Method will be completed in next PR
+        """
+        pass
+
+    def change_gui(self, _=None) -> None:
+        """
+        Method will be completed in next PR
+        """
+        print(self.menu_button.get())
+
+    def add_grade(self) -> None:
+        """
+        Method will be completed in next PR
+        """
+        print("Pressed add grade button")
+
+    def add_new_grade_gui(self) -> None:
+        """
+        Method creates labels and options widget for GUI.
+        :return: Nothing, only creates GUI elements.
+        """
+        self.bg_frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        self.bg_frame.grid(row=7, rowspan=19, column=2, columnspan=4, padx=5, pady=5, sticky="nsew")
+        [self.bg_frame.grid_rowconfigure(index=i, weight=1, uniform="rowcol") for i in range(32)]
+        [self.bg_frame.grid_columnconfigure(index=i, weight=1, uniform="rowcol") for i in range(8)]
+
+        labels_data: set[tuple[str, str, int]] = {
+            ("value", "New grade value:", 10),
+            ("weight", "New grade weight:", 12),
+            ("type", "New grade type:", 14),
+            ("semester", "Semester number:", 16),
+            ("subject", "Subject type:", 18),
+        }
+
+        options_data: set[tuple[str, tuple[str, ...], int]] = {
+            ("value", self.grades, 10),
+            ("weight", self.grade_weight_sem, 12),
+            ("type", self.grade_types, 14),
+            ("semester", self.grade_weight_sem, 16),
+            ("subject", self.subject_data, 18),
+        }
+
+        for (l_key, l_text, l_row), (o_key, o_value, o_row) in zip(labels_data, options_data):
+            self.labels_container[l_key] = ctk.CTkLabel(self.bg_frame, text=l_text, font=("Roboto", 18))
+            self.labels_container[l_key].grid(row=l_row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+            self.options_container[o_key] = ctk.CTkOptionMenu(
+                self.bg_frame, values=o_value, width=150, font=("Roboto", 18)
+            )
+            self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+
+        self.add_grade_bnt = ctk.CTkButton(
+            self.bg_frame, text="Add new grade", font=("Roboto", 18), command=self.add_grade
+        )
+        self.add_grade_bnt.grid(row=21, rowspan=3, column=3, columnspan=2, padx=5, pady=5)
 
     def create_frame_content(self) -> ctk.CTkFrame:
         """
         This method creates elements visible on the frame.
         :return: new ctk frame.
         """
-        label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Grades", font=("Roboto", 18))
-        label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
+
+        self.menu_button = ctk.CTkSegmentedButton(
+            self,
+            values=self.menu_values,
+            font=("Roboto", 18),
+            command=self.change_gui,
+            height=50,
+            corner_radius=10,
+            fg_color="#242424",
+            border_width=5,
+        )
+        self.menu_button.grid(row=0, rowspan=2, column=2, columnspan=4, padx=0, pady=0)
+        self.menu_button.set("Add new grade")
 
 
 class AverageView(BaseView):
@@ -242,7 +323,7 @@ class AverageView(BaseView):
 
         canvas_widget = canvas.get_tk_widget()
         canvas_widget.configure(bg=self.cget("fg_color"), highlightthickness=0, bd=0)
-        canvas_widget.grid(row=0, rowspan=32, column=0, columnspan=1, padx=3, pady=3, sticky="nsew")
+        canvas_widget.grid(row=0, rowspan=32, column=0, columnspan=8, padx=3, pady=3, sticky="nsew")
 
 
 class ChatView(BaseView):
@@ -260,7 +341,7 @@ class ChatView(BaseView):
         :return: new ctk frame.
         """
         label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Chat", font=("Roboto", 18))
-        label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
+        label_one.grid(row=0, rowspan=2, column=0, columnspan=8, padx=5, pady=5)
 
 
 class SettingsView(BaseView):
@@ -278,4 +359,4 @@ class SettingsView(BaseView):
         :return: new ctk frame.
         """
         label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Settings", font=("Roboto", 18))
-        label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
+        label_one.grid(row=0, rowspan=2, column=0, columnspan=8, padx=5, pady=5)
