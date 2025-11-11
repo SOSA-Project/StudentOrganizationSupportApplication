@@ -14,6 +14,7 @@ import calendar
 
 from app.backend.grade_monitor import initiate_grade_monitor
 from app.backend.charts import StatisticsManager, subjects_averages_histogram_plot
+from app.backend.data_base import fetch_subjects
 
 
 class BaseView(ctk.CTkFrame, ABC):
@@ -46,8 +47,6 @@ class CalendarView(BaseView):
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
         self.current_date = datetime.now()
-        self.header = None
-        self.calendar_frame = None
         self.create_frame_content()
 
     def create_frame_content(self) -> ctk.CTkFrame:
@@ -198,54 +197,77 @@ class GradesView(BaseView):
 
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
-        self.menu_values = ("Add new grade", "Show grades")
-        self.menu_button = self.add_grade_bnt = self.bg_frame = None
-        self.grades = ('1', '2', '3', '3.5', '4', '4.5', '5', '6')
-        self.grade_weight_sem = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10')
-        self.grade_types = ('Lecture', 'Laboratory', 'Exercise', 'Seminar')
-        self.labels_container = {}
-        self.options_container = {}
+        self.bg_frame: ctk.CTkFrame | None = None
+        self.add_grade_bnt: ctk.CTkButton | None = None
+        self.menu_values: tuple[str, ...] = ("Add new grade", "Show grades")
+        self.grades: tuple[str, ...] = ("1", "2", "3", "3.5", "4", "4.5", "5", "6")
+        self.grade_weight_sem: tuple[str, ...] = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+        self.grade_types: tuple[str, ...] = ("Lecture", "Laboratory", "Exercise", "Seminar")
+        self.subjects = fetch_subjects()
+        self.subject_data: tuple[str, ...] = (
+            tuple(subject[1] for subject in self.subjects) if self.subjects is not None else ("None",)
+        )
+        self.labels_container: dict[str, ctk.CTkLabel] = {}
+        self.options_container: dict[str, ctk.CTkOptionMenu] = {}
         self.create_frame_content()
         self.add_new_grade_gui()
 
-    def add_new_grade_gui(self):
+    def show_grades_gui(self) -> None:
+        """
+        Method will be completed in next PR
+        """
+        pass
+
+    def change_gui(self, _=None) -> None:
+        """
+        Method will be completed in next PR
+        """
+        print(self.menu_button.get())
+
+    def add_grade(self) -> None:
+        """
+        Method will be completed in next PR
+        """
+        print("Pressed add grade button")
+
+    def add_new_grade_gui(self) -> None:
+        """
+        Method creates labels and options widget for GUI.
+        :return: Nothing, only creates GUI elements.
+        """
         self.bg_frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         self.bg_frame.grid(row=7, rowspan=19, column=2, columnspan=4, padx=5, pady=5, sticky="nsew")
         [self.bg_frame.grid_rowconfigure(index=i, weight=1, uniform="rowcol") for i in range(32)]
         [self.bg_frame.grid_columnconfigure(index=i, weight=1, uniform="rowcol") for i in range(8)]
 
-        labels_data = {
+        labels_data: set[tuple[str, str, int]] = {
             ("value", "New grade value:", 10),
             ("weight", "New grade weight:", 12),
             ("type", "New grade type:", 14),
             ("semester", "Semester number:", 16),
-            ("subject", "Subject type:", 18)
+            ("subject", "Subject type:", 18),
         }
 
-        options_data = {
+        options_data: set[tuple[str, tuple[str, ...], int]] = {
             ("value", self.grades, 10),
             ("weight", self.grade_weight_sem, 12),
             ("type", self.grade_types, 14),
             ("semester", self.grade_weight_sem, 16),
-            ("subject", ('matematyka', 'polski'), 18)
+            ("subject", self.subject_data, 18),
         }
 
-        for key, text, row in labels_data:
-            self.labels_container[key] = ctk.CTkLabel(self.bg_frame, text=text, font=("Roboto", 18))
-            self.labels_container[key].grid(row=row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+        for (l_key, l_text, l_row), (o_key, o_value, o_row) in zip(labels_data, options_data):
+            self.labels_container[l_key] = ctk.CTkLabel(self.bg_frame, text=l_text, font=("Roboto", 18))
+            self.labels_container[l_key].grid(row=l_row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+            self.options_container[o_key] = ctk.CTkOptionMenu(
+                self.bg_frame, values=o_value, width=150, font=("Roboto", 18)
+            )
+            self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
-        for key, values, row in options_data:
-            self.options_container[key] = ctk.CTkOptionMenu(self.bg_frame, values=values, width=150, font=("Roboto", 18))
-            self.options_container[key].grid(row=row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
-
-        self.add_grade_bnt = ctk.CTkButton(self.bg_frame, text="Add new grade", font=("Roboto", 18))
+        self.add_grade_bnt = ctk.CTkButton(
+            self.bg_frame, text="Add new grade", font=("Roboto", 18), command=self.add_grade
+        )
         self.add_grade_bnt.grid(row=21, rowspan=3, column=3, columnspan=2, padx=5, pady=5)
-
-    def show_grades_gui(self):
-        pass
-
-    def change_gui(self, _=None):
-        print(self.menu_button.get())
 
     def create_frame_content(self) -> ctk.CTkFrame:
         """
