@@ -46,6 +46,8 @@ class CalendarView(BaseView):
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
         self.current_date = datetime.now()
+        self.header = None
+        self.calendar_frame = None
         self.create_frame_content()
 
     def create_frame_content(self) -> ctk.CTkFrame:
@@ -197,10 +199,12 @@ class GradesView(BaseView):
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
         self.menu_values = ("Add new grade", "Show grades")
-        self.menu_button = None
+        self.menu_button = self.add_grade_bnt = self.bg_frame = None
         self.grades = ('1', '2', '3', '3.5', '4', '4.5', '5', '6')
         self.grade_weight_sem = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10')
-        self.grade_types = ('WYK', 'LAB', 'CW', 'SEM')
+        self.grade_types = ('Lecture', 'Laboratory', 'Exercise', 'Seminar')
+        self.labels_container = {}
+        self.options_container = {}
         self.create_frame_content()
         self.add_new_grade_gui()
 
@@ -210,30 +214,29 @@ class GradesView(BaseView):
         [self.bg_frame.grid_rowconfigure(index=i, weight=1, uniform="rowcol") for i in range(32)]
         [self.bg_frame.grid_columnconfigure(index=i, weight=1, uniform="rowcol") for i in range(8)]
 
-        self.label_grades = ctk.CTkLabel(self.bg_frame, text="New grade value:", font=("Roboto", 18))
-        self.label_grades.grid(row=10, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
-        self.combo_grades= ctk.CTkOptionMenu(self.bg_frame, values=self.grades, width=150, font=("Roboto", 18))
-        self.combo_grades.grid(row=10, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+        labels_data = {
+            ("value", "New grade value:", 10),
+            ("weight", "New grade weight:", 12),
+            ("type", "New grade type:", 14),
+            ("semester", "Semester number:", 16),
+            ("subject", "Subject type:", 18)
+        }
 
-        self.label_weight = ctk.CTkLabel(self.bg_frame, text="New grade weight:", font=("Roboto", 18))
-        self.label_weight.grid(row=12, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
-        self.combo_grade_weight = ctk.CTkOptionMenu(self.bg_frame, values=self.grade_weight_sem, width=150, font=("Roboto", 18))
-        self.combo_grade_weight.grid(row=12, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+        options_data = {
+            ("value", self.grades, 10),
+            ("weight", self.grade_weight_sem, 12),
+            ("type", self.grade_types, 14),
+            ("semester", self.grade_weight_sem, 16),
+            ("subject", ('matematyka', 'polski'), 18)
+        }
 
-        self.label_type = ctk.CTkLabel(self.bg_frame, text="New grade type:", font=("Roboto", 18))
-        self.label_type.grid(row=14, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
-        self.combo_grade_type = ctk.CTkOptionMenu(self.bg_frame, values=self.grade_types, width=150, font=("Roboto", 18))
-        self.combo_grade_type.grid(row=14, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+        for key, text, row in labels_data:
+            self.labels_container[key] = ctk.CTkLabel(self.bg_frame, text=text, font=("Roboto", 18))
+            self.labels_container[key].grid(row=row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
 
-        self.label_semester = ctk.CTkLabel(self.bg_frame, text="Semester number:", font=("Roboto", 18))
-        self.label_semester.grid(row=16, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
-        self.combo_semester = ctk.CTkOptionMenu(self.bg_frame, values=self.grade_weight_sem, width=150, font=("Roboto", 18))
-        self.combo_semester.grid(row=16, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
-
-        self.label_subject = ctk.CTkLabel(self.bg_frame, text="Subject type:", font=("Roboto", 18))
-        self.label_subject.grid(row=18, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
-        self.combo_subject = ctk.CTkOptionMenu(self.bg_frame, values=['matematyka', 'polski'], width=150, font=("Roboto", 18))
-        self.combo_subject.grid(row=18, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+        for key, values, row in options_data:
+            self.options_container[key] = ctk.CTkOptionMenu(self.bg_frame, values=values, width=150, font=("Roboto", 18))
+            self.options_container[key].grid(row=row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
         self.add_grade_bnt = ctk.CTkButton(self.bg_frame, text="Add new grade", font=("Roboto", 18))
         self.add_grade_bnt.grid(row=21, rowspan=3, column=3, columnspan=2, padx=5, pady=5)
