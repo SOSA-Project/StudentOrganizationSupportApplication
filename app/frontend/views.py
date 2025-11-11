@@ -236,7 +236,8 @@ class GradesView(BaseView):
         """
         Method will be completed in next PR
         """
-        print("Pressed add grade button")
+        for test in self.options_container.items():
+            print(test[0], test[1].get())
 
     def add_new_grade_gui(self) -> None:
         """
