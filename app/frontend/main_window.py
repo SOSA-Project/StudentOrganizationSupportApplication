@@ -85,15 +85,17 @@ class AppGUI(ctk.CTk):
         self.right_frame: RightFrame = RightFrame(self, color="#242424")
 
         # Container for all available views
-        self.views: dict[str, ctk.CTkFrame] = {
-            "calendar": CalendarView(self.right_frame.frame),
-            "notifications": NotificationsView(self.right_frame.frame),
-            "notes": NotesView(self.right_frame.frame),
-            "grades": GradesView(self.right_frame.frame),
-            "average": AverageView(self.right_frame.frame),
-            "settings": SettingsView(self.right_frame.frame),
-            "chat": ChatView(self.right_frame.frame),
+        self.view_classes: dict[str, type[ctk.CTkFrame]] = {
+            "calendar": CalendarView,
+            "notifications": NotificationsView,
+            "notes": NotesView,
+            "grades": GradesView,
+            "average": AverageView,
+            "settings": SettingsView,
+            "chat": ChatView,
         }
+
+        self.views: dict[str, ctk.CTkFrame] = {}
 
         # Buttons for left gui frame
         self.buttons: ButtonsCreator = ButtonsCreator(self.left_frame.frame, self.btn_icons.icons, self.views, self)
@@ -101,7 +103,6 @@ class AppGUI(ctk.CTk):
 
         # Current right frame view
         self.current_view: None | ctk.CTkFrame = None
-        self.show_view(self.views["calendar"])
 
         # Resizable text and images in buttons
         self.counter = 0
@@ -119,6 +120,20 @@ class AppGUI(ctk.CTk):
 
         self.current_view = view
         self.current_view.pack(expand=True, fill="both")
+
+    def show_view_by_name(self, name: str) -> None:
+        """
+        Displays a view by its name, creating it only once (lazy loading).
+        :param name: View key from self.view_classes.
+        """
+        if name not in self.views:
+            if name in self.view_classes:
+                self.views[name] = self.view_classes[name](self.right_frame.frame)
+            else:
+                print(f"Unknown view name: {name}")
+                return
+
+        self.show_view(self.views[name])
 
     def on_resize(self, event) -> None:
         """

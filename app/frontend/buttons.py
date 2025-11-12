@@ -42,11 +42,8 @@ class ButtonsCreator:
                 self.parent,
                 text=text,
                 font=(self.font_family, self.font_size),
-                image=self.icons[f"{key}_icon"],
-                command=lambda k=key: (
-                    self.app.show_view(self.views[k]),
-                    getattr(self.views[k], "refresh", lambda: None)(),
-                ),
+                image=self.icons.get(f"{key}_icon"),
+                command=lambda k=key: self.app.show_view_by_name(k),
             )
             self.buttons[key].grid(row=row, rowspan=3, column=0, columnspan=1, sticky="nsew", padx=8, pady=5)
 
