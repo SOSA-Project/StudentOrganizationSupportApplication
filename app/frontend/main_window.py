@@ -15,6 +15,7 @@ from app.frontend.views import (
     AverageView,
     SettingsView,
     ChatView,
+    LoginRegisterView,
 )
 
 
@@ -64,11 +65,21 @@ class AppGUI(ctk.CTk):
     def __init__(self) -> None:
         super().__init__()
         self.title("SOSA")
-        self.geometry("960x540")
-        self.minsize(960, 540)
+        self.geometry("961x541")
+        self.minsize(961, 541)
 
         # Basic main app window setup
         self.grid_maker: GridMaker = GridMaker(self, rows=9, columns=24)
+        self.login_view = LoginRegisterView(self, on_success=self.show_main_app)
+        self.login_view.pack(expand=True, fill="both")
+
+    def show_main_app(self) -> None:
+        """
+        Method displays the main part of the application after successful login.
+        Creates main layout and initializes necessary frames, buttons and views.
+        :return: Nothing, only builds main interface.
+        """
+        self.login_view.pack_forget()
         self.btn_icons: IconsHolder = IconsHolder()
         self.left_frame: LeftFrame = LeftFrame(self, color="#444444")
         self.right_frame: RightFrame = RightFrame(self, color="#242424")

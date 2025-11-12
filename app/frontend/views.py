@@ -3,18 +3,21 @@ This file contains views for all widgets.
 """
 
 import random
+from typing import Callable
+from datetime import datetime
+import calendar
 from abc import ABC, abstractmethod
 
 import customtkinter as ctk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from datetime import datetime
-import calendar
 
 from app.backend.grade_monitor import initiate_grade_monitor
 from app.backend.charts import StatisticsManager, subjects_averages_histogram_plot
 from app.backend.data_base import fetch_subjects, insert_grade
+from app.backend.registration import get_all_users
+from app.backend.registration import register_user
 
 
 class BaseView(ctk.CTkFrame, ABC):
@@ -386,3 +389,83 @@ class SettingsView(BaseView):
         """
         label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Settings", font=("Roboto", 18))
         label_one.grid(row=0, rowspan=2, column=0, columnspan=8, padx=5, pady=5)
+
+
+class LoginRegisterView(ctk.CTkFrame):
+    """
+    View for user login and registration.
+    Appears on app start.
+    """
+
+    def __init__(self, parent: ctk.CTk, on_success: Callable) -> None:
+        super().__init__(parent, fg_color="#444444", corner_radius=10)
+        self.on_success = on_success
+        self.create_frame_content()
+
+    def create_frame_content(self) -> None:
+        """
+        This method creates elements visible on the frame.
+        :return: None
+        """
+
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        self.bg_frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        self.bg_frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
+
+        for i in range(10):
+            self.bg_frame.grid_rowconfigure(i, weight=1)
+        for i in range(6):
+            self.bg_frame.grid_columnconfigure(i, weight=1)
+
+        title_label = ctk.CTkLabel(self.bg_frame, text="Student Planner Login/Register", font=("Roboto", 24))
+        title_label.grid(row=1, column=1, columnspan=4, sticky="nsew")
+
+        self.username_entry = ctk.CTkEntry(self.bg_frame, placeholder_text="Username", font=("Roboto", 18))
+        self.username_entry.grid(row=4, column=2, columnspan=2, sticky="ew", padx=20)
+
+        login_btn = ctk.CTkButton(self.bg_frame, text="Login", font=("Roboto", 18), command=self.login_user)
+        login_btn.grid(row=6, column=2, sticky="nsew", padx=10, pady=10)
+
+        register_btn = ctk.CTkButton(self.bg_frame, text="Register", font=("Roboto", 18), command=self.register_user)
+        register_btn.grid(row=6, column=3, sticky="nsew", padx=10, pady=10)
+
+        self.feedback_label = ctk.CTkLabel(self.bg_frame, text="", font=("Roboto", 14), text_color="red")
+        self.feedback_label.grid(row=7, column=1, columnspan=4, sticky="nsew", pady=10)
+
+    def login_user(self) -> None:
+        """
+        This method handles the login process and displays messages.
+        :return: None
+        """
+
+        username = self.username_entry.get().strip()
+        if not username:
+            self.feedback_label.configure(text="Username cannot be empty!")
+            return
+
+        users = get_all_users()
+        if users and any(u[1].lower() == username.lower() for u in users):
+            self.feedback_label.configure(text="Login successful!", text_color="green")
+            self.after(500, self.on_success)
+        else:
+            self.feedback_label.configure(text="User not found!")
+
+    def register_user(self) -> None:
+        """
+        This method handles the registration process and displays messages.
+        :return: None
+        """
+
+        username = self.username_entry.get().strip()
+        if not username:
+            self.feedback_label.configure(text="Username cannot be empty!")
+            return
+
+        result = register_user(username)
+        if result:
+            self.feedback_label.configure(text="Registration successful!", text_color="green")
+            self.after(500, self.on_success)
+        else:
+            self.feedback_label.configure(text="User already exists or error!")
