@@ -21,14 +21,13 @@ def connect_to_database() -> sqlite3.Connection:
         cursor.execute(
             """
                CREATE TABLE "grades" (
-                    "id"	INTEGER NOT NULL,
+                    "id"	INTEGER PRIMARY KEY AUTOINCREMENT,
                     "value"	REAL NOT NULL,
                     "weight"	REAL,
                     "type"	INTEGER NOT NULL,
                     "semester"	TEXT NOT NULL,
                     "subject_id"	INTEGER NOT NULL,
-                    "user_id"	INTEGER NOT NULL,
-                    PRIMARY KEY("id")
+                    "user_id"	INTEGER NOT NULL
                 )
                """
         )
@@ -79,10 +78,9 @@ def connect_to_database() -> sqlite3.Connection:
         cursor.execute(
             """
             CREATE TABLE "subjects" (
-                "id"	INTEGER,
+                "id"	INTEGER PRIMARY KEY AUTOINCREMENT,
                 "name"	TEXT,
-                "ects"	INTEGER,
-                PRIMARY KEY("id")
+                "ects"	INTEGER
             )
             """
         )
@@ -114,12 +112,9 @@ def fetch_grades() -> list[tuple[float, str, int, float, int, int]] | None:
         return None
 
 
-def insert_grade(
-    grade_id: int, value: float, weight: float, sub_type: int, semester: int, subject_id: int, user_id: int
-) -> bool:
+def insert_grade(value: float, weight: float, sub_type: int, semester: int, subject_id: int, user_id: int) -> bool:
     """
     This function inserts grades into the database.
-    :param grade_id: grade id
     :param value: grade value
     :param weight: grade weight
     :param sub_type: subject type
@@ -133,16 +128,16 @@ def insert_grade(
         cursor = conn.cursor()
         cursor.execute(
             """
-                   INSERT INTO grades (id, value, weight, type, semester, subject_id, user_id)
-                   VALUES (?, ?, ?, ?, ?, ?, ?)
+                   INSERT INTO grades (value, weight, type, semester, subject_id, user_id)
+                   VALUES (?, ?, ?, ?, ?, ?)
                """,
-            (grade_id, value, weight, sub_type, semester, subject_id, user_id),
+            (value, weight, sub_type, semester, subject_id, user_id),
         )
         conn.commit()
         conn.close()
         return True
     except Exception as e:
-        print(e)
+        print(f"Error in insert_grade: {e}")
         return False
 
 
@@ -317,10 +312,9 @@ def fetch_subjects() -> list[tuple[int, str, int]] | None:
         return None
 
 
-def insert_subject(sub_id: int, name: str, ects: int) -> bool:
+def insert_subject(name: str, ects: int) -> bool:
     """
     This function inserts subject into the database.
-    :param sub_id: subject id
     :param name: subject name
     :param ects: subject ects
     :return success status: whether insert was successful or not
@@ -330,16 +324,16 @@ def insert_subject(sub_id: int, name: str, ects: int) -> bool:
         cursor = conn.cursor()
         cursor.execute(
             """
-                   INSERT INTO subjects (id, name, ects)
-                   VALUES (?, ?, ?)
+                   INSERT INTO subjects (name, ects)
+                   VALUES (?, ?)
                """,
-            (sub_id, name, ects),
+            (name, ects),
         )
         conn.commit()
         conn.close()
         return True
     except Exception as e:
-        print(e)
+        print(f"Error in insert_subject: {e}")
         return False
 
 
