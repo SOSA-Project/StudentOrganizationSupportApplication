@@ -15,6 +15,7 @@ from app.frontend.views import (
     AverageView,
     SettingsView,
     ChatView,
+    LoginRegisterView,
 )
 
 
@@ -67,13 +68,21 @@ class AppGUI(ctk.CTk):
         self.geometry("960x540")
         self.minsize(960, 540)
 
-        # Basic main app window setup
         self.grid_maker: GridMaker = GridMaker(self, rows=9, columns=24)
+
+        self.login_view = LoginRegisterView(self, on_success=self.show_main_app)
+        self.login_view.pack(expand=True, fill="both")
+
+    def show_main_app(self) -> None:
+        """
+        Method displays the main part of the application after successful login.
+        Creates main layout and initializes necessary frames, buttons and views.
+        :return: Nothing, only builds main interface.
+        """
+        self.login_view.pack_forget()
         self.btn_icons: IconsHolder = IconsHolder()
         self.left_frame: LeftFrame = LeftFrame(self, color="#444444")
         self.right_frame: RightFrame = RightFrame(self, color="#242424")
-
-        # Container for all available views
         self.views: dict[str, ctk.CTkFrame] = {
             "calendar": CalendarView(self.right_frame.frame),
             "notifications": NotificationsView(self.right_frame.frame),
@@ -84,15 +93,12 @@ class AppGUI(ctk.CTk):
             "chat": ChatView(self.right_frame.frame),
         }
 
-        # Buttons for left gui frame
         self.buttons: ButtonsCreator = ButtonsCreator(self.left_frame.frame, self.btn_icons.icons, self.views, self)
         self.labels: LabelsCreator = LabelsCreator(self.left_frame.frame)
 
-        # Current right frame view
         self.current_view: None | ctk.CTkFrame = None
         self.show_view(self.views["calendar"])
 
-        # Resizable text and images in buttons
         self.counter = 0
         self.flag: str | None = None
         self.bind("<Configure>", self.on_resize)
