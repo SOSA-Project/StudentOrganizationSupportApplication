@@ -19,6 +19,7 @@ from app.backend.data_base import fetch_subjects, insert_grade
 from app.backend.registration import get_all_users
 from app.backend.registration import register_user
 from app.backend.notes import initiate_note_manager
+from app.backend.notes import Note
 
 
 class BaseView(ctk.CTkFrame, ABC):
@@ -188,31 +189,28 @@ class NotesView(BaseView):
         scrollable_frame.grid(row=2, column=0, padx=5, pady=5, columnspan=8, sticky="nsew", rowspan=50)
 
         if not self.note_manager or not self.note_manager.get_all_notes():
-            empty_label = ctk.CTkLabel(scrollable_frame, text="Notes are empty", font=("Roboto", 14))
+            empty_label: ctk.CTkLabel = ctk.CTkLabel(scrollable_frame, text="Notes are empty", font=("Roboto", 14))
             empty_label.pack(pady=20)
             return scrollable_frame
 
-        notes = self.note_manager.get_all_notes()
+        notes: list[Note] = self.note_manager.get_all_notes()
 
         colors: list[str] = ["#ada132", "#2d7523", "#1e6a6e"]
 
         for i, note in enumerate(notes):
             note_frame: ctk.CTkFrame = ctk.CTkFrame(scrollable_frame, fg_color=colors[i % len(colors)])
-            note_frame.pack(fill="x", pady=10, padx=10)
+            note_frame.pack(fill="x", pady=8, padx=8)
 
-            title_label = ctk.CTkLabel(note_frame, text=note.title, font=("Roboto", 20))
-            title_label.pack(anchor="w")
+            title_label: ctk.CTkLabel = ctk.CTkLabel(note_frame, text=note.title, font=("Roboto", 20))
+            title_label.pack(anchor="w", padx=8, pady=(8, 0))
 
-            date_label = ctk.CTkLabel(note_frame, text=f"Created at: {note.created_at}", font=("Roboto", 12))
-            date_label.pack(anchor="w")
+            date_label: ctk.CTkLabel = ctk.CTkLabel(note_frame, text=f"Created at: {note.created_at}", font=("Roboto", 12))
+            date_label.pack(anchor="w", padx=8, pady=(2, 4))
 
-            content_label = ctk.CTkLabel(
-                note_frame, text=note.content, wraplength=1000, font=("Roboto", 18), justify="left"
+            content_label: ctk.CTkLabel = ctk.CTkLabel(
+                note_frame, text=note.content, wraplength=500, font=("Roboto", 18), justify="left"
             )
-            content_label.pack(anchor="w", pady=(0, 5))
-
-
-#
+            content_label.pack(anchor="w", padx=8, pady=(0, 12))
 
 
 class GradesView(BaseView):

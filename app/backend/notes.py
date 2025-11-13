@@ -62,7 +62,7 @@ class NoteManager:
         for row in notes_list:
             note_id, title, content, created_at, user_id = row
             note = Note(note_id, user_id, title, content)
-            note.created_at = created_at  # Nadpisanie daty z bazy danych
+            note.created_at = created_at
             self.notes.append(note)
 
     def get_all_notes(self) -> list[Note]:
