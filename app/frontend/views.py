@@ -362,6 +362,11 @@ class ChatView(BaseView):
 
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
+        self.users_listbox: ctk.CTkScrollableFrame | None = None
+        self.chat_display: ctk.CTkTextbox | None = None
+        self.message_entry: ctk.CTkEntry | None = None
+        self.send_button: ctk.CTkButton | None = None
+        self.selected_user: str | None = None
         self.create_frame_content()
 
     def create_frame_content(self) -> ctk.CTkFrame:
@@ -369,8 +374,53 @@ class ChatView(BaseView):
         This method creates elements visible on the frame.
         :return: new ctk frame.
         """
-        label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Chat", font=("Roboto", 18))
-        label_one.grid(row=0, rowspan=2, column=0, columnspan=8, padx=5, pady=5)
+        self.users_listbox = ctk.CTkScrollableFrame(self)
+        self.users_listbox.grid(row=0, rowspan=32, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+
+        # Configure the scrollable frame's internal grid
+        self.users_listbox.grid_columnconfigure(0, weight=1)
+
+        users = get_all_users()
+        for i, user in enumerate(users or []):
+            user_button = ctk.CTkButton(
+                self.users_listbox, text=user[1], font=("Roboto", 16), command=lambda u=user[1]: self.on_user_click(u)
+            )
+            user_button.grid(row=i, column=0, sticky="ew", padx=10, pady=2)
+
+        self.chat_display = ctk.CTkTextbox(self, font=("Roboto", 14), wrap="word")
+        self.chat_display.grid(row=0, rowspan=28, column=2, columnspan=6, sticky="nsew", padx=5, pady=5)
+        self.chat_display.configure(state="disabled")
+
+        self.message_entry = ctk.CTkEntry(self, placeholder_text="Type your message...", font=("Roboto", 14))
+        self.message_entry.grid(row=28, rowspan=2, column=2, columnspan=5, sticky="ew", padx=5, pady=5)
+
+        self.send_button = ctk.CTkButton(self, text="Send", font=("Roboto", 14), command=self.send_message)
+        self.send_button.grid(row=28, rowspan=2, column=7, sticky="ew", padx=5, pady=5)
+
+    def on_user_click(self, username: str) -> None:
+        """
+        Handles user button click.
+        :param username: The username of the clicked user.
+        :return: None
+        """
+        self.selected_user = username
+        if self.chat_display is not None:
+            self.chat_display.configure(state="normal")
+            self.chat_display.insert("end", f"Selected user: {username}\n")
+            self.chat_display.configure(state="disabled")
+
+    def send_message(self) -> None:
+        """
+        Appends the typed message to the chat display.
+        :return: None
+        """
+        if self.message_entry is not None and self.chat_display is not None:
+            message = self.message_entry.get().strip()
+            if message and self.selected_user:
+                self.chat_display.configure(state="normal")
+                self.chat_display.insert("end", f"You to {self.selected_user}: {message}\n")
+                self.chat_display.configure(state="disabled")
+                self.message_entry.delete(0, "end")
 
 
 class SettingsView(BaseView):
