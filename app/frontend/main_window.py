@@ -103,6 +103,7 @@ class AppGUI(ctk.CTk):
 
         # Current right frame view
         self.current_view: None | ctk.CTkFrame = None
+        self.show_view_by_name("calendar")
 
         # Resizable text and images in buttons
         self.counter = 0
