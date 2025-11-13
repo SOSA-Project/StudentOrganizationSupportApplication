@@ -204,7 +204,9 @@ class NotesView(BaseView):
             title_label: ctk.CTkLabel = ctk.CTkLabel(note_frame, text=note.title, font=("Roboto", 20))
             title_label.pack(anchor="w", padx=8, pady=(8, 0))
 
-            date_label: ctk.CTkLabel = ctk.CTkLabel(note_frame, text=f"Created at: {note.created_at}", font=("Roboto", 12))
+            date_label: ctk.CTkLabel = ctk.CTkLabel(
+                note_frame, text=f"Created at: {note.created_at}", font=("Roboto", 12)
+            )
             date_label.pack(anchor="w", padx=8, pady=(2, 4))
 
             content_label: ctk.CTkLabel = ctk.CTkLabel(
