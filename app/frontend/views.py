@@ -434,7 +434,7 @@ class GradesView(BaseView):
 
         self.menu_label = ctk.CTkLabel(
             self,
-            text="Napis testowy",
+            text="",
             font=("Roboto", 24),
             height=50,
             corner_radius=10,
