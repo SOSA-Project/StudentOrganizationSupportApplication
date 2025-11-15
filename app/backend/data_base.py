@@ -112,6 +112,28 @@ def fetch_grades() -> list[tuple[float, str, int, float, int, int]] | None:
         return None
 
 
+def fetch_grades_id() -> list[tuple[str]] | None:
+    """
+    This function fetches grades form the database.
+    :return: grades ids.
+    """
+    try:
+        conn = connect_to_database()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+                    SELECT id FROM grades
+                       """
+        )
+        grades = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        return grades
+    except Exception as e:
+        print(e)
+        return None
+
+
 def insert_grade(value: float, weight: float, sub_type: int, semester: int, subject_id: int, user_id: int) -> bool:
     """
     This function inserts grades into the database.
