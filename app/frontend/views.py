@@ -15,7 +15,7 @@ from matplotlib.figure import Figure
 
 from app.backend.grade_monitor import initiate_grade_monitor
 from app.backend.charts import StatisticsManager, subjects_averages_histogram_plot
-from app.backend.data_base import fetch_subjects, insert_grade
+from app.backend.data_base import fetch_subjects, insert_grade, fetch_grades_id
 from app.backend.registration import get_all_users
 from app.backend.registration import register_user
 from app.backend.notes import initiate_note_manager
@@ -224,6 +224,8 @@ class GradesView(BaseView):
         self.grade_types = ("Lecture", "Laboratory", "Exercise", "Seminar")
         self.subjects = fetch_subjects()
         self.subject_data = tuple(subject[1] for subject in self.subjects) if self.subjects else ("None",)
+        self.grades_id = fetch_grades_id()
+        self.grades_id_data = tuple(str(g_id[0]) for g_id in self.grades_id) if self.grades_id else ("None", )
 
         self.labels_container = {}
         self.options_container = {}
@@ -234,13 +236,12 @@ class GradesView(BaseView):
             "add_view": self.add_new_grade_gui(),
             "delete_view": self.delete_grade_gui(),
             "edit_view": self.edit_grade_gui(),
+            "show_grades": self.show_grades_gui()
         }
 
         self.current_view = None
         self.show_view(self.grade_views["add_view"])
 
-    def show_grades_gui(self) -> None:
-        pass
 
     def change_gui(self, _=None) -> None:
         button_value: str = self.menu_button.get()
@@ -252,6 +253,10 @@ class GradesView(BaseView):
                 self.show_view(self.grade_views["edit_view"])
             case "Delete grade":
                 self.show_view(self.grade_views["delete_view"])
+            case "Show grades":
+                self.show_view(self.grade_views["show_grades"])
+
+        self.menu_label.configure(text="")
 
     def add_grade(self) -> None:
         type_convert = {"Lecture": 1, "Laboratory": 2, "Exercise": 3, "Seminar": 4}
@@ -274,17 +279,24 @@ class GradesView(BaseView):
             user_id=temp_user_id,
         )
 
-    def delete_grade_gui(self) -> ctk.CTkFrame:
-        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
-        return frame
+        self.menu_label.configure(text="New grade has been added")
 
-    def edit_grade_gui(self) -> ctk.CTkFrame:
-        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
-        return frame
+    def edit_grade(self) -> None:
+        self.menu_label.configure(text="Grade has been updated")
+
+    def delete_grade(self) -> None:
+        self.menu_label.configure(text="Grade has been deleted")
+
+    def _display_frame_elements(self, labels_data, options_data, parent) -> None:
+        for (l_key, l_text, l_row), (o_key, o_value, o_row) in zip(labels_data, options_data):
+            self.labels_container[l_key] = ctk.CTkLabel(parent, text=l_text, font=("Roboto", 18))
+            self.labels_container[l_key].grid(row=l_row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+
+            self.options_container[o_key] = ctk.CTkOptionMenu(parent, values=o_value, width=150, font=("Roboto", 18))
+            self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
     def add_new_grade_gui(self) -> ctk.CTkFrame:
         frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
-
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
@@ -304,16 +316,57 @@ class GradesView(BaseView):
             ("subject", self.subject_data, 18),
         }
 
-        for (l_key, l_text, l_row), (o_key, o_value, o_row) in zip(labels_data, options_data):
-            self.labels_container[l_key] = ctk.CTkLabel(frame, text=l_text, font=("Roboto", 18))
-            self.labels_container[l_key].grid(row=l_row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
-
-            self.options_container[o_key] = ctk.CTkOptionMenu(frame, values=o_value, width=150, font=("Roboto", 18))
-            self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
-
+        self._display_frame_elements(labels_data, options_data, frame)
         self.add_grade_bnt = ctk.CTkButton(frame, text="Add new grade", font=("Roboto", 18), command=self.add_grade)
         self.add_grade_bnt.grid(row=26, rowspan=3, column=3, columnspan=2, padx=5, pady=5, sticky="nsew")
 
+        return frame
+
+    def delete_grade_gui(self) -> ctk.CTkFrame:
+        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
+        frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
+
+        labels_data = {("id", "Current grade ID:", 14)}
+        options_data = {("id", self.grades_id_data, 14)}
+
+        self._display_frame_elements(labels_data, options_data, frame)
+        self.delete_grade_bnt = ctk.CTkButton(frame, text="Delete grade", font=("Roboto", 18), command=self.delete_grade)
+        self.delete_grade_bnt.grid(row=26, rowspan=3, column=3, columnspan=2, padx=5, pady=5, sticky="nsew")
+
+        return frame
+
+    def edit_grade_gui(self) -> ctk.CTkFrame:
+        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
+        frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
+
+        labels_data = {
+            ("id", "Current grade ID:", 8),
+            ("value", "New grade value:", 10),
+            ("weight", "New grade weight:", 12),
+            ("type", "New grade type:", 14),
+            ("semester", "Semester number:", 16),
+            ("subject", "Subject type:", 18),
+        }
+
+        options_data = {
+            ("id", self.grades_id_data, 8),
+            ("value", self.grades, 10),
+            ("weight", self.grade_weight_sem, 12),
+            ("type", self.grade_types, 14),
+            ("semester", self.grade_weight_sem, 16),
+            ("subject", self.subject_data, 18),
+        }
+
+        self._display_frame_elements(labels_data, options_data, frame)
+        self.edit_grade_bnt = ctk.CTkButton(frame, text="Edit grade", font=("Roboto", 18), command=self.edit_grade)
+        self.edit_grade_bnt.grid(row=26, rowspan=3, column=3, columnspan=2, padx=5, pady=5, sticky="nsew")
+
+        return frame
+
+    def show_grades_gui(self) -> ctk.CTkFrame:
+        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         return frame
 
     def create_frame_content(self) -> None:
