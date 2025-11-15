@@ -216,6 +216,10 @@ class NotesView(BaseView):
 
 
 class GradesView(BaseView):
+    """
+    View for grades.
+    """
+
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
         self.menu_values = ("Add new grade", "Edit grade", "Delete grade", "Show grades")
@@ -227,8 +231,8 @@ class GradesView(BaseView):
         self.grades_id = fetch_grades_id()
         self.grades_id_data = tuple(str(g_id[0]) for g_id in self.grades_id) if self.grades_id else ("None",)
 
-        self.labels_container: dict[str, int] = {}
-        self.options_container: dict[str, int] = {}
+        self.labels_container: dict[str, ctk.CTkLabel] = {}
+        self.options_container: dict[str, ctk.CTkOptionMenu] = {}
 
         self.create_frame_content()
 
@@ -239,11 +243,15 @@ class GradesView(BaseView):
             "show_grades": self.show_grades_gui(),
         }
 
-        self.current_view = None
         self.show_view(self.grade_views["edit_view"])
         self.show_view(self.grade_views["add_view"])
 
     def change_gui(self, _=None) -> None:
+        """
+        This method is responsible for changing GUIs.
+        :param _: temp param for get().
+        :return: Nothing, only changes windows.
+        """
         button_value: str = self.menu_button.get()
 
         match button_value:
@@ -259,10 +267,14 @@ class GradesView(BaseView):
         self.menu_label.configure(text="")
 
     def add_grade(self) -> None:
+        """
+        This method adds new grades into database.
+        :return: Nothing, only adds grades into database.
+        """
         type_convert = {"Lecture": 1, "Laboratory": 2, "Exercise": 3, "Seminar": 4}
         subjects_convert = {name: sub_id for sub_id, name, ect in tuple(fetch_subjects() or [])}
-        temp_user_id = 1
-        option_data = {}
+        temp_user_id: int = 1
+        option_data: dict[str, int | str] = {}
 
         for data in self.options_container.items():
             option_data[data[0]] = str(data[1].get())
@@ -282,12 +294,27 @@ class GradesView(BaseView):
         self.menu_label.configure(text="New grade has been added")
 
     def edit_grade(self) -> None:
+        """
+        Work in progress
+        :return:
+        """
         self.menu_label.configure(text="Grade has been updated")
 
     def delete_grade(self) -> None:
+        """
+        Work in progress
+        :return:
+        """
         self.menu_label.configure(text="Grade has been deleted")
 
     def _display_frame_elements(self, labels_data, options_data, parent) -> None:
+        """
+        Support method for displaying GUI content.
+        :param labels_data: data about labels.
+        :param options_data: data about options.
+        :param parent: main frame.
+        :return: Nothing, only create GUI content.
+        """
         for (l_key, l_text, l_row), (o_key, o_value, o_row) in zip(labels_data, options_data):
             self.labels_container[l_key] = ctk.CTkLabel(parent, text=l_text, font=("Roboto", 18))
             self.labels_container[l_key].grid(row=l_row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
@@ -296,6 +323,10 @@ class GradesView(BaseView):
             self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
     def add_new_grade_gui(self) -> ctk.CTkFrame:
+        """
+        This method creates GUI for adding new grades into database.
+        :return: New CTK frame.
+        """
         frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
@@ -323,6 +354,10 @@ class GradesView(BaseView):
         return frame
 
     def delete_grade_gui(self) -> ctk.CTkFrame:
+        """
+        This method creates GUI for deleting grades into database.
+        :return: New CTK frame.
+        """
         frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
@@ -339,6 +374,10 @@ class GradesView(BaseView):
         return frame
 
     def edit_grade_gui(self) -> ctk.CTkFrame:
+        """
+        This method creates GUI for update new grades in database.
+        :return: New CTK frame.
+        """
         frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
@@ -368,10 +407,18 @@ class GradesView(BaseView):
         return frame
 
     def show_grades_gui(self) -> ctk.CTkFrame:
+        """
+        Work in progress
+        :return:
+        """
         frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         return frame
 
     def create_frame_content(self) -> None:
+        """
+        This method creates constant GUI content.
+        :return: Nothing, only create elements.
+        """
         self.menu_button = ctk.CTkSegmentedButton(
             self,
             values=self.menu_values,
@@ -396,6 +443,11 @@ class GradesView(BaseView):
         self.menu_label.grid(row=27, rowspan=2, column=2, columnspan=4, padx=5, pady=5, sticky="ew")
 
     def show_view(self, view: ctk.CTkFrame) -> None:
+        """
+        This method is responsible for changing GUI frames.
+        :param view: new view to display.
+        :return: Nothing, only change GUI windows.
+        """
         view.tkraise()
         self.current_view = view
         self.current_view.grid(row=6, rowspan=19, column=2, columnspan=4, padx=5, pady=5, sticky="nsew")
