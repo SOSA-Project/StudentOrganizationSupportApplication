@@ -225,10 +225,10 @@ class GradesView(BaseView):
         self.subjects = fetch_subjects()
         self.subject_data = tuple(subject[1] for subject in self.subjects) if self.subjects else ("None",)
         self.grades_id = fetch_grades_id()
-        self.grades_id_data = tuple(str(g_id[0]) for g_id in self.grades_id) if self.grades_id else ("None", )
+        self.grades_id_data = tuple(str(g_id[0]) for g_id in self.grades_id) if self.grades_id else ("None",)
 
-        self.labels_container = {}
-        self.options_container = {}
+        self.labels_container: dict[str, int] = {}
+        self.options_container: dict[str, int] = {}
 
         self.create_frame_content()
 
@@ -236,12 +236,12 @@ class GradesView(BaseView):
             "add_view": self.add_new_grade_gui(),
             "delete_view": self.delete_grade_gui(),
             "edit_view": self.edit_grade_gui(),
-            "show_grades": self.show_grades_gui()
+            "show_grades": self.show_grades_gui(),
         }
 
         self.current_view = None
+        self.show_view(self.grade_views["edit_view"])
         self.show_view(self.grade_views["add_view"])
-
 
     def change_gui(self, _=None) -> None:
         button_value: str = self.menu_button.get()
@@ -331,7 +331,9 @@ class GradesView(BaseView):
         options_data = {("id", self.grades_id_data, 14)}
 
         self._display_frame_elements(labels_data, options_data, frame)
-        self.delete_grade_bnt = ctk.CTkButton(frame, text="Delete grade", font=("Roboto", 18), command=self.delete_grade)
+        self.delete_grade_bnt = ctk.CTkButton(
+            frame, text="Delete grade", font=("Roboto", 18), command=self.delete_grade
+        )
         self.delete_grade_bnt.grid(row=26, rowspan=3, column=3, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         return frame
@@ -394,9 +396,7 @@ class GradesView(BaseView):
         self.menu_label.grid(row=27, rowspan=2, column=2, columnspan=4, padx=5, pady=5, sticky="ew")
 
     def show_view(self, view: ctk.CTkFrame) -> None:
-        if self.current_view:
-            self.current_view.grid_forget()
-
+        view.tkraise()
         self.current_view = view
         self.current_view.grid(row=6, rowspan=19, column=2, columnspan=4, padx=5, pady=5, sticky="nsew")
 

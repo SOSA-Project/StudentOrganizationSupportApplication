@@ -112,7 +112,11 @@ def fetch_grades() -> list[tuple[float, str, int, float, int, int]] | None:
         return None
 
 
-def fetch_grades_id() -> list[tuple[str]]:
+def fetch_grades_id() -> list[tuple[str]] | None:
+    """
+    This function fetches grades form the database.
+    :return: grades ids.
+    """
     try:
         conn = connect_to_database()
         cursor = conn.cursor()
