@@ -289,19 +289,19 @@ class GradesView(BaseView):
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
         labels_data = {
-            ("value", "New grade value:", 9),
-            ("weight", "New grade weight:", 11),
-            ("type", "New grade type:", 13),
-            ("semester", "Semester number:", 15),
-            ("subject", "Subject type:", 17),
+            ("value", "New grade value:", 10),
+            ("weight", "New grade weight:", 12),
+            ("type", "New grade type:", 14),
+            ("semester", "Semester number:", 16),
+            ("subject", "Subject type:", 18),
         }
 
         options_data = {
-            ("value", self.grades, 9),
-            ("weight", self.grade_weight_sem, 11),
-            ("type", self.grade_types, 13),
-            ("semester", self.grade_weight_sem, 15),
-            ("subject", self.subject_data, 17),
+            ("value", self.grades, 10),
+            ("weight", self.grade_weight_sem, 12),
+            ("type", self.grade_types, 14),
+            ("semester", self.grade_weight_sem, 16),
+            ("subject", self.subject_data, 18),
         }
 
         for (l_key, l_text, l_row), (o_key, o_value, o_row) in zip(labels_data, options_data):
@@ -312,7 +312,7 @@ class GradesView(BaseView):
             self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
         self.add_grade_bnt = ctk.CTkButton(frame, text="Add new grade", font=("Roboto", 18), command=self.add_grade)
-        self.add_grade_bnt.grid(row=20, rowspan=3, column=3, columnspan=2, padx=5, pady=5)
+        self.add_grade_bnt.grid(row=26, rowspan=3, column=3, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         return frame
 
@@ -320,22 +320,32 @@ class GradesView(BaseView):
         self.menu_button = ctk.CTkSegmentedButton(
             self,
             values=self.menu_values,
-            font=("Roboto", 18),
+            font=("Roboto", 24),
             command=self.change_gui,
             height=50,
             corner_radius=10,
             fg_color="#242424",
             border_width=5,
         )
-        self.menu_button.grid(row=0, rowspan=2, column=2, columnspan=4, padx=0, pady=0)
+        self.menu_button.grid(row=2, rowspan=2, column=2, columnspan=4, padx=0, pady=0)
         self.menu_button.set("Add new grade")
+
+        self.menu_label = ctk.CTkLabel(
+            self,
+            text="Napis testowy",
+            font=("Roboto", 24),
+            height=50,
+            corner_radius=10,
+            fg_color="#242424",
+        )
+        self.menu_label.grid(row=27, rowspan=2, column=2, columnspan=4, padx=5, pady=5, sticky="ew")
 
     def show_view(self, view: ctk.CTkFrame) -> None:
         if self.current_view:
             self.current_view.grid_forget()
 
         self.current_view = view
-        self.current_view.grid(row=7, rowspan=19, column=2, columnspan=4, padx=5, pady=5, sticky="nsew")
+        self.current_view.grid(row=6, rowspan=19, column=2, columnspan=4, padx=5, pady=5, sticky="nsew")
 
 
 class AverageView(BaseView):
