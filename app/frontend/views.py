@@ -16,7 +16,7 @@ from matplotlib.figure import Figure
 
 from app.backend.grade_monitor import initiate_grade_monitor
 from app.backend.charts import StatisticsManager, subjects_averages_histogram_plot
-from app.backend.data_base import fetch_subjects, insert_grade, fetch_grades_id
+from app.backend.data_base import fetch_subjects, insert_grade, fetch_grades_id, update_grade, delete_grade
 from app.backend.registration import get_all_users
 from app.backend.registration import register_user
 from app.backend.notes import initiate_note_manager
@@ -267,14 +267,13 @@ class GradesView(BaseView):
 
         self.menu_label.configure(text="")
 
-    def add_grade(self) -> None:
+    def _prepare_data_for_db(self) -> dict[str, int | str]:
         """
-        This method adds new grades into database.
-        :return: Nothing, only adds grades into database.
+
+        :return:
         """
         type_convert = {"Lecture": 1, "Laboratory": 2, "Exercise": 3, "Seminar": 4}
         subjects_convert = {name: sub_id for sub_id, name, ect in tuple(fetch_subjects() or [])}
-        temp_user_id: int = 1
         option_data: dict[str, int | str] = {}
 
         for data in self.options_container.items():
@@ -282,6 +281,15 @@ class GradesView(BaseView):
 
         option_data["type"] = type_convert[str(option_data["type"])]
         option_data["subject"] = subjects_convert[str(option_data["subject"])]
+        return option_data
+
+    def add_grade(self) -> None:
+        """
+        This method adds new grades into database.
+        :return: Nothing, only adds grades into database.
+        """
+        option_data: dict[str, int | str] = self._prepare_data_for_db()
+        temp_user_id: int = 1
 
         insert_grade(
             value=float(option_data["value"]),
@@ -299,6 +307,19 @@ class GradesView(BaseView):
         Work in progress
         :return:
         """
+        option_data: dict[str, int | str] = self._prepare_data_for_db()
+        temp_user_id: int = 1
+
+        update_grade(
+            grade_id=int(option_data["id"]),
+            value=float(option_data["value"]),
+            weight=float(option_data["weight"]),
+            sub_type=int(option_data["type"]),
+            semester=int(option_data["semester"]),
+            subject_id=int(option_data["subject"]),
+            user_id=temp_user_id,
+        )
+
         self.menu_label.configure(text="Grade has been updated")
 
     def delete_grade(self) -> None:
