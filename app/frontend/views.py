@@ -339,6 +339,7 @@ class GradesView(BaseView):
         )
 
         self.subject_data, self.grades_id_data = self._update_options_data()
+        self.delete_id_optionmenu.configure(values=self.grades_id_data)
         self.menu_label.configure(text="New grade has been added")
 
     def edit_grade(self) -> None:
@@ -414,6 +415,8 @@ class GradesView(BaseView):
         options_data = {("id", self.grades_id_data, 14)}
 
         self._display_frame_elements(labels_data, options_data, frame)
+        self.delete_id_optionmenu = self.options_container["id"]
+
         self.delete_grade_bnt = ctk.CTkButton(
             frame, text="Delete grade", font=("Roboto", 18), command=self.delete_grade
         )
