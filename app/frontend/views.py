@@ -16,7 +16,7 @@ from matplotlib.figure import Figure
 
 from app.backend.grade_monitor import initiate_grade_monitor
 from app.backend.charts import StatisticsManager, subjects_averages_histogram_plot
-from app.backend.data_base import fetch_subjects, insert_grade, fetch_grades_id
+from app.backend.data_base import fetch_subjects, insert_grade, fetch_grades_id, update_grade, delete_grade
 from app.backend.registration import get_all_users
 from app.backend.registration import register_user
 from app.backend.notes import initiate_note_manager
@@ -278,11 +278,8 @@ class GradesView(BaseView):
         self.grades = ("1", "2", "3", "3.5", "4", "4.5", "5", "6")
         self.grade_weight_sem = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
         self.grade_types = ("Lecture", "Laboratory", "Exercise", "Seminar")
-        self.subjects = fetch_subjects()
-        self.subject_data = tuple(subject[1] for subject in self.subjects) if self.subjects else ("None",)
-        self.grades_id = fetch_grades_id()
-        self.grades_id_data = tuple(str(g_id[0]) for g_id in self.grades_id) if self.grades_id else ("None",)
 
+        self.subject_data, self.grades_id_data = self._update_options_data()
         self.labels_container: dict[str, ctk.CTkLabel] = {}
         self.options_container: dict[str, ctk.CTkOptionMenu] = {}
 
@@ -298,34 +295,13 @@ class GradesView(BaseView):
         self.show_view(self.grade_views["edit_view"])
         self.show_view(self.grade_views["add_view"])
 
-    def change_gui(self, _=None) -> None:
+    def _prepare_data_for_db(self) -> dict[str, int | str]:
         """
-        This method is responsible for changing GUIs.
-        :param _: temp param for get().
-        :return: Nothing, only changes windows.
-        """
-        button_value: str = self.menu_button.get()
-
-        match button_value:
-            case "Add new grade":
-                self.show_view(self.grade_views["add_view"])
-            case "Edit grade":
-                self.show_view(self.grade_views["edit_view"])
-            case "Delete grade":
-                self.show_view(self.grade_views["delete_view"])
-            case "Show grades":
-                self.show_view(self.grade_views["show_grades"])
-
-        self.menu_label.configure(text="")
-
-    def add_grade(self) -> None:
-        """
-        This method adds new grades into database.
-        :return: Nothing, only adds grades into database.
+        Support method prepare data from database for option menus.
+        :return: prepared data.
         """
         type_convert = {"Lecture": 1, "Laboratory": 2, "Exercise": 3, "Seminar": 4}
         subjects_convert = {name: sub_id for sub_id, name, ect in tuple(fetch_subjects() or [])}
-        temp_user_id: int = 1
         option_data: dict[str, int | str] = {}
 
         for data in self.options_container.items():
@@ -333,31 +309,18 @@ class GradesView(BaseView):
 
         option_data["type"] = type_convert[str(option_data["type"])]
         option_data["subject"] = subjects_convert[str(option_data["subject"])]
+        return option_data
 
-        insert_grade(
-            value=float(option_data["value"]),
-            weight=float(option_data["weight"]),
-            subject_id=int(option_data["subject"]),
-            semester=int(option_data["semester"]),
-            sub_type=int(option_data["type"]),
-            user_id=temp_user_id,
-        )
-
-        self.menu_label.configure(text="New grade has been added")
-
-    def edit_grade(self) -> None:
+    def _update_options_data(self) -> tuple[tuple[str, ...], tuple[str, ...]]:
         """
-        Work in progress
-        :return:
+        Support method updates data after change.
+        :return: updated data.
         """
-        self.menu_label.configure(text="Grade has been updated")
-
-    def delete_grade(self) -> None:
-        """
-        Work in progress
-        :return:
-        """
-        self.menu_label.configure(text="Grade has been deleted")
+        subjects = fetch_subjects()
+        subject_data = tuple(subject[1] for subject in subjects) if subjects else ("None",)
+        grades_id = fetch_grades_id()
+        grades_id_data = tuple(str(g_id[0]) for g_id in grades_id) if grades_id else ("None",)
+        return subject_data, grades_id_data
 
     def _display_frame_elements(self, labels_data, options_data, parent) -> None:
         """
@@ -373,6 +336,100 @@ class GradesView(BaseView):
 
             self.options_container[o_key] = ctk.CTkOptionMenu(parent, values=o_value, width=150, font=("Roboto", 18))
             self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+
+    def refresh_options_in_frame(self, view_name: str) -> None:
+        """
+        Method updates data in options menus.
+        :param view_name: view name.
+        :return: Nothing.
+        """
+        self.subject_data, self.grades_id_data = self._update_options_data()
+
+        if view_name == "add_view":
+            self.options_container["subject"].configure(values=self.subject_data)
+        elif view_name == "edit_view":
+            self.options_container["subject"].configure(values=self.subject_data)
+            self.options_container["id"].configure(values=self.grades_id_data)
+        elif view_name == "delete_view":
+            self.options_container["id_del"].configure(values=self.grades_id_data)
+
+    def change_gui(self, _=None) -> None:
+        """
+        This method is responsible for changing GUIs.
+        :param _: temp param for get().
+        :return: Nothing, only changes windows.
+        """
+        button_value = self.menu_button.get()
+
+        match button_value:
+            case "Add new grade":
+                self.refresh_options_in_frame("add_view")
+                self.show_view(self.grade_views["add_view"])
+            case "Edit grade":
+                self.refresh_options_in_frame("edit_view")
+                self.show_view(self.grade_views["edit_view"])
+            case "Delete grade":
+                self.refresh_options_in_frame("delete_view")
+                self.show_view(self.grade_views["delete_view"])
+            case "Show grades":
+                self.show_view(self.grade_views["show_grades"])
+
+        self.menu_label.configure(text="")
+
+    def add_grade(self) -> None:
+        """
+        This method adds new grades into database.
+        :return: Nothing, only adds grades into database.
+        """
+        option_data: dict[str, int | str] = self._prepare_data_for_db()
+        temp_user_id: int = 1
+
+        insert_grade(
+            value=float(option_data["value"]),
+            weight=float(option_data["weight"]),
+            subject_id=int(option_data["subject"]),
+            semester=int(option_data["semester"]),
+            sub_type=int(option_data["type"]),
+            user_id=temp_user_id,
+        )
+
+        self.subject_data, self.grades_id_data = self._update_options_data()
+        self.delete_id_optionmenu.configure(values=self.grades_id_data)
+        self.menu_label.configure(text="New grade has been added")
+
+    def edit_grade(self) -> None:
+        """
+        Work in progress
+        :return:
+        """
+        option_data: dict[str, int | str] = self._prepare_data_for_db()
+        temp_user_id: int = 1
+
+        update_grade(
+            grade_id=int(option_data["id"]),
+            value=float(option_data["value"]),
+            weight=float(option_data["weight"]),
+            sub_type=int(option_data["type"]),
+            semester=int(option_data["semester"]),
+            subject_id=int(option_data["subject"]),
+            user_id=temp_user_id,
+        )
+
+        self.subject_data, self.grades_id_data = self._update_options_data()
+        self.delete_id_optionmenu.configure(values=self.grades_id_data)
+        self.menu_label.configure(text="Grade has been updated")
+
+    def delete_grade(self) -> None:
+        """
+        Method deletes choosed grade from database.
+        :return: Nothing.
+        """
+        option_data: dict[str, int | str] = self._prepare_data_for_db()
+        delete_grade(grade_id=int(option_data["id_del"]))
+
+        self.subject_data, self.grades_id_data = self._update_options_data()
+        self.delete_id_optionmenu.configure(values=self.grades_id_data)
+        self.menu_label.configure(text="Grade has been deleted")
 
     def add_new_grade_gui(self) -> ctk.CTkFrame:
         """
@@ -414,10 +471,12 @@ class GradesView(BaseView):
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
-        labels_data = {("id", "Current grade ID:", 14)}
-        options_data = {("id", self.grades_id_data, 14)}
+        labels_data = {("id_del", "Current grade ID:", 14)}
+        options_data = {("id_del", self.grades_id_data, 14)}
 
         self._display_frame_elements(labels_data, options_data, frame)
+        self.delete_id_optionmenu = self.options_container["id_del"]
+
         self.delete_grade_bnt = ctk.CTkButton(
             frame, text="Delete grade", font=("Roboto", 18), command=self.delete_grade
         )

@@ -163,14 +163,17 @@ def insert_grade(value: float, weight: float, sub_type: int, semester: int, subj
         return False
 
 
-def update_grade(grade_id: int, value: float, weight: float, ects: int, semester_id: int) -> bool:
+def update_grade(
+    grade_id: int, value: float, weight: float, sub_type: int, semester: int, subject_id: int, user_id: int
+) -> bool:
     """
     This function updates the grade in the database.
-    :param grade_id: id of a grade to update
-    :param value: new grade value
-    :param weight: new grade weight
-    :param ects: new ects points
-    :param semester_id: new corresponding semester id
+    :param value: grade value
+    :param weight: grade weight
+    :param sub_type: subject type
+    :param semester: corresponding semester id
+    :param subject_id: subject id
+    :param user_id: user id
     :return success status: whether update was successful or not
     """
     try:
@@ -181,11 +184,13 @@ def update_grade(grade_id: int, value: float, weight: float, ects: int, semester
                    UPDATE grades
                    SET value       = ?,
                        weight      = ?,
-                       ects        = ?,
-                       semester_id = ?
+                       type        = ?,
+                       semester    = ?,
+                       subject_id  = ?,
+                       user_id     = ?
                    WHERE id = ?
                    """,
-            (value, weight, ects, semester_id, grade_id),
+            (value, weight, sub_type, semester, subject_id, user_id, grade_id),
         )
         conn.commit()
         conn.close()
