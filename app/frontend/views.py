@@ -260,7 +260,7 @@ class GradesView(BaseView):
         option_data["subject"] = subjects_convert[str(option_data["subject"])]
         return option_data
 
-    def _update_options_data(self) -> tuple[tuple[str], tuple[str]]:
+    def _update_options_data(self) -> tuple[tuple[str, ...], tuple[str, ...]]:
         """
         Support method updates data after change.
         :return: updated data.
