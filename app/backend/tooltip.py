@@ -5,7 +5,17 @@ class Tooltip:
     """
     Class manages creating, displaying and hiding a tooltip for a chosen widget
     """
-    def __init__(self, widget: ctk, text: str, color: str = "#3B8ED0", delay: float = 400, wrap_length:int = 250, x_offset: float = 10, y_offset: float = 0) -> None:
+
+    def __init__(
+        self,
+        widget: ctk,
+        text: str,
+        color: str = "#3B8ED0",
+        delay: float = 400,
+        wrap_length: int = 250,
+        x_offset: float = 10,
+        y_offset: float = 0,
+    ) -> None:
         self.widget = widget
         self.text = text
         self.delay = delay
@@ -20,7 +30,7 @@ class Tooltip:
         widget.bind("<Enter>", self.on_enter)
         widget.bind("<Leave>", self.on_leave)
 
-    def on_enter(self, event = None) -> None:
+    def on_enter(self, event=None) -> None:
         """
         Method defines an on enter event for widget
         :param event: Empty event required for compilation
@@ -28,7 +38,7 @@ class Tooltip:
         """
         self.after_id = self.widget.after(self.delay, self.show_tooltip)
 
-    def on_leave(self, event = None):
+    def on_leave(self, event=None):
         """
         Method defines an on leave event for widget
         :param event: Empty event required for compilation
@@ -66,7 +76,7 @@ class Tooltip:
             text_color=("black", "white"),
             padx=10,
             pady=6,
-            wraplength = self.wrap_length
+            wraplength=self.wrap_length,
         )
         label.pack()
 

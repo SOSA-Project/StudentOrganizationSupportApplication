@@ -117,9 +117,11 @@ class CalendarView(BaseView):
                     btn.grid_configure(padx=(3, 6))
                 if r == len(cal):
                     btn.grid_configure(pady=(3, 6))
-                date_notes: list[Note] = list(filter(lambda n: n.associated_date.day == d,current_notes))
-                for i,note in enumerate(date_notes):
-                    Tooltip(btn, note.content, note.color, x_offset=i*265+10)
+                date_notes: list[Note] = [
+                    n for n in current_notes if n.associated_date is not None and n.associated_date.day == d
+                ]
+                for i, note in enumerate(date_notes):
+                    Tooltip(btn, note.content, note.color, x_offset=i * 265 + 10)
                     btn.configure(fg_color=note.color, hover_color=self.darken_color(note.color))
 
         for col in range(7):
@@ -165,14 +167,19 @@ class CalendarView(BaseView):
         current_notes: list[Note] = []
         if self.note_manager is not None:
             current_notes: list[Note] = self.note_manager.get_all_notes()
-            current_notes[0].associated_date = datetime(year = 2025, month = 11, day = 1)
-            current_notes[1].associated_date = datetime(year = 2025, month = 11, day = 19)
-            current_notes[2].associated_date = datetime(year = 2025, month = 11, day = 19)
-            current_notes[3].associated_date = datetime(year = 2025, month = 11, day = 30)
+            current_notes[0].associated_date = datetime(year=2025, month=11, day=1)
+            current_notes[1].associated_date = datetime(year=2025, month=11, day=19)
+            current_notes[2].associated_date = datetime(year=2025, month=11, day=19)
+            current_notes[3].associated_date = datetime(year=2025, month=11, day=30)
             if current_notes is not None:
-                current_notes = list(filter(lambda n: n.associated_date is not None
-                                            and n.associated_date.year == self.current_date.year
-                                            and n.associated_date.month == self.current_date.month, current_notes))
+                current_notes = list(
+                    filter(
+                        lambda n: n.associated_date is not None
+                        and n.associated_date.year == self.current_date.year
+                        and n.associated_date.month == self.current_date.month,
+                        current_notes,
+                    )
+                )
             else:
                 return []
         return current_notes
