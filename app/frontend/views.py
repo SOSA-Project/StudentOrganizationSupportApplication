@@ -286,20 +286,35 @@ class GradesView(BaseView):
             self.options_container[o_key] = ctk.CTkOptionMenu(parent, values=o_value, width=150, font=("Roboto", 18))
             self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
+    def refresh_options_in_frame(self, view_name: str) -> None:
+        """Odświeża wartości OptionMenu w danym widoku przed jego pokazaniem."""
+        self.subject_data, self.grades_id_data = self._update_options_data()
+
+        if view_name == "add_view":
+            self.options_container["subject"].configure(values=self.subject_data)
+        elif view_name == "edit_view":
+            self.options_container["subject"].configure(values=self.subject_data)
+            self.options_container["id"].configure(values=self.grades_id_data)
+        elif view_name == "delete_view":
+            self.options_container["id"].configure(values=self.grades_id_data)
+
     def change_gui(self, _=None) -> None:
         """
         This method is responsible for changing GUIs.
         :param _: temp param for get().
         :return: Nothing, only changes windows.
         """
-        button_value: str = self.menu_button.get()
+        button_value = self.menu_button.get()
 
         match button_value:
             case "Add new grade":
+                self.refresh_options_in_frame("add_view")
                 self.show_view(self.grade_views["add_view"])
             case "Edit grade":
+                self.refresh_options_in_frame("edit_view")
                 self.show_view(self.grade_views["edit_view"])
             case "Delete grade":
+                self.refresh_options_in_frame("delete_view")
                 self.show_view(self.grade_views["delete_view"])
             case "Show grades":
                 self.show_view(self.grade_views["show_grades"])
@@ -352,6 +367,7 @@ class GradesView(BaseView):
         Work in progress
         :return:
         """
+        self.subject_data, self.grades_id_data = self._update_options_data()
         self.menu_label.configure(text="Grade has been deleted")
 
     def add_new_grade_gui(self) -> ctk.CTkFrame:
