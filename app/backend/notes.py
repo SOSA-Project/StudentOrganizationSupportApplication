@@ -12,12 +12,18 @@ class Note:
     Class stores information about a Note
     """
 
-    def __init__(self, id: int, user_id: int, title: str, content: str) -> None:
+    def __init__(self, id: int, user_id: int, title: str, content: str, color: str = None, associated_date: datetime = None) -> None:
         self.id = id
         self.user_id = user_id
         self.title = title
         self.content = content
         self.created_at = str(datetime.now().strftime("%Y-%m-%d %H:%M"))
+        self.associated_date = associated_date
+        if color is None:
+            colors: list[str] = ["#ada132", "#2d7523", "#1e6a6e"]
+            self.color = colors[id%len(colors)]
+        else:
+            self.color = color
 
     def update_title(self, new_title: str) -> None:
         """
