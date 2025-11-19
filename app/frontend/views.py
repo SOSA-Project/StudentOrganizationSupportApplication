@@ -296,7 +296,7 @@ class GradesView(BaseView):
             self.options_container["subject"].configure(values=self.subject_data)
             self.options_container["id"].configure(values=self.grades_id_data)
         elif view_name == "delete_view":
-            self.options_container["id"].configure(values=self.grades_id_data)
+            self.options_container["id_del"].configure(values=self.grades_id_data)
 
     def change_gui(self, _=None) -> None:
         """
@@ -361,6 +361,7 @@ class GradesView(BaseView):
         )
 
         self.subject_data, self.grades_id_data = self._update_options_data()
+        self.delete_id_optionmenu.configure(values=self.grades_id_data)
         self.menu_label.configure(text="Grade has been updated")
 
     def delete_grade(self) -> None:
@@ -368,7 +369,11 @@ class GradesView(BaseView):
         Work in progress
         :return:
         """
+        option_data: dict[str, int | str] = self._prepare_data_for_db()
+        delete_grade(grade_id=int(option_data["id_del"]))
+
         self.subject_data, self.grades_id_data = self._update_options_data()
+        self.delete_id_optionmenu.configure(values=self.grades_id_data)
         self.menu_label.configure(text="Grade has been deleted")
 
     def add_new_grade_gui(self) -> ctk.CTkFrame:
@@ -411,11 +416,11 @@ class GradesView(BaseView):
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
-        labels_data = {("id", "Current grade ID:", 14)}
-        options_data = {("id", self.grades_id_data, 14)}
+        labels_data = {("id_del", "Current grade ID:", 14)}
+        options_data = {("id_del", self.grades_id_data, 14)}
 
         self._display_frame_elements(labels_data, options_data, frame)
-        self.delete_id_optionmenu = self.options_container["id"]
+        self.delete_id_optionmenu = self.options_container["id_del"]
 
         self.delete_grade_bnt = ctk.CTkButton(
             frame, text="Delete grade", font=("Roboto", 18), command=self.delete_grade
