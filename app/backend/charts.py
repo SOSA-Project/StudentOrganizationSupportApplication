@@ -3,10 +3,14 @@ This file contains functions that creates plots
 """
 
 from typing import Callable
+
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
 from app.backend.grade_monitor import GradeMonitor
+
+matplotlib.rcParams["toolbar"] = "none"
 
 
 class StatisticsManager:
@@ -132,15 +136,15 @@ def subjects_averages_histogram_plot(averages: dict[str, float], theme: str) -> 
     :param theme: 'light' or 'dark'
     :return: Figure that can be displayed in application GUI
     """
+    fig = Figure(figsize=(15, 10), frameon=False)
+    ax = fig.add_subplot(111)
 
     t_color, edge_color = _configure_theme(theme)
 
-    unique_sorted = averages.keys()
-    labels = [str(g) for g in unique_sorted]
-    heights: list[float] = [averages[s] for s in labels]
+    labels = list(averages.keys())
+    heights = [averages[s] for s in labels]
     x = range(len(labels))
 
-    fig, ax = plt.subplots(figsize=(15, 10), frameon=False)
     _setup_axes(ax, edge_color)
 
     ax.bar(x, heights, width=0.5, edgecolor=edge_color)
