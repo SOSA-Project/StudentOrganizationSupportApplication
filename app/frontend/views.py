@@ -21,6 +21,7 @@ from app.backend.registration import get_all_users
 from app.backend.registration import register_user
 from app.backend.notes import initiate_note_manager
 from app.backend.notes import Note
+from app.backend.tooltip import Tooltip
 
 
 class BaseView(ctk.CTkFrame, ABC):
@@ -53,6 +54,7 @@ class CalendarView(BaseView):
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
         self.current_date = datetime.now()
+        self.note_manager = initiate_note_manager()
         self.create_frame_content()
         self.pack_propagate(False)
 
@@ -99,6 +101,8 @@ class CalendarView(BaseView):
             if idx == len(week_days) - 1:
                 lab.grid_configure(padx=(3, 6))
 
+        current_notes: list[Note] = self.get_notes_for_current_month()
+
         cal = calendar.monthcalendar(year, month)
         for r, w in enumerate(cal, start=1):
             for c, d in enumerate(w):
@@ -113,6 +117,12 @@ class CalendarView(BaseView):
                     btn.grid_configure(padx=(3, 6))
                 if r == len(cal):
                     btn.grid_configure(pady=(3, 6))
+                date_notes: list[Note] = [
+                    n for n in current_notes if n.associated_date is not None and n.associated_date.day == d
+                ]
+                for i, note in enumerate(date_notes):
+                    Tooltip(btn, note.content, note.color, x_offset=i * 265 + 10)
+                    btn.configure(fg_color=note.color, hover_color=self.darken_color(note.color))
 
         for col in range(7):
             self.calendar_frame.grid_columnconfigure(col, weight=1)
@@ -148,6 +158,49 @@ class CalendarView(BaseView):
         else:
             self.current_date = self.current_date.replace(month=self.current_date.month + 1)
         self.update_calendar()
+
+    def get_notes_for_current_month(self) -> list[Note]:
+        """
+        Method gathers currently relevant notes pointing to dates in currently displayed month and year
+        :return: List containing all relevant notes
+        """
+        current_notes: list[Note] = []
+        if self.note_manager is not None:
+            current_notes: list[Note] = self.note_manager.get_all_notes()
+            current_notes[0].associated_date = datetime(year=2025, month=11, day=1)
+            current_notes[1].associated_date = datetime(year=2025, month=11, day=19)
+            current_notes[2].associated_date = datetime(year=2025, month=11, day=19)
+            current_notes[3].associated_date = datetime(year=2025, month=11, day=30)
+            if current_notes is not None:
+                current_notes = list(
+                    filter(
+                        lambda n: n.associated_date is not None
+                        and n.associated_date.year == self.current_date.year
+                        and n.associated_date.month == self.current_date.month,
+                        current_notes,
+                    )
+                )
+            else:
+                return []
+        return current_notes
+
+    def darken_color(self, hex_color: str, factor: float = 0.8) -> str:
+        """
+        Method generates a new color code based on factor variable, used for button hover color
+        :param hex_color: Original color
+        :param factor: Factor based on which the color is modified <1 - color is darker >1 color is lighter
+        :return: Modified color code
+        """
+        hex_color = hex_color.lstrip("#")
+        r = int(hex_color[0:2], 16)
+        g = int(hex_color[2:4], 16)
+        b = int(hex_color[4:6], 16)
+
+        r = int(r * factor)
+        g = int(g * factor)
+        b = int(b * factor)
+
+        return f"#{r:02x}{g:02x}{b:02x}"
 
 
 class NotificationsView(BaseView):
@@ -196,10 +249,8 @@ class NotesView(BaseView):
 
         notes: list[Note] = self.note_manager.get_all_notes()
 
-        colors: list[str] = ["#ada132", "#2d7523", "#1e6a6e"]
-
         for i, note in enumerate(notes):
-            note_frame: ctk.CTkFrame = ctk.CTkFrame(scrollable_frame, fg_color=colors[i % len(colors)])
+            note_frame: ctk.CTkFrame = ctk.CTkFrame(scrollable_frame, fg_color=note.color)
             note_frame.pack(fill="x", pady=8, padx=8)
 
             title_label: ctk.CTkLabel = ctk.CTkLabel(note_frame, text=note.title, font=("Roboto", 20))
