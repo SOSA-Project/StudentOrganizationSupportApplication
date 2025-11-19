@@ -246,8 +246,8 @@ class GradesView(BaseView):
 
     def _prepare_data_for_db(self) -> dict[str, int | str]:
         """
-
-        :return:
+        Support method prepare data from database for option menus.
+        :return: prepared data.
         """
         type_convert = {"Lecture": 1, "Laboratory": 2, "Exercise": 3, "Seminar": 4}
         subjects_convert = {name: sub_id for sub_id, name, ect in tuple(fetch_subjects() or [])}
@@ -262,8 +262,8 @@ class GradesView(BaseView):
 
     def _update_options_data(self) -> tuple[tuple[str], tuple[str]]:
         """
-
-        :return:
+        Support method updates data after change.
+        :return: updated data.
         """
         subjects = fetch_subjects()
         subject_data = tuple(subject[1] for subject in subjects) if subjects else ("None",)
@@ -287,7 +287,11 @@ class GradesView(BaseView):
             self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
     def refresh_options_in_frame(self, view_name: str) -> None:
-        """Odświeża wartości OptionMenu w danym widoku przed jego pokazaniem."""
+        """
+        Method updates data in options menus.
+        :param view_name: view name.
+        :return: Nothing.
+        """
         self.subject_data, self.grades_id_data = self._update_options_data()
 
         if view_name == "add_view":
@@ -366,8 +370,8 @@ class GradesView(BaseView):
 
     def delete_grade(self) -> None:
         """
-        Work in progress
-        :return:
+        Method deletes choosed grade from database.
+        :return: Nothing.
         """
         option_data: dict[str, int | str] = self._prepare_data_for_db()
         delete_grade(grade_id=int(option_data["id_del"]))
