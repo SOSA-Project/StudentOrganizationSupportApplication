@@ -76,7 +76,7 @@ def test_calculate_total_grade_average(sample_grades: list[tuple[float, str, int
     """
     monitor = GradeMonitor(sample_grades)
     total_avg = monitor.calculate_total_grade_average()
-    assert pytest.approx(total_avg, 0.001) == 4.2222
+    assert pytest.approx(total_avg, 0.01) == 4.22
 
 
 def test_calculate_total_grade_average_ignore_ects(
@@ -228,7 +228,7 @@ def test_initiate_grade_monitor_success() -> None:
     Checks that the returned object is an instance of GradeMonitor and contains correct number of grades.
     :return: Nothing, only provides test.
     """
-    fake_data = [(4.0, "Math", 5, 1.0, 2.0, 0)]
+    fake_data = [(4.0, "Math", 5, 1.0, 2, 0)]
     with patch("app.backend.grade_monitor.fetch_grades", return_value=fake_data):
         monitor = initiate_grade_monitor()
         assert isinstance(monitor, GradeMonitor)

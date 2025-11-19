@@ -166,7 +166,7 @@ class CalendarView(BaseView):
         """
         current_notes: list[Note] = []
         if self.note_manager is not None:
-            current_notes: list[Note] = self.note_manager.get_all_notes()
+            current_notes = self.note_manager.get_all_notes()
             current_notes[0].associated_date = datetime(year=2025, month=11, day=1)
             current_notes[1].associated_date = datetime(year=2025, month=11, day=19)
             current_notes[2].associated_date = datetime(year=2025, month=11, day=19)
