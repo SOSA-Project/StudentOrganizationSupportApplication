@@ -3,6 +3,7 @@ This file contains views for all widgets.
 """
 
 import random
+from gc import collect
 from typing import Callable
 from datetime import datetime
 import calendar
@@ -460,6 +461,7 @@ class AverageView(BaseView):
 
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
+        self.canvas: FigureCanvasTkAgg | None = None
         self.create_frame_content()
 
     def create_frame_content(self) -> ctk.CTkFrame:
@@ -467,17 +469,20 @@ class AverageView(BaseView):
         This method creates elements visible on the frame.
         :return: new ctk frame.
         """
+
+        self._destroy_old_canvas()
+
         if (grades_data := initiate_grade_monitor()) is None:
             return
 
         charts_manager: StatisticsManager = StatisticsManager(grades_data)
         grades_avg: dict[str, float] = charts_manager.subjects_averages()
         histogram: Figure = subjects_averages_histogram_plot(grades_avg, "dark")
-        canvas: FigureCanvasTkAgg = FigureCanvasTkAgg(histogram, master=self)
-        canvas.draw()
+        self.canvas = FigureCanvasTkAgg(histogram, master=self)
+        self.canvas.draw()
         plt.close(histogram)
 
-        canvas_widget = canvas.get_tk_widget()
+        canvas_widget = self.canvas.get_tk_widget()
         canvas_widget.configure(bg=self.cget("fg_color"), highlightthickness=0, bd=0)
         canvas_widget.grid(row=0, rowspan=32, column=0, columnspan=8, padx=3, pady=3, sticky="nsew")
 
@@ -487,6 +492,20 @@ class AverageView(BaseView):
         :return: Nothing, only refresh chart
         """
         self.create_frame_content()
+
+    def _destroy_old_canvas(self) -> None:
+        """
+        Method delete old chart from app.
+        :return: Nothing, only delete old chart.
+        """
+        if self.canvas is not None:
+            widget = self.canvas.get_tk_widget()
+            widget.destroy()
+            fig = self.canvas.figure
+            fig.clear()
+            plt.close(fig)
+            self.canvas = None
+            collect()
 
 
 class ChatView(BaseView):

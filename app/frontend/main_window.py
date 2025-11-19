@@ -127,12 +127,16 @@ class AppGUI(ctk.CTk):
         Displays a view by its name, creating it only once (lazy loading).
         :param name: View key from self.view_classes.
         """
-        if name == "average" or name not in self.views:
+
+        if name not in self.views:
             if name in self.view_classes:
                 self.views[name] = self.view_classes[name](self.right_frame.frame)
             else:
                 print(f"Unknown view name: {name}")
                 return
+
+        if name == "average":
+            self.views[name].refresh()
 
         self.show_view(self.views[name])
 
