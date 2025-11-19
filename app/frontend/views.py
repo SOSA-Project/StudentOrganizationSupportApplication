@@ -227,11 +227,8 @@ class GradesView(BaseView):
         self.grades = ("1", "2", "3", "3.5", "4", "4.5", "5", "6")
         self.grade_weight_sem = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
         self.grade_types = ("Lecture", "Laboratory", "Exercise", "Seminar")
-        self.subjects = fetch_subjects()
-        self.subject_data = tuple(subject[1] for subject in self.subjects) if self.subjects else ("None",)
-        self.grades_id = fetch_grades_id()
-        self.grades_id_data = tuple(str(g_id[0]) for g_id in self.grades_id) if self.grades_id else ("None",)
 
+        self.subject_data, self.grades_id_data = self._update_options_data()
         self.labels_container: dict[str, ctk.CTkLabel] = {}
         self.options_container: dict[str, ctk.CTkOptionMenu] = {}
 
@@ -246,6 +243,48 @@ class GradesView(BaseView):
 
         self.show_view(self.grade_views["edit_view"])
         self.show_view(self.grade_views["add_view"])
+
+    def _prepare_data_for_db(self) -> dict[str, int | str]:
+        """
+
+        :return:
+        """
+        type_convert = {"Lecture": 1, "Laboratory": 2, "Exercise": 3, "Seminar": 4}
+        subjects_convert = {name: sub_id for sub_id, name, ect in tuple(fetch_subjects() or [])}
+        option_data: dict[str, int | str] = {}
+
+        for data in self.options_container.items():
+            option_data[data[0]] = str(data[1].get())
+
+        option_data["type"] = type_convert[str(option_data["type"])]
+        option_data["subject"] = subjects_convert[str(option_data["subject"])]
+        return option_data
+
+    def _update_options_data(self) -> tuple[tuple[str], tuple[str]]:
+        """
+
+        :return:
+        """
+        subjects = fetch_subjects()
+        subject_data = tuple(subject[1] for subject in subjects) if subjects else ("None",)
+        grades_id = fetch_grades_id()
+        grades_id_data = tuple(str(g_id[0]) for g_id in grades_id) if grades_id else ("None",)
+        return subject_data, grades_id_data
+
+    def _display_frame_elements(self, labels_data, options_data, parent) -> None:
+        """
+        Support method for displaying GUI content.
+        :param labels_data: data about labels.
+        :param options_data: data about options.
+        :param parent: main frame.
+        :return: Nothing, only create GUI content.
+        """
+        for (l_key, l_text, l_row), (o_key, o_value, o_row) in zip(labels_data, options_data):
+            self.labels_container[l_key] = ctk.CTkLabel(parent, text=l_text, font=("Roboto", 18))
+            self.labels_container[l_key].grid(row=l_row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+
+            self.options_container[o_key] = ctk.CTkOptionMenu(parent, values=o_value, width=150, font=("Roboto", 18))
+            self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
     def change_gui(self, _=None) -> None:
         """
@@ -267,22 +306,6 @@ class GradesView(BaseView):
 
         self.menu_label.configure(text="")
 
-    def _prepare_data_for_db(self) -> dict[str, int | str]:
-        """
-
-        :return:
-        """
-        type_convert = {"Lecture": 1, "Laboratory": 2, "Exercise": 3, "Seminar": 4}
-        subjects_convert = {name: sub_id for sub_id, name, ect in tuple(fetch_subjects() or [])}
-        option_data: dict[str, int | str] = {}
-
-        for data in self.options_container.items():
-            option_data[data[0]] = str(data[1].get())
-
-        option_data["type"] = type_convert[str(option_data["type"])]
-        option_data["subject"] = subjects_convert[str(option_data["subject"])]
-        return option_data
-
     def add_grade(self) -> None:
         """
         This method adds new grades into database.
@@ -300,6 +323,7 @@ class GradesView(BaseView):
             user_id=temp_user_id,
         )
 
+        self.subject_data, self.grades_id_data = self._update_options_data()
         self.menu_label.configure(text="New grade has been added")
 
     def edit_grade(self) -> None:
@@ -320,6 +344,7 @@ class GradesView(BaseView):
             user_id=temp_user_id,
         )
 
+        self.subject_data, self.grades_id_data = self._update_options_data()
         self.menu_label.configure(text="Grade has been updated")
 
     def delete_grade(self) -> None:
@@ -328,21 +353,6 @@ class GradesView(BaseView):
         :return:
         """
         self.menu_label.configure(text="Grade has been deleted")
-
-    def _display_frame_elements(self, labels_data, options_data, parent) -> None:
-        """
-        Support method for displaying GUI content.
-        :param labels_data: data about labels.
-        :param options_data: data about options.
-        :param parent: main frame.
-        :return: Nothing, only create GUI content.
-        """
-        for (l_key, l_text, l_row), (o_key, o_value, o_row) in zip(labels_data, options_data):
-            self.labels_container[l_key] = ctk.CTkLabel(parent, text=l_text, font=("Roboto", 18))
-            self.labels_container[l_key].grid(row=l_row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
-
-            self.options_container[o_key] = ctk.CTkOptionMenu(parent, values=o_value, width=150, font=("Roboto", 18))
-            self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
     def add_new_grade_gui(self) -> ctk.CTkFrame:
         """
