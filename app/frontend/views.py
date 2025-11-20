@@ -31,8 +31,10 @@ from app.backend.notes import initiate_note_manager
 from app.backend.notes import Note
 from app.backend.tooltip import Tooltip
 
-from app.backend.chat import Chat
-from app.backend.chat import send
+from app.backend.chat import (
+    Chat,
+    send
+)
 
 
 class BaseView(ctk.CTkFrame, ABC):

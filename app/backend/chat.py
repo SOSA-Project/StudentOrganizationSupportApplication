@@ -2,9 +2,11 @@ import socket
 import threading
 import uuid
 import json
-from app.backend.data_base import fetch_users
-from app.backend.data_base import insert_message
-from app.backend.data_base import Persistant
+from app.backend.data_base import (
+    fetch_users,
+    insert_message,
+    Persistant
+)
 
 
 class Chat:
@@ -48,8 +50,6 @@ def send(uuid: str, msg: str) -> None:
         raise RuntimeError("No users found!")
 
     host = users[Persistant.get_id() - 1]
-
-    import json
 
     auth = {
         "name": host[1],
