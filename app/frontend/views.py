@@ -558,8 +558,11 @@ class GradesView(BaseView):
         if not grades_data:
             self.grades_textbox.insert("end", "No grades available")
         else:
-            headers: list[str] = ["ID", "Value", "Subject", "ECTS", "Weight", "Type"]
-            self.grades_textbox.insert("end", "{:<6} {:<8} {:<20} {:<6} {:<8} {:<10}\n".format(*headers))
+            headers: tuple[str, ...] = ("ID", "Value", "Subject", "ECTS", "Weight", "Type")
+            self.grades_textbox.insert(
+                "end",
+                f"{headers[0]:<6} {headers[1]:<8} {headers[2]:<20} {headers[3]:<6} {headers[4]:<8} {headers[5]:<10}\n",
+            )
             self.grades_textbox.insert("end", "-" * 60 + "\n")
 
             for g_value, s_name, s_ects, g_weight, g_type, g_id in grades_data:
