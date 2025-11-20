@@ -22,6 +22,7 @@ from app.backend.data_base import (
     fetch_grades_id,
     update_grade,
     delete_grade,
+    fetch_grades,
     fetch_users,
     Persistant,
 )
@@ -385,6 +386,7 @@ class GradesView(BaseView):
                 self.refresh_options_in_frame("delete_view")
                 self.show_view(self.grade_views["delete_view"])
             case "Show grades":
+                self.refresh_grades_table()
                 self.show_view(self.grade_views["show_grades"])
 
         self.menu_label.configure(text="")
@@ -532,11 +534,51 @@ class GradesView(BaseView):
 
     def show_grades_gui(self) -> ctk.CTkFrame:
         """
-        Work in progress
-        :return:
+        Method that creates GUI for showing grades in database.
+        :return: New CTK frame.
         """
-        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame: ctk.CTkFrame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame.grid_rowconfigure(0, weight=1)
+        frame.grid_columnconfigure(0, weight=1)
+
+        self.grades_textbox: ctk.CTkTextbox = ctk.CTkTextbox(frame, font=("Consolas", 18), fg_color="#242424")
+        self.grades_textbox.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        self.grades_textbox.configure(state="disabled")
+
+        self.refresh_grades_table()
+
         return frame
+
+    def refresh_grades_table(self) -> None:
+        """
+        Method that fills the grades table.
+        :return: Nothing
+        """
+        if not hasattr(self, "grades_textbox"):
+            return
+
+        grades_data = fetch_grades()
+
+        self.grades_textbox.configure(state="normal")
+        self.grades_textbox.delete("1.0", "end")
+
+        if not grades_data:
+            self.grades_textbox.insert("end", "No grades available")
+        else:
+            headers: tuple[str, ...] = ("ID", "Value", "Subject", "ECTS", "Weight", "Type")
+            self.grades_textbox.insert(
+                "end",
+                f"{headers[0]:<6} {headers[1]:<8} {headers[2]:<20} {headers[3]:<6} {headers[4]:<8} {headers[5]:<10}\n",
+            )
+            self.grades_textbox.insert("end", "-" * 60 + "\n")
+
+            for g_value, s_name, s_ects, g_weight, g_type, g_id in grades_data:
+                self.grades_textbox.insert(
+                    "end",
+                    "{:<6} {:<8} {:<20} {:<6} {:<8} {:<10}\n".format(g_id, g_value, s_name, s_ects, g_weight, g_type),
+                )
+
+        self.grades_textbox.configure(state="disabled")
 
     def create_frame_content(self) -> None:
         """
