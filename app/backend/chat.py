@@ -1,6 +1,56 @@
 import socket
 import threading
 import uuid
+import json
+from app.backend.data_base import fetch_users
+from app.backend.data_base import insert_message
+from app.backend.data_base import Persistant
+
+class Chat:
+    """
+    Class for managing connection
+    """
+    conn = None
+    chat_display = None
+
+    @staticmethod
+    def connect() -> None:
+        """
+        This function creates a new socket connection with the chat - server or client role
+        :return: None
+        """
+        try:
+            Chat.conn = listener()
+        except Exception as e:
+            print(f"Error in chat file: {e}")
+            try:
+                Chat.conn = initiator()
+                print("Działa")
+            except Exception as e:
+                print(f"Error in chat file2: {e}")
+
+def send(uuid: str, msg: str) -> None:
+    """
+    Function to send message
+    :param uuid: uuid of the user
+    :param msg: message
+    :return: None
+    """
+    if Chat.conn is None:
+        Chat.connect()
+
+    host = fetch_users()[Persistant.get_id()-1]
+
+    import json
+    auth = {
+        "name": host[1],
+        "sender": host[2],
+        "recipient" : uuid,
+        "msg": msg,
+    }
+
+    Chat.conn.send(json.dumps(auth).encode("utf-8"))
+
 
 
 def handle_incoming(conn) -> None:
@@ -8,24 +58,20 @@ def handle_incoming(conn) -> None:
     This function listens for incoming messages.
     :param conn: current socket connection
     """
-    while True:  # handle auth
-        try:
-            msg = conn.recv(1024).decode("utf-8")
-            if msg:
-                print(msg)
-                break
-        except Exception as e:
-            print(f"Error in handle_incoming: {e}")
-            break
-
     while True:  # text
         try:
             msg = conn.recv(1024).decode("utf-8")
             if msg:
-                print(f"\nPeer: {msg}")  # place for integration with gui/db
+                data = json.loads(msg)
+                if data["recipient"] == fetch_users()[Persistant.get_id()-1][2]:
+                    insert_message(data["msg"], data["sender"])
+                    Chat.chat_display.configure(state="normal")
+                    Chat.chat_display.insert("end", f"{data["name"]}: {data["msg"]}\n")
+                    Chat.chat_display.configure(state="disabled")
         except Exception as e:
             print(f"Error in handle_incoming: {e}")
             break
+    Chat.conn = None
 
 
 def initiator(host: str = "localhost", port: int = 1337) -> socket.socket:
