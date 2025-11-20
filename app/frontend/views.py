@@ -32,10 +32,7 @@ from app.backend.notes import initiate_note_manager
 from app.backend.notes import Note
 from app.backend.tooltip import Tooltip
 
-from app.backend.chat import (
-    Chat,
-    send
-)
+from app.backend.chat import Chat, send
 
 
 class BaseView(ctk.CTkFrame, ABC):
@@ -564,6 +561,8 @@ class GradesView(BaseView):
         Method that fills the grades table.
         :return: Nothing
         """
+        decode_grade_type = {1: "Lecture", 2: "Laboratory", 3: "Exercise", 4: "Seminar"}
+
         if not hasattr(self, "grades_textbox"):
             return
 
@@ -580,12 +579,13 @@ class GradesView(BaseView):
                 "end",
                 f"{headers[0]:<6} {headers[1]:<8} {headers[2]:<20} {headers[3]:<6} {headers[4]:<8} {headers[5]:<10}\n",
             )
-            self.grades_textbox.insert("end", "-" * 60 + "\n")
+            self.grades_textbox.insert("end", "-" * 63 + "\n")
 
             for g_value, s_name, s_ects, g_weight, g_type, g_id in grades_data:
                 self.grades_textbox.insert(
                     "end",
-                    "{:<6} {:<8} {:<20} {:<6} {:<8} {:<10}\n".format(g_id, g_value, s_name, s_ects, g_weight, g_type),
+                    f"{g_id:<6} {g_value:<8} {s_name:<20} {s_ects:<6} "
+                    f"{g_weight:<8} {decode_grade_type[int(g_type)]:<12}\n",
                 )
 
         self.grades_textbox.configure(state="disabled")

@@ -2,11 +2,7 @@ import socket
 import threading
 import uuid
 import json
-from app.backend.data_base import (
-    fetch_users,
-    insert_message,
-    Persistant
-)
+from app.backend.data_base import fetch_users, insert_message, Persistant
 
 
 class Chat:
