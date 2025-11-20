@@ -17,7 +17,6 @@ class Session:
         Session.id = user[0]
         Session.username = user[1]
         Session.uuid = user[2]
-        print(f"session data: {user}")
 
     @staticmethod
     def reset_session() -> None:

@@ -4,7 +4,7 @@ File contains definition of Note and NoteManager class
 
 from datetime import datetime
 
-from app.backend.data_base import fetch_notes
+from app.backend.database import Db
 
 
 class Note:
@@ -87,7 +87,7 @@ def initiate_note_manager() -> NoteManager | None:
     :return: An instance of NoteManager class or None
     """
     try:
-        notes = fetch_notes()
+        notes = Db.fetch_notes()
         if not notes or not isinstance(notes, list):
             return None
 

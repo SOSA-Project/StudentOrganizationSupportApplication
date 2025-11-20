@@ -2,7 +2,8 @@ import socket
 import threading
 import uuid
 import json
-from app.backend.data_base import fetch_users, insert_message, Persistant
+from app.backend.database import Db
+from app.backend.database import Persistent
 
 
 class Chat:
@@ -41,11 +42,11 @@ def send(uuid: str, msg: str) -> None:
     if Chat.conn is None:
         Chat.conn = Chat.connect()
 
-    users = fetch_users()
+    users = Db.fetch_users()
     if users is None:
         raise RuntimeError("No users found!")
 
-    host = users[Persistant.get_id() - 1]
+    host = users[Persistent.get_id() - 1]
 
     auth = {
         "name": host[1],
@@ -69,12 +70,12 @@ def handle_incoming(conn) -> None:
             if msg:
                 data = json.loads(msg)
 
-                users = fetch_users()
+                users = Db.fetch_users()
                 if users is None:
                     raise RuntimeError("No users found!")
 
-                if data["recipient"] == users[Persistant.get_id() - 1][2]:
-                    insert_message(data["msg"], data["sender"])
+                if data["recipient"] == users[Persistent.get_id() - 1][2]:
+                    Db.insert_message(data["msg"], data["sender"])
                     if Chat.chat_display is not None:
                         Chat.chat_display.configure(state="normal")
                         Chat.chat_display.insert("end", f"{data["name"]}: {data["msg"]}\n")

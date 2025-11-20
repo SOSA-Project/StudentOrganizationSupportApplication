@@ -4,7 +4,7 @@ File contains definition for GradeMonitor class, its functionality and definitio
 
 import math
 
-from app.backend.data_base import fetch_grades
+from app.backend.database import Db
 from enum import Enum
 
 
@@ -192,7 +192,7 @@ def initiate_grade_monitor(ignore_ects: bool = False) -> GradeMonitor | None:
     :return: An instance of GradeMonitor class
     """
     try:
-        grades = fetch_grades()
+        grades = Db.fetch_grades()
         if not grades or not isinstance(grades, list):
             return None
 

@@ -16,16 +16,7 @@ from matplotlib.figure import Figure
 
 from app.backend.grade_monitor import initiate_grade_monitor
 from app.backend.charts import StatisticsManager, subjects_averages_histogram_plot
-from app.backend.data_base import (
-    fetch_subjects,
-    insert_grade,
-    fetch_grades_id,
-    update_grade,
-    delete_grade,
-    fetch_grades,
-    fetch_users,
-    Persistant,
-)
+from app.backend.database import Db, Persistent
 from app.backend.registration import get_all_users
 from app.backend.registration import register_user
 from app.backend.notes import initiate_note_manager
@@ -313,7 +304,7 @@ class GradesView(BaseView):
         :return: prepared data.
         """
         type_convert = {"Lecture": 1, "Laboratory": 2, "Exercise": 3, "Seminar": 4}
-        subjects_convert = {name: sub_id for sub_id, name, ect in tuple(fetch_subjects() or [])}
+        subjects_convert = {name: sub_id for sub_id, name, ect in tuple(Db.fetch_subjects() or [])}
         option_data: dict[str, int | str] = {}
 
         for data in self.options_container.items():
@@ -330,9 +321,9 @@ class GradesView(BaseView):
         Support method updates data after change.
         :return: updated data.
         """
-        subjects = fetch_subjects()
+        subjects = Db.fetch_subjects()
         subject_data = tuple(subject[1] for subject in subjects) if subjects else ("None",)
-        grades_id = fetch_grades_id()
+        grades_id = Db.fetch_grades_id()
         grades_id_data = tuple(str(g_id[0]) for g_id in grades_id) if grades_id else ("None",)
         return subject_data, grades_id_data
 
@@ -407,7 +398,7 @@ class GradesView(BaseView):
         option_data: dict[str, int | str] = self._prepare_data_for_db()
         temp_user_id: int = 1
 
-        insert_grade(
+        Db.insert_grade(
             value=float(option_data["value_add"]),
             weight=float(option_data["weight_add"]),
             subject_id=int(option_data["subject_add"]),
@@ -428,7 +419,7 @@ class GradesView(BaseView):
         option_data: dict[str, int | str] = self._prepare_data_for_db()
         temp_user_id: int = 1
 
-        update_grade(
+        Db.update_grade(
             grade_id=int(option_data["id_edit"]),
             value=float(option_data["value_edit"]),
             weight=float(option_data["weight_edit"]),
@@ -448,7 +439,7 @@ class GradesView(BaseView):
         :return: Nothing.
         """
         option_data: dict[str, int | str] = self._prepare_data_for_db()
-        delete_grade(grade_id=int(option_data["id_del"]))
+        Db.delete_grade(grade_id=int(option_data["id_del"]))
 
         self.subject_data, self.grades_id_data = self._update_options_data()
         self.delete_id_optionmenu.configure(values=self.grades_id_data)
@@ -567,7 +558,7 @@ class GradesView(BaseView):
         if not hasattr(self, "grades_textbox"):
             return
 
-        grades_data = fetch_grades()
+        grades_data = Db.fetch_grades()
 
         self.grades_textbox.configure(state="normal")
         self.grades_textbox.delete("1.0", "end")
@@ -711,7 +702,7 @@ class ChatView(BaseView):
 
         users = get_all_users()
         for i, user in enumerate(users or []):
-            if user[0] == Persistant.get_id():  # remove own user
+            if user[0] == Persistent.get_id():  # remove own user
                 continue
             user_button = ctk.CTkButton(
                 self.users_listbox, text=user[1], font=("Roboto", 16), command=lambda u=user[2]: self.on_user_click(u)
@@ -740,7 +731,7 @@ class ChatView(BaseView):
         """
         self.selected_user = uuid
         if self.chat_display is not None:
-            users = fetch_users()
+            users = Db.fetch_users()
             if users is None:
                 raise RuntimeError("No users found!")
 

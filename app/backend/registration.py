@@ -1,6 +1,6 @@
 import uuid
 import hashlib
-from app.backend.data_base import fetch_users, insert_users
+from app.backend.database import Db
 
 
 def get_all_users() -> list[tuple[int, str, str]] | None:
@@ -10,7 +10,7 @@ def get_all_users() -> list[tuple[int, str, str]] | None:
     :return list of tuple: list of tuple representing users or None
     """
     try:
-        return fetch_users()
+        return Db.fetch_users()
     except Exception as e:
         print(f"Error fetching users: {e}")
         return []
@@ -44,7 +44,7 @@ def register_user(name: str) -> dict[str, str] | None:
     new_uuid = str(uuid.uuid4())
     encrypted_uuid = encrypt_uuid(new_uuid)
 
-    success = insert_users(name, encrypted_uuid)
+    success = Db.insert_users(name, encrypted_uuid)
     if not success:
         print("Error inserting user into database.")
         return None
