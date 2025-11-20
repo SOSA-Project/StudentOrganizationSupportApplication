@@ -321,8 +321,10 @@ class GradesView(BaseView):
         for data in self.options_container.items():
             option_data[data[0]] = str(data[1].get())
 
-        option_data["type"] = type_convert[str(option_data["type"])]
-        option_data["subject"] = subjects_convert[str(option_data["subject"])]
+        option_data["type_add"] = type_convert[str(option_data["type_add"])]
+        option_data["type_edit"] = type_convert[str(option_data["type_edit"])]
+        option_data["subject_add"] = subjects_convert[str(option_data["subject_add"])]
+        option_data["subject_edit"] = subjects_convert[str(option_data["subject_edit"])]
         return option_data
 
     def _update_options_data(self) -> tuple[tuple[str, ...], tuple[str, ...]]:
@@ -360,10 +362,18 @@ class GradesView(BaseView):
         self.subject_data, self.grades_id_data = self._update_options_data()
 
         if view_name == "add_view":
-            self.options_container["subject"].configure(values=self.subject_data)
+            self.options_container["value_add"].configure(values=self.grades)
+            self.options_container["weight_add"].configure(values=self.grade_weight_sem)
+            self.options_container["type_add"].configure(values=self.grade_types)
+            self.options_container["semester_add"].configure(values=self.grade_weight_sem)
+            self.options_container["subject_add"].configure(values=self.subject_data)
         elif view_name == "edit_view":
-            self.options_container["subject"].configure(values=self.subject_data)
-            self.options_container["id"].configure(values=self.grades_id_data)
+            self.options_container["id_edit"].configure(values=self.grades_id_data)
+            self.options_container["value_edit"].configure(values=self.grades)
+            self.options_container["weight_edit"].configure(values=self.grade_weight_sem)
+            self.options_container["type_edit"].configure(values=self.grade_types)
+            self.options_container["semester_edit"].configure(values=self.grade_weight_sem)
+            self.options_container["subject_edit"].configure(values=self.subject_data)
         elif view_name == "delete_view":
             self.options_container["id_del"].configure(values=self.grades_id_data)
 
@@ -400,11 +410,11 @@ class GradesView(BaseView):
         temp_user_id: int = 1
 
         insert_grade(
-            value=float(option_data["value"]),
-            weight=float(option_data["weight"]),
-            subject_id=int(option_data["subject"]),
-            semester=int(option_data["semester"]),
-            sub_type=int(option_data["type"]),
+            value=float(option_data["value_add"]),
+            weight=float(option_data["weight_add"]),
+            subject_id=int(option_data["subject_add"]),
+            semester=int(option_data["semester_add"]),
+            sub_type=int(option_data["type_add"]),
             user_id=temp_user_id,
         )
 
@@ -421,12 +431,12 @@ class GradesView(BaseView):
         temp_user_id: int = 1
 
         update_grade(
-            grade_id=int(option_data["id"]),
-            value=float(option_data["value"]),
-            weight=float(option_data["weight"]),
-            sub_type=int(option_data["type"]),
-            semester=int(option_data["semester"]),
-            subject_id=int(option_data["subject"]),
+            grade_id=int(option_data["id_edit"]),
+            value=float(option_data["value_edit"]),
+            weight=float(option_data["weight_edit"]),
+            sub_type=int(option_data["type_edit"]),
+            semester=int(option_data["semester_edit"]),
+            subject_id=int(option_data["subject_edit"]),
             user_id=temp_user_id,
         )
 
@@ -464,11 +474,11 @@ class GradesView(BaseView):
         }
 
         options_data = {
-            ("value", self.grades, 10),
-            ("weight", self.grade_weight_sem, 12),
-            ("type", self.grade_types, 14),
-            ("semester", self.grade_weight_sem, 16),
-            ("subject", self.subject_data, 18),
+            ("value_add", self.grades, 10),
+            ("weight_add", self.grade_weight_sem, 12),
+            ("type_add", self.grade_types, 14),
+            ("semester_add", self.grade_weight_sem, 16),
+            ("subject_add", self.subject_data, 18),
         }
 
         self._display_frame_elements(labels_data, options_data, frame)
@@ -518,12 +528,12 @@ class GradesView(BaseView):
         }
 
         options_data = {
-            ("id", self.grades_id_data, 8),
-            ("value", self.grades, 10),
-            ("weight", self.grade_weight_sem, 12),
-            ("type", self.grade_types, 14),
-            ("semester", self.grade_weight_sem, 16),
-            ("subject", self.subject_data, 18),
+            ("id_edit", self.grades_id_data, 8),
+            ("value_edit", self.grades, 10),
+            ("weight_edit", self.grade_weight_sem, 12),
+            ("type_edit", self.grade_types, 14),
+            ("semester_edit", self.grade_weight_sem, 16),
+            ("subject_edit", self.subject_data, 18),
         }
 
         self._display_frame_elements(labels_data, options_data, frame)
