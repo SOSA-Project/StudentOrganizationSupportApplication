@@ -7,15 +7,17 @@ import os
 
 db_path = "./app/data_base/db.sqlite3"
 
+
 class Persistant:
     """
     This class contains functionality for persistent storage.
     AWAITING REIMPLEMENTATION
     """
+
     user_id = None
 
     @staticmethod
-    def get_id() -> None:
+    def get_id() -> int:
         """
         Static method for determining and returning the id of the user.
         :return None:
@@ -23,6 +25,7 @@ class Persistant:
         if Persistant.user_id is None:
             Persistant.user_id = int(input("Podaj 1 lub 2 (a, asd): "))
         return Persistant.user_id
+
 
 def connect_to_database() -> sqlite3.Connection:
     """
