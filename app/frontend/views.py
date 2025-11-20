@@ -33,6 +33,7 @@ from app.backend.notes import Note
 from app.backend.tooltip import Tooltip
 
 from app.backend.chat import Chat, send
+from app.backend.session import Session
 
 
 class BaseView(ctk.CTkFrame, ABC):
@@ -841,10 +842,12 @@ class LoginRegisterView(ctk.CTkFrame):
             self.feedback_label.configure(text="Username cannot be empty!")
             return
 
-        users = get_all_users()
-        if users and any(u[1].lower() == username.lower() for u in users):
+        users = get_all_users() or []
+        user = next((u for u in users if u[1].lower() == username.lower()), None)
+        if user:
             self.feedback_label.configure(text="Login successful!", text_color="green")
             self.after(500, self.on_success)
+            Session.set_user_details(user)
         else:
             self.feedback_label.configure(text="User not found!")
 
