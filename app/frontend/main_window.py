@@ -17,6 +17,7 @@ from app.frontend.views import (
     ChatView,
     LoginRegisterView,
 )
+from app.backend.database import Db
 
 
 class GridMaker:
