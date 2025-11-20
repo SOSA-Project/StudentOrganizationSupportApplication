@@ -16,12 +16,25 @@ from matplotlib.figure import Figure
 
 from app.backend.grade_monitor import initiate_grade_monitor
 from app.backend.charts import StatisticsManager, subjects_averages_histogram_plot
-from app.backend.data_base import fetch_subjects, insert_grade, fetch_grades_id, update_grade, delete_grade
+from app.backend.data_base import (
+    fetch_subjects,
+    insert_grade,
+    fetch_grades_id,
+    update_grade,
+    delete_grade,
+    fetch_users,
+    Persistant,
+)
 from app.backend.registration import get_all_users
 from app.backend.registration import register_user
 from app.backend.notes import initiate_note_manager
 from app.backend.notes import Note
 from app.backend.tooltip import Tooltip
+
+from app.backend.chat import (
+    Chat,
+    send
+)
 
 
 class BaseView(ctk.CTkFrame, ABC):
@@ -645,8 +658,10 @@ class ChatView(BaseView):
 
         users = get_all_users()
         for i, user in enumerate(users or []):
+            if user[0] == Persistant.get_id():  # remove own user
+                continue
             user_button = ctk.CTkButton(
-                self.users_listbox, text=user[1], font=("Roboto", 16), command=lambda u=user[1]: self.on_user_click(u)
+                self.users_listbox, text=user[1], font=("Roboto", 16), command=lambda u=user[2]: self.on_user_click(u)
             )
             user_button.grid(row=i, column=0, sticky="ew", padx=10, pady=2)
 
@@ -654,23 +669,38 @@ class ChatView(BaseView):
         self.chat_display.grid(row=0, rowspan=28, column=2, columnspan=6, sticky="nsew", padx=5, pady=5)
         self.chat_display.configure(state="disabled")
 
+        Chat.chat_display = self.chat_display
+
         self.message_entry = ctk.CTkEntry(self, placeholder_text="Type your message...", font=("Roboto", 14))
         self.message_entry.grid(row=28, rowspan=2, column=2, columnspan=5, sticky="ew", padx=5, pady=5)
 
         self.send_button = ctk.CTkButton(self, text="Send", font=("Roboto", 14), command=self.send_message)
         self.send_button.grid(row=28, rowspan=2, column=7, sticky="ew", padx=5, pady=5)
 
-    def on_user_click(self, username: str) -> None:
+        Chat.connect()
+
+    def on_user_click(self, uuid: str) -> None:
         """
         Handles user button click.
-        :param username: The username of the clicked user.
+        :param uuid: The uuid of the clicked user.
         :return: None
         """
-        self.selected_user = username
+        self.selected_user = uuid
         if self.chat_display is not None:
-            self.chat_display.configure(state="normal")
-            self.chat_display.insert("end", f"Selected user: {username}\n")
-            self.chat_display.configure(state="disabled")
+            users = fetch_users()
+            if users is None:
+                raise RuntimeError("No users found!")
+
+            user = next((row for row in users if row[2] == str(uuid)), None)
+
+            if user is not None:
+                self.chat_display.configure(state="normal")
+                self.chat_display.insert("end", f"Selected user: {user[1]}\n")
+                self.chat_display.configure(state="disabled")
+            else:
+                self.chat_display.configure(state="normal")
+                self.chat_display.insert("end", "No such user\n")
+                self.chat_display.configure(state="disabled")
 
     def send_message(self) -> None:
         """
@@ -681,9 +711,10 @@ class ChatView(BaseView):
             message = self.message_entry.get().strip()
             if message and self.selected_user:
                 self.chat_display.configure(state="normal")
-                self.chat_display.insert("end", f"You to {self.selected_user}: {message}\n")
+                self.chat_display.insert("end", f"You: {message}\n")
                 self.chat_display.configure(state="disabled")
                 self.message_entry.delete(0, "end")
+                send(self.selected_user, message)
 
 
 class SettingsView(BaseView):
