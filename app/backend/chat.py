@@ -6,15 +6,17 @@ from app.backend.data_base import fetch_users
 from app.backend.data_base import insert_message
 from app.backend.data_base import Persistant
 
+
 class Chat:
     """
     Class for managing connection
     """
+
     conn = None
     chat_display = None
 
     @staticmethod
-    def connect() -> None:
+    def connect() -> socket.socket | None:
         """
         This function creates a new socket connection with the chat - server or client role
         :return: None
@@ -28,6 +30,8 @@ class Chat:
                 print("Działa")
             except Exception as e:
                 print(f"Error in chat file2: {e}")
+        return Chat.conn
+
 
 def send(uuid: str, msg: str) -> None:
     """
@@ -37,20 +41,25 @@ def send(uuid: str, msg: str) -> None:
     :return: None
     """
     if Chat.conn is None:
-        Chat.connect()
+        Chat.conn = Chat.connect()
 
-    host = fetch_users()[Persistant.get_id()-1]
+    users = fetch_users()
+    if users is None:
+        raise RuntimeError("No users found!")
+
+    host = users[Persistant.get_id() - 1]
 
     import json
+
     auth = {
         "name": host[1],
         "sender": host[2],
-        "recipient" : uuid,
+        "recipient": uuid,
         "msg": msg,
     }
 
-    Chat.conn.send(json.dumps(auth).encode("utf-8"))
-
+    if (conn := Chat.conn) is not None:
+        conn.send(json.dumps(auth).encode("utf-8"))
 
 
 def handle_incoming(conn) -> None:
@@ -63,11 +72,20 @@ def handle_incoming(conn) -> None:
             msg = conn.recv(1024).decode("utf-8")
             if msg:
                 data = json.loads(msg)
-                if data["recipient"] == fetch_users()[Persistant.get_id()-1][2]:
+
+                users = fetch_users()
+                if users is None:
+                    raise RuntimeError("No users found!")
+
+                if data["recipient"] == users[Persistant.get_id() - 1][2]:
                     insert_message(data["msg"], data["sender"])
-                    Chat.chat_display.configure(state="normal")
-                    Chat.chat_display.insert("end", f"{data["name"]}: {data["msg"]}\n")
-                    Chat.chat_display.configure(state="disabled")
+                    if Chat.chat_display is not None:
+                        Chat.chat_display.configure(state="normal")
+                        Chat.chat_display.insert("end", f"{data["name"]}: {data["msg"]}\n")
+                        Chat.chat_display.configure(state="disabled")
+                    else:
+                        raise RuntimeError("Chat uninitiated!")
+
         except Exception as e:
             print(f"Error in handle_incoming: {e}")
             break

@@ -16,8 +16,15 @@ from matplotlib.figure import Figure
 
 from app.backend.grade_monitor import initiate_grade_monitor
 from app.backend.charts import StatisticsManager, subjects_averages_histogram_plot
-from app.backend.data_base import fetch_subjects, insert_grade, fetch_grades_id, update_grade, delete_grade, \
-    fetch_users, Persistant
+from app.backend.data_base import (
+    fetch_subjects,
+    insert_grade,
+    fetch_grades_id,
+    update_grade,
+    delete_grade,
+    fetch_users,
+    Persistant,
+)
 from app.backend.registration import get_all_users
 from app.backend.registration import register_user
 from app.backend.notes import initiate_note_manager
@@ -649,7 +656,7 @@ class ChatView(BaseView):
 
         users = get_all_users()
         for i, user in enumerate(users or []):
-            if user[0] == Persistant.get_id(): # remove own user
+            if user[0] == Persistant.get_id():  # remove own user
                 continue
             user_button = ctk.CTkButton(
                 self.users_listbox, text=user[1], font=("Roboto", 16), command=lambda u=user[2]: self.on_user_click(u)
@@ -679,10 +686,19 @@ class ChatView(BaseView):
         self.selected_user = uuid
         if self.chat_display is not None:
             users = fetch_users()
+            if users is None:
+                raise RuntimeError("No users found!")
+
             user = next((row for row in users if row[2] == str(uuid)), None)
-            self.chat_display.configure(state="normal")
-            self.chat_display.insert("end", f"Selected user: {user[1]}\n")
-            self.chat_display.configure(state="disabled")
+
+            if user is not None:
+                self.chat_display.configure(state="normal")
+                self.chat_display.insert("end", f"Selected user: {user[1]}\n")
+                self.chat_display.configure(state="disabled")
+            else:
+                self.chat_display.configure(state="normal")
+                self.chat_display.insert("end", "No such user\n")
+                self.chat_display.configure(state="disabled")
 
     def send_message(self) -> None:
         """
