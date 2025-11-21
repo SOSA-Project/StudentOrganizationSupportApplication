@@ -3,25 +3,9 @@ The file creates a database and operates on it.
 """
 
 import sqlite3
+import asyncio
 
-
-class Persistent:
-    """
-    This class contains functionality for persistent storage.
-    AWAITING REIMPLEMENTATION
-    """
-
-    user_id = None
-
-    @staticmethod
-    def get_id() -> int:
-        """
-        Static method for determining and returning the id of the user.
-        :return None:
-        """
-        if Persistent.user_id is None:
-            Persistent.user_id = int(input("Podaj 1 lub 2 (a, asd): "))
-        return Persistent.user_id
+from app.backend.chat import Client
 
 
 class Db:
@@ -106,7 +90,22 @@ class Db:
     cursor = connect_to_database(conn)
 
     @staticmethod
-    def close():
+    def dequeue_messages() -> None:
+        """
+        Insert all data from async queue to db
+        :return None
+        """
+        while Client.msg_queue.qsize():
+            result = asyncio.run(Client.msg_queue.get())
+            Db.insert_message(result["msg"], result["sender"])
+
+    @staticmethod
+    def close() -> None:
+        """
+        Commit all data to db and close connection
+        :return None
+        """
+        Db.dequeue_messages()
         Db.conn.commit()
         Db.conn.close()
 

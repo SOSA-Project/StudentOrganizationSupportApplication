@@ -1,144 +1,158 @@
-import socket
-import threading
-import uuid
 import json
-from app.backend.database import Db
-from app.backend.database import Persistent
+import time
+import asyncio
+import websockets
+
+from app.backend.session import Session
 
 
-class Chat:
+def make_payload(recipient: str, msg: str) -> bytes:
+    return json.dumps(
+        {
+            "name": Session.username,
+            "sender": Session.uuid,
+            "recipient": recipient,
+            "msg": msg,
+        }
+    ).encode("utf-8")
+
+
+async def send(recipient: str, msg: str):
     """
-    Class for managing connection
-    """
-
-    conn = None
-    chat_display = None
-
-    @staticmethod
-    def connect() -> socket.socket | None:
-        """
-        This function creates a new socket connection with the chat - server or client role
-        :return: None
-        """
-        try:
-            Chat.conn = listener()
-        except Exception as e:
-            print(f"Error in chat file: {e}")
-            try:
-                Chat.conn = initiator()
-                print("Działa")
-            except Exception as e:
-                print(f"Error in chat file2: {e}")
-        return Chat.conn
-
-
-def send(uuid: str, msg: str) -> None:
-    """
-    Function to send message
-    :param uuid: uuid of the user
-    :param msg: message
+    Function to send a message
+    :param recipient: recipient of the message
+    :param msg: message to be sent
     :return: None
     """
-    if Chat.conn is None:
-        Chat.conn = Chat.connect()
-
-    users = Db.fetch_users()
-    if users is None:
-        raise RuntimeError("No users found!")
-
-    host = users[Persistent.get_id() - 1]
-
-    auth = {
-        "name": host[1],
-        "sender": host[2],
-        "recipient": uuid,
-        "msg": msg,
-    }
-
-    if (conn := Chat.conn) is not None:
-        conn.send(json.dumps(auth).encode("utf-8"))
+    async with websockets.connect("ws://localhost:6789") as ws:
+        await ws.send(make_payload(recipient, msg))
+        print("Sent")
 
 
-def handle_incoming(conn) -> None:
+class Client:
     """
-    This function listens for incoming messages.
-    :param conn: current socket connection
+    Chat client class. Manages all client process
     """
-    while True:  # text
+
+    chat_display = None
+    msg_queue: asyncio.queues.Queue = asyncio.Queue()
+
+    @staticmethod
+    async def listen(ws) -> dict | None:
+        """
+        Function to listen for messages
+        :param ws: websocket object
+        :return: dict | None
+        """
+        async for msg in ws:
+            print(type(json.loads(msg)))
+            return json.loads(msg)
+        return None
+
+    @staticmethod
+    def send(recipient: str, msg: str) -> None:
+        """
+        Wrapper for send function
+        :param recipient: recipient of the message
+        :param msg:  to be sent
+        :return: None
+        """
+        asyncio.run(send(recipient, msg))
+
+    @staticmethod
+    async def receive() -> None:
+        """
+        Function to receive a message
+        :return: None
+        """
+        async with websockets.connect("ws://localhost:6789") as ws:
+            while True:
+                await ws.send(make_payload("-1", "check"))
+                result = await asyncio.wait_for(Client.listen(ws), timeout=1.0)
+                if result and result["msg"] != "none":
+                    await Client.msg_queue.put(result)
+                if Client.chat_display is not None and result["msg"] != "none":
+                    Client.chat_display.configure(state="normal")
+                    Client.chat_display.insert("end", f"{result["name"]}: {result["msg"]}\n")
+                    Client.chat_display.configure(state="disabled")
+                else:
+                    pass
+                print(result)
+                if result and result["msg"] == "none":
+                    break
+
+    @staticmethod
+    def run() -> None:
+        """
+        Function to run client listener
+        :return: None
+        """
+        while True:
+            print("Waiting...")
+            time.sleep(5)
+            asyncio.run(Client.receive())
+
+
+class Server:
+    """
+    Class to manage server for test purpose
+    """
+
+    clients: set = set()
+    messages: list = []
+
+    @staticmethod
+    async def handle(ws) -> None:
+        """
+        Function to process incoming messages and replies
+        :param ws: websocket object
+        :return: None
+        """
+        Server.clients.add(ws)
         try:
-            msg = conn.recv(1024).decode("utf-8")
-            if msg:
+            async for msg in ws:
+                print(msg)
                 data = json.loads(msg)
-
-                users = Db.fetch_users()
-                if users is None:
-                    raise RuntimeError("No users found!")
-
-                if data["recipient"] == users[Persistent.get_id() - 1][2]:
-                    Db.insert_message(data["msg"], data["sender"])
-                    if Chat.chat_display is not None:
-                        Chat.chat_display.configure(state="normal")
-                        Chat.chat_display.insert("end", f"{data["name"]}: {data["msg"]}\n")
-                        Chat.chat_display.configure(state="disabled")
+                # print(Server.messages)
+                if data["msg"] != "check":
+                    result = [row for row in Server.messages if row[1] == data["recipient"]] or None
+                    if result:
+                        result[0][2].append(data)
                     else:
-                        raise RuntimeError("Chat uninitiated!")
+                        Server.messages.append([None, data["recipient"], [data]])
+                elif data["msg"] == "check":
+                    result = [row for row in Server.messages if row[1] == data["sender"]] or None
+                    if result and len(result[0][2]):
+                        print(result[0][2])
+                        message = result[0][2].pop(0)
+                        print(message)
+                        await ws.send(json.dumps(message).encode("utf-8"))
+                    else:
+                        new_msg = {
+                            "name": "srwr",
+                            "sender": -1,
+                            "recipient": -1,
+                            "msg": "none",
+                        }
+                        await ws.send(json.dumps(new_msg).encode("utf-8"))
+        except websockets.exceptions.ConnectionClosed:
+            pass
+        finally:
+            Server.clients.remove(ws)
 
-        except Exception as e:
-            print(f"Error in handle_incoming: {e}")
-            break
-    Chat.conn = None
+    @staticmethod
+    async def main() -> None:
+        """
+        Function to run the server
+        :return: None
+        """
+        async with websockets.serve(Server.handle, "localhost", 6789):
+            print("Server running at ws://localhost:6789")
+            await asyncio.Future()
 
-
-def initiator(host: str = "localhost", port: int = 1337) -> socket.socket:
-    """
-    This function creates a new socket connection with the chat - server role
-    :param host: server host address
-    :param port: port number
-    :return: socket connection
-    """
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind((host, port))
-    server.listen(1)
-    conn, addr = server.accept()
-    threading.Thread(target=handle_incoming, args=(conn,), daemon=True).start()
-    return conn
-
-
-def listener(host: str = "localhost", port: int = 1337) -> socket.socket:
-    """
-    This function creates a new socket connection with the chat - client role
-    :param host: server host address
-    :param port: port number
-    :return: socket connection
-    """
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((host, port))
-    threading.Thread(target=handle_incoming, args=(client,), daemon=True).start()
-    return client
-
-
-def chat_loop(conn: socket.socket) -> None:
-    """
-    This function handles sending messages.
-    :param conn: current socket connection
-    """
-    # example auth
-    local_uuid = uuid.uuid4()
-    conn.send(('{ "name": "' + str(local_uuid) + '", "uuid": "' + str(local_uuid) + '" }').encode("utf-8"))
-    print("Chat\n")
-    while True:
-        msg = input()
-        if msg.lower() == "exit":
-            conn.close()
-            break
-        conn.send(msg.encode("utf-8"))
-
-
-if __name__ == "__main__":
-    try:
-        conn = listener()
-    except Exception as e:
-        print(f"Error in chat file: {e}")
-        conn = initiator()
-    print(type(conn))
-    chat_loop(conn)
+    @staticmethod
+    def run():
+        """
+        Wrapper function to run the server
+        """
+        asyncio.run(Server.main())

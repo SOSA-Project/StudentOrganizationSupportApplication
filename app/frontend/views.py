@@ -3,6 +3,7 @@ This file contains views for all widgets.
 """
 
 import random
+import threading
 from gc import collect
 from typing import Callable
 from datetime import datetime
@@ -16,14 +17,14 @@ from matplotlib.figure import Figure
 
 from app.backend.grade_monitor import initiate_grade_monitor
 from app.backend.charts import StatisticsManager, subjects_averages_histogram_plot
-from app.backend.database import Db, Persistent
+from app.backend.database import Db
 from app.backend.registration import get_all_users
 from app.backend.registration import register_user
 from app.backend.notes import initiate_note_manager
 from app.backend.notes import Note
 from app.backend.tooltip import Tooltip
 
-from app.backend.chat import Chat, send
+from app.backend.chat import Client as Chat, Server
 from app.backend.session import Session
 
 
@@ -702,7 +703,7 @@ class ChatView(BaseView):
 
         users = get_all_users()
         for i, user in enumerate(users or []):
-            if user[0] == Persistent.get_id():  # remove own user
+            if user[0] == Session.id:  # remove own user
                 continue
             user_button = ctk.CTkButton(
                 self.users_listbox, text=user[1], font=("Roboto", 16), command=lambda u=user[2]: self.on_user_click(u)
@@ -721,14 +722,13 @@ class ChatView(BaseView):
         self.send_button = ctk.CTkButton(self, text="Send", font=("Roboto", 14), command=self.send_message)
         self.send_button.grid(row=28, rowspan=2, column=7, sticky="ew", padx=5, pady=5)
 
-        Chat.connect()
-
     def on_user_click(self, uuid: str) -> None:
         """
         Handles user button click.
         :param uuid: The uuid of the clicked user.
         :return: None
         """
+        Db.dequeue_messages()
         self.selected_user = uuid
         if self.chat_display is not None:
             users = Db.fetch_users()
@@ -739,7 +739,12 @@ class ChatView(BaseView):
 
             if user is not None:
                 self.chat_display.configure(state="normal")
-                self.chat_display.insert("end", f"Selected user: {user[1]}\n")
+                self.chat_display.delete("1.0", "end")
+                msgs = Db.fetch_messages() or []
+                for msg in msgs:
+                    if msg[2] == str(uuid):
+                        self.chat_display.insert("end", f"{user[1]}: {msg[1]}\n")
+                    pass
                 self.chat_display.configure(state="disabled")
             else:
                 self.chat_display.configure(state="normal")
@@ -758,7 +763,7 @@ class ChatView(BaseView):
                 self.chat_display.insert("end", f"You: {message}\n")
                 self.chat_display.configure(state="disabled")
                 self.message_entry.delete(0, "end")
-                send(self.selected_user, message)
+                Chat.send(self.selected_user, message)
 
 
 class SettingsView(BaseView):
@@ -839,6 +844,8 @@ class LoginRegisterView(ctk.CTkFrame):
             self.feedback_label.configure(text="Login successful!", text_color="green")
             self.after(500, self.on_success)
             Session.set_user_details(user)
+            threading.Thread(target=Chat.run, daemon=True).start()
+            threading.Thread(target=Server.run, daemon=True).start()
         else:
             self.feedback_label.configure(text="User not found!")
 
