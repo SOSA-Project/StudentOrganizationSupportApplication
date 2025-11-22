@@ -436,7 +436,7 @@ class GradesView(BaseView):
 
     def delete_grade(self) -> None:
         """
-        Method deletes choosed grade from database.
+        Method removes the selected rating from the database.
         :return: Nothing.
         """
         option_data: dict[str, int | str] = self._prepare_data_for_db()
@@ -665,15 +665,48 @@ class AverageView(BaseView):
             self.canvas = None
             collect()
 
-    def change_gui(self):
-        pass
+    def _create_chart_content(self, chart: Figure) -> None:
+        self.canvas = FigureCanvasTkAgg(chart, master=self)
+        self.canvas.draw()
+
+        canvas_widget = self.canvas.get_tk_widget()
+        canvas_widget.configure(bg=self.cget("fg_color"), highlightthickness=0, bd=0)
+        canvas_widget.grid(row=5, rowspan=27, column=0, columnspan=8, padx=5, pady=5, sticky="nsew")
+
+    def avg_chart_gui(self) -> None:
+        if (grades_data := initiate_grade_monitor()) is None:
+            return
+
+        chart: Figure = self._create_avg_chart(grades_data)
+        self._create_chart_content(chart)
+
+    def histogram_grades_gui(self) -> None:
+        if (grades_data := initiate_grade_monitor()) is None:
+            return
+
+        chart: Figure = self._create_grades_histogram(grades_data)
+        self._create_chart_content(chart)
+
+    def pie_grades_gui(self) -> None:
+        if (grades_data := initiate_grade_monitor()) is None:
+            return
+
+        chart: Figure = self._create_grades_pie_plot(grades_data)
+        self._create_chart_content(chart)
+
+
+    def change_gui(self, _=None) -> None:
+        button_value = self.menu_button.get()
+        option_value = self.subject_name_option.get()
+        print(button_value)
+        print(option_value)
 
     def create_frame_content(self) -> ctk.CTkFrame:
         """
         This method creates elements visible on the frame.
         :return: new ctk frame.
         """
-
+        #TODO trzeba dodac obsluge guzikow, menu rozwijalnego, zeby mozna bylo wybrac wykres
         self.menu_button = ctk.CTkSegmentedButton(
             self,
             values=self.menu_values,
@@ -701,21 +734,8 @@ class AverageView(BaseView):
         self.subject_name_option.grid(row=0, column=0, padx=5, pady=0, sticky="ew")
 
         self._destroy_old_canvas()
+        self.pie_grades_gui()
 
-        if (grades_data := initiate_grade_monitor()) is None:
-            return
-
-        # histogram: Figure = self._create_avg_chart(grades_data)
-        histogram: Figure = self._create_grades_pie_plot(grades_data)
-        # histogram: Figure = self._create_grades_histogram(grades_data)
-
-        self.canvas = FigureCanvasTkAgg(histogram, master=self)
-        self.canvas.draw()
-        plt.close(histogram)
-
-        canvas_widget = self.canvas.get_tk_widget()
-        canvas_widget.configure(bg=self.cget("fg_color"), highlightthickness=0, bd=0)
-        canvas_widget.grid(row=5, rowspan=27, column=0, columnspan=8, padx=5, pady=5, sticky="nsew")
 
     def refresh(self) -> None:
         """
