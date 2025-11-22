@@ -34,6 +34,14 @@ class StatisticsManager:
 
         return subjects_averages
 
+    def grades_number(self, subjects: list[str]=None) -> dict[str, float]:
+        """
+        Method prepare data for charts
+        :param subjects: subject names
+        :return: Dictionary containing subject and the average subject grade
+        """
+        return self.monitor.grade_counts(subjects)
+
 
 def _configure_theme(theme: str) -> tuple[str, str]:
     """
