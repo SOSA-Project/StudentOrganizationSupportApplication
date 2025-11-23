@@ -4,11 +4,10 @@ This file contains views for all widgets.
 
 import random
 import threading
-from enum import show_flag_values
+import calendar
 from gc import collect
 from typing import Callable
 from datetime import datetime
-import calendar
 from abc import ABC, abstractmethod
 
 import customtkinter as ctk
@@ -24,7 +23,6 @@ from app.backend.registration import register_user
 from app.backend.notes import initiate_note_manager
 from app.backend.notes import Note
 from app.backend.tooltip import Tooltip
-
 from app.backend.chat import Client as Chat, Server
 from app.backend.session import Session
 
@@ -294,6 +292,7 @@ class GradesView(BaseView):
         self.grade_types = ("Lecture", "Laboratory", "Exercise", "Seminar")
 
         self.subject_data, self.grades_id_data = self._update_options_data()
+        self.subject_id_data = self._update_options_data_sub()
         self.labels_container: dict[str, ctk.CTkLabel] = {}
         self.options_container: dict[str, ctk.CTkOptionMenu] = {}
 
@@ -333,7 +332,8 @@ class GradesView(BaseView):
         option_data["subject_edit"] = subjects_convert[str(option_data["subject_edit"])]
         return option_data
 
-    def _update_options_data(self) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    @classmethod
+    def _update_options_data(cls) -> tuple[tuple[str, ...], tuple[str, ...]]:
         """
         Support method updates data after change.
         :return: updated data.
@@ -343,6 +343,12 @@ class GradesView(BaseView):
         grades_id = Db.fetch_grades_id()
         grades_id_data = tuple(str(g_id[0]) for g_id in grades_id) if grades_id else ("None",)
         return subject_data, grades_id_data
+
+    @classmethod
+    def _update_options_data_sub(cls) -> tuple[str, ...]:
+        subjects = Db.fetch_subjects()
+        subjects_id_data = tuple(str(subject[0]) for subject in subjects) if subjects else ("None",)
+        return subjects_id_data
 
     def _display_frame_elements(self, labels_data, options_data, parent) -> None:
         """
@@ -565,27 +571,25 @@ class GradesView(BaseView):
         return frame
 
     def add_subject(self):
+        """WIP"""
         pass
 
     def edit_subject(self):
+        """WIP"""
         pass
 
     def delete_subject(self):
+        """WIP"""
         pass
 
-    def add_subject_gui(self):
+    def add_subject_gui(self) -> ctk.CTkFrame:
         frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
-        labels_data = {
-            ("sub_name_add", "Subject name", 13),
-            ("sub_ects", "Subject ECTS", 15)
-        }
+        labels_data = {("sub_name_add", "Subject name", 13), ("sub_ects", "Subject ECTS", 15)}
 
-        option_data = {
-            ("add_sub_ects", self.subject_ects_values, 15)
-        }
+        option_data = {("add_sub_ects", self.subject_ects_values, 15)}
 
         self.subject_name_input = ctk.CTkEntry(frame, width=200, placeholder_text="subject name")
         self.subject_name_input.grid(row=13, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
@@ -600,7 +604,7 @@ class GradesView(BaseView):
 
         return frame
 
-    def edit_subject_gui(self):
+    def edit_subject_gui(self) -> ctk.CTkFrame:
         frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
@@ -608,13 +612,12 @@ class GradesView(BaseView):
         labels_data = {
             ("sub_id_edit", "Current subject ID:", 10),
             ("sub_name_edit", "Subject name:", 12),
-            ("sub_ects_edit", "Subject ECTS", 14)
+            ("sub_ects_edit", "Subject ECTS", 14),
         }
-        #TODO zmienic na dane pobrane z bazy danych
 
         option_data = {
-            ("sub_id_option_edit", ("1", "2"), 10),
-            ("sub_ects_option_edit", self.subject_ects_values, 15)
+            ("sub_id_option_edit", self.subject_id_data, 10),
+            ("sub_ects_option_edit", self.subject_ects_values, 15),
         }
 
         self.subject_name_input = ctk.CTkEntry(frame, width=200, placeholder_text="subject name")
@@ -628,18 +631,14 @@ class GradesView(BaseView):
 
         return frame
 
-    def delete_subject_gui(self):
+    def delete_subject_gui(self) -> ctk.CTkFrame:
         frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
-        labels_data = {
-            ("sub_id_delete", "Current subject ID:", 14)
-        }
-        #TODO zmienic na dane pobrane z bazy danych
-        option_data = {
-            ("sub_id_option_delete", ("1", "2"), 14)
-        }
+        labels_data = {("sub_id_delete", "Current subject ID:", 14)}
+
+        option_data = {("sub_id_option_delete", self.subject_id_data, 14)}
 
         self._display_labels_elements(labels_data, frame)
         self._display_options_elements(option_data, frame)
