@@ -592,16 +592,49 @@ class GradesView(BaseView):
         return frame
 
     def add_subject(self):
-        """WIP"""
-        pass
+        option_data: dict[str, int | str] = self._prepare_data_for_db()
+        subject_name = self.subject_name_input_add.get()
+
+        Db.insert_subject(
+            name=str(subject_name),
+            ects=int(option_data["add_sub_ects"])
+        )
+
+        self.subject_data, self.grades_id_data = self._update_options_data()
+        self.subject_id_data = self._update_options_data_sub()
+        self.delete_subject_option_menu.configure(values=self.subject_id_data)
+        self.sub_id_data_option_menu.configure(values=self.subject_id_data)
+        self.menu_label.configure(text="New subject has been added")
 
     def edit_subject(self):
-        """WIP"""
-        pass
+        option_data: dict[str, int | str] = self._prepare_data_for_db()
+        subject_name = self.subject_name_input_edit.get()
+
+        Db.update_subject(
+            subject_id=option_data["sub_id_option_edit"],
+            name=subject_name,
+            ects=option_data["sub_ects_option_edit"]
+        )
+
+        self.subject_data, self.grades_id_data = self._update_options_data()
+        self.subject_id_data = self._update_options_data_sub()
+        self.delete_subject_option_menu.configure(values=self.subject_id_data)
+        self.sub_id_data_option_menu.configure(values=self.subject_id_data)
+        self.menu_label.configure(text="Subject has been updated")
 
     def delete_subject(self):
-        """WIP"""
-        pass
+        option_data: dict[str, int | str] = self._prepare_data_for_db()
+
+        Db.delete_subject(
+            subject_id=option_data["sub_id_option_delete"]
+        )
+
+        self.subject_data, self.grades_id_data = self._update_options_data()
+        self.subject_id_data = self._update_options_data_sub()
+        self.delete_subject_option_menu.configure(values=self.subject_id_data)
+        self.sub_id_data_option_menu.configure(values=self.subject_id_data)
+        self.menu_label.configure(text="Subject has been deleted")
+
 
     def add_subject_gui(self) -> ctk.CTkFrame:
         """
@@ -616,8 +649,8 @@ class GradesView(BaseView):
 
         option_data = {("add_sub_ects", self.subject_ects_values, 15)}
 
-        self.subject_name_input = ctk.CTkEntry(frame, width=200, placeholder_text="subject name")
-        self.subject_name_input.grid(row=13, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+        self.subject_name_input_add = ctk.CTkEntry(frame, width=200, placeholder_text="subject name")
+        self.subject_name_input_add.grid(row=13, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
         self._display_labels_elements(labels_data, frame)
         self._display_options_elements(option_data, frame)
@@ -649,12 +682,14 @@ class GradesView(BaseView):
             ("sub_ects_option_edit", self.subject_ects_values, 15),
         }
 
-        self.subject_name_input = ctk.CTkEntry(frame, width=200, placeholder_text="subject name")
-        self.subject_name_input.grid(row=13, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+
+        self.subject_name_input_edit = ctk.CTkEntry(frame, width=200, placeholder_text="subject name")
+        self.subject_name_input_edit.grid(row=13, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
         self._display_labels_elements(labels_data, frame)
         self._display_options_elements(option_data, frame)
 
+        self.sub_id_data_option_menu = self.options_container["sub_id_option_edit"]
         self.add_subject_btn = ctk.CTkButton(frame, text="Edit subject", font=("Roboto", 18), command=self.edit_subject)
         self.add_subject_btn.grid(row=26, rowspan=3, column=3, columnspan=2, padx=(30, 5), pady=5, sticky="nsew")
 
@@ -675,6 +710,7 @@ class GradesView(BaseView):
 
         self._display_labels_elements(labels_data, frame)
         self._display_options_elements(option_data, frame)
+        self.delete_subject_option_menu = self.options_container["sub_id_option_delete"]
 
         self.add_subject_btn = ctk.CTkButton(
             frame, text="Delete subject", font=("Roboto", 18), command=self.delete_subject
