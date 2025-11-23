@@ -346,6 +346,10 @@ class GradesView(BaseView):
 
     @classmethod
     def _update_options_data_sub(cls) -> tuple[str, ...]:
+        """
+        Support method updates data after change.
+        :return: updated data.
+        """
         subjects = Db.fetch_subjects()
         subjects_id_data = tuple(str(subject[0]) for subject in subjects) if subjects else ("None",)
         return subjects_id_data
@@ -366,11 +370,23 @@ class GradesView(BaseView):
             self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
     def _display_labels_elements(self, labels_data, parent) -> None:
+        """
+        Support method for displaying GUI content.
+        :param labels_data: data about labels.
+        :param parent: main frame.
+        :return: Nothing, only create GUI content.
+        """
         for l_key, l_text, l_row in labels_data:
             self.labels_container[l_key] = ctk.CTkLabel(parent, text=l_text, font=("Roboto", 18))
             self.labels_container[l_key].grid(row=l_row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
 
     def _display_options_elements(self, options_data, parent) -> None:
+        """
+        Support method for displaying GUI content.
+        :param options_data: data about options.
+        :param parent: main frame.
+        :return: Nothing, only create GUI content.
+        """
         for o_key, o_value, o_row in options_data:
             self.options_container[o_key] = ctk.CTkOptionMenu(parent, values=o_value, width=200, font=("Roboto", 18))
             self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
@@ -583,6 +599,10 @@ class GradesView(BaseView):
         pass
 
     def add_subject_gui(self) -> ctk.CTkFrame:
+        """
+        This method creates GUI for adding new subjects into database.
+        :return: New CTK frame.
+        """
         frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
@@ -605,6 +625,10 @@ class GradesView(BaseView):
         return frame
 
     def edit_subject_gui(self) -> ctk.CTkFrame:
+        """
+        This method creates GUI for editing current subjects in database.
+        :return: New CTK frame.
+        """
         frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
@@ -632,6 +656,10 @@ class GradesView(BaseView):
         return frame
 
     def delete_subject_gui(self) -> ctk.CTkFrame:
+        """
+        This method creates GUI for deleting existing subjects from database.
+        :return: New CTK frame.
+        """
         frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
