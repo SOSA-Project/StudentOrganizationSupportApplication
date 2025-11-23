@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-from app.backend.grade_monitor import initiate_grade_monitor
+from app.backend.grade_monitor import initiate_grade_monitor, GradeMonitor
 from app.backend.charts import (
     StatisticsManager,
     subjects_averages_histogram_plot,
@@ -635,24 +635,44 @@ class AverageView(BaseView):
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
         self.canvas: FigureCanvasTkAgg | None = None
-        self.menu_values: tuple[str] = ("Average", "Histogram", "Pie Chart")
+        self.menu_values: tuple[str, ...] = ("Average", "Histogram", "Pie Chart")
         subjects = Db.fetch_subjects()
         self.subject_data = tuple(subject[1] for subject in subjects) if subjects else ("None",)
         self.create_frame_content()
 
-    def _create_avg_chart(self, grades_data):
-        charts_manager: StatisticsManager = StatisticsManager(grades_data)
-        grades_avg: dict[str, float] = charts_manager.subjects_averages()
+    @classmethod
+    def _create_avg_chart(cls, monitor: GradeMonitor) -> Figure:
+        """
+        This method creates new chart based on provided data.
+        :param monitor: data about grades.
+        :return: New chart.
+        """
+        charts_manager = StatisticsManager(monitor)
+        grades_avg = charts_manager.subjects_averages()
         return subjects_averages_histogram_plot(grades_avg, "dark")
 
-    def _create_grades_pie_plot(self, grades_data, subject):
-        charts_manager: StatisticsManager = StatisticsManager(grades_data)
-        grades_number: dict[str, float] = charts_manager.grades_number(subject)
+    @classmethod
+    def _create_grades_pie_plot(cls, grades_data: GradeMonitor, subject: list[str]) -> Figure:
+        """
+        This method creates new chart based on provided data.
+        :param grades_data: data about grades.
+        :param subject: subject name.
+        :return: New chart.
+        """
+        charts_manager = StatisticsManager(grades_data)
+        grades_number: dict[float, int] = charts_manager.grades_number(subject)
         return all_grades_pie_plot(grades_number, "dark")
 
-    def _create_grades_histogram(self, grades_data, subject):
-        charts_manager: StatisticsManager = StatisticsManager(grades_data)
-        grades_number: dict[str, float] = charts_manager.grades_number(subject)
+    @classmethod
+    def _create_grades_histogram(cls, grades_data: GradeMonitor, subject: list[str]) -> Figure:
+        """
+        This method creates new chart based on provided data.
+        :param grades_data: data about grades.
+        :param subject: subject name.
+        :return: New chart.
+        """
+        charts_manager = StatisticsManager(grades_data)
+        grades_number: dict[float, int] = charts_manager.grades_number(subject)
         return all_grades_histogram_plot(grades_number, "dark")
 
     def _destroy_old_canvas(self) -> None:
@@ -670,6 +690,11 @@ class AverageView(BaseView):
             collect()
 
     def _create_chart_content(self, chart: Figure) -> None:
+        """
+        This method creates GUI content.
+        :param chart: chart to display.
+        :return: Nothing, only creates GUI content.
+        """
         self.canvas = FigureCanvasTkAgg(chart, master=self)
         self.canvas.draw()
 
@@ -678,6 +703,10 @@ class AverageView(BaseView):
         canvas_widget.grid(row=5, rowspan=27, column=0, columnspan=8, padx=5, pady=5, sticky="nsew")
 
     def avg_chart_gui(self) -> None:
+        """
+        This method creates avg histogram chart.
+        :return: Nothing, only creates GUI content
+        """
         if (grades_data := initiate_grade_monitor()) is None:
             return
 
@@ -685,6 +714,11 @@ class AverageView(BaseView):
         self._create_chart_content(chart)
 
     def histogram_grades_gui(self, subject: list[str]) -> None:
+        """
+        This method creates histogram chart.
+        :param subject: subject name.
+        :return: Nothing, only creates GUI content
+        """
         if (grades_data := initiate_grade_monitor()) is None:
             return
 
@@ -692,6 +726,11 @@ class AverageView(BaseView):
         self._create_chart_content(chart)
 
     def pie_grades_gui(self, subject: list[str]) -> None:
+        """
+        This method creates pie chart.
+        :param subject: subject name.
+        :return: Nothing, only creates GUI content
+        """
         if (grades_data := initiate_grade_monitor()) is None:
             return
 
@@ -699,6 +738,11 @@ class AverageView(BaseView):
         self._create_chart_content(chart)
 
     def change_gui(self, _=None) -> None:
+        """
+        This method is responsible for changing GUIs.
+        :param _: temp param for get().
+        :return: Nothing, only changes windows.
+        """
         button_value = self.menu_button.get()
         self._destroy_old_canvas()
 
@@ -741,7 +785,7 @@ class AverageView(BaseView):
         self.menu_label.grid(row=2, rowspan=2, column=5, columnspan=2, padx=1, pady=20, sticky="ew")
 
         self.subject_name_option = ctk.CTkOptionMenu(
-            self.menu_label, values=self.subject_data, width=150, font=("Roboto", 18)
+            self.menu_label, values=self.subject_data, width=150, font=("Roboto", 18), command=self.change_gui
         )
         self.subject_name_option.grid(row=0, column=0, padx=6, pady=6, sticky="nsew")
 
@@ -776,13 +820,11 @@ class ChatView(BaseView):
         """
         self.users_listbox = ctk.CTkScrollableFrame(self)
         self.users_listbox.grid(row=0, rowspan=32, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
-
-        # Configure the scrollable frame's internal grid
         self.users_listbox.grid_columnconfigure(0, weight=1)
 
         users = get_all_users()
         for i, user in enumerate(users or []):
-            if user[0] == Session.id:  # remove own user
+            if user[0] == Session.id:
                 continue
             user_button = ctk.CTkButton(
                 self.users_listbox, text=user[1], font=("Roboto", 16), command=lambda u=user[2]: self.on_user_click(u)
