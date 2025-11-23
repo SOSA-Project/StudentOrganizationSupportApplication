@@ -607,7 +607,7 @@ class GradesView(BaseView):
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
-        labels_data = {("sub_name_add", "Subject name", 13), ("sub_ects", "Subject ECTS", 15)}
+        labels_data = {("sub_name_add", "Subject name:", 13), ("sub_ects", "Subject ECTS:", 15)}
 
         option_data = {("add_sub_ects", self.subject_ects_values, 15)}
 
