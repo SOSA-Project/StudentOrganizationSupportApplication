@@ -16,7 +16,12 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 from app.backend.grade_monitor import initiate_grade_monitor
-from app.backend.charts import StatisticsManager, subjects_averages_histogram_plot, all_grades_histogram_plot, all_grades_pie_plot
+from app.backend.charts import (
+    StatisticsManager,
+    subjects_averages_histogram_plot,
+    all_grades_histogram_plot,
+    all_grades_pie_plot,
+)
 from app.backend.database import Db
 from app.backend.registration import get_all_users
 from app.backend.registration import register_user
@@ -640,15 +645,14 @@ class AverageView(BaseView):
         grades_avg: dict[str, float] = charts_manager.subjects_averages()
         return subjects_averages_histogram_plot(grades_avg, "dark")
 
-    def _create_grades_pie_plot(self, grades_data):
+    def _create_grades_pie_plot(self, grades_data, subject):
         charts_manager: StatisticsManager = StatisticsManager(grades_data)
-        grades_number: dict[str, float] = charts_manager.grades_number(["polish", "math", "history"])
+        grades_number: dict[str, float] = charts_manager.grades_number(subject)
         return all_grades_pie_plot(grades_number, "dark")
 
-
-    def _create_grades_histogram(self, grades_data):
+    def _create_grades_histogram(self, grades_data, subject):
         charts_manager: StatisticsManager = StatisticsManager(grades_data)
-        grades_number: dict[str, float] = charts_manager.grades_number(["math", "polish", "history"])
+        grades_number: dict[str, float] = charts_manager.grades_number(subject)
         return all_grades_histogram_plot(grades_number, "dark")
 
     def _destroy_old_canvas(self) -> None:
@@ -680,39 +684,45 @@ class AverageView(BaseView):
         chart: Figure = self._create_avg_chart(grades_data)
         self._create_chart_content(chart)
 
-    def histogram_grades_gui(self) -> None:
+    def histogram_grades_gui(self, subject: list[str]) -> None:
         if (grades_data := initiate_grade_monitor()) is None:
             return
 
-        chart: Figure = self._create_grades_histogram(grades_data)
+        chart: Figure = self._create_grades_histogram(grades_data, subject)
         self._create_chart_content(chart)
 
-    def pie_grades_gui(self) -> None:
+    def pie_grades_gui(self, subject: list[str]) -> None:
         if (grades_data := initiate_grade_monitor()) is None:
             return
 
-        chart: Figure = self._create_grades_pie_plot(grades_data)
+        chart: Figure = self._create_grades_pie_plot(grades_data, subject)
         self._create_chart_content(chart)
-
 
     def change_gui(self, _=None) -> None:
         button_value = self.menu_button.get()
-        option_value = self.subject_name_option.get()
-        print(button_value)
-        print(option_value)
+        self._destroy_old_canvas()
+
+        match button_value:
+            case "Average":
+                self.avg_chart_gui()
+            case "Histogram":
+                option_value = self.subject_name_option.get()
+                self.histogram_grades_gui(option_value)
+            case "Pie Chart":
+                option_value = self.subject_name_option.get()
+                self.pie_grades_gui(option_value)
 
     def create_frame_content(self) -> ctk.CTkFrame:
         """
         This method creates elements visible on the frame.
         :return: new ctk frame.
         """
-        #TODO trzeba dodac obsluge guzikow, menu rozwijalnego, zeby mozna bylo wybrac wykres
         self.menu_button = ctk.CTkSegmentedButton(
             self,
             values=self.menu_values,
             font=("Roboto", 24),
             command=self.change_gui,
-            height=50,
+            height=60,
             corner_radius=10,
             fg_color="#242424",
             border_width=5,
@@ -724,18 +734,18 @@ class AverageView(BaseView):
             self,
             text="",
             font=("Roboto", 24),
-            height=50,
+            height=60,
             corner_radius=10,
             fg_color="#242424",
         )
         self.menu_label.grid(row=2, rowspan=2, column=5, columnspan=2, padx=1, pady=20, sticky="ew")
 
-        self.subject_name_option = ctk.CTkOptionMenu(self.menu_label, values=self.subject_data, width=150, font=("Roboto", 18))
-        self.subject_name_option.grid(row=0, column=0, padx=5, pady=0, sticky="ew")
+        self.subject_name_option = ctk.CTkOptionMenu(
+            self.menu_label, values=self.subject_data, width=150, font=("Roboto", 18)
+        )
+        self.subject_name_option.grid(row=0, column=0, padx=6, pady=6, sticky="nsew")
 
-        self._destroy_old_canvas()
-        self.pie_grades_gui()
-
+        self.change_gui()
 
     def refresh(self) -> None:
         """

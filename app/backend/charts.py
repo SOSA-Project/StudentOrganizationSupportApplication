@@ -34,7 +34,7 @@ class StatisticsManager:
 
         return subjects_averages
 
-    def grades_number(self, subjects: list[str]=None) -> dict[str, float]:
+    def grades_number(self, subjects: list[str] = None) -> dict[str, float]:
         """
         Method prepare data for charts
         :param subjects: subject names
@@ -144,7 +144,7 @@ def subjects_averages_histogram_plot(averages: dict[str, float], theme: str) -> 
     :param theme: 'light' or 'dark'
     :return: Figure that can be displayed in application GUI
     """
-    fig = Figure(figsize=(15, 10), frameon=False)
+    fig = Figure(figsize=(10, 6), frameon=False)
     ax = fig.add_subplot(111)
 
     t_color, edge_color = _configure_theme(theme)
