@@ -279,7 +279,15 @@ class GradesView(BaseView):
 
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
-        self.menu_values = ("Add grade", "Edit grade", "Delete grade", "Add subject", "Edit subject", "Delete subject", "Show grades")
+        self.menu_values = (
+            "Add grade",
+            "Edit grade",
+            "Delete grade",
+            "Add subject",
+            "Edit subject",
+            "Delete subject",
+            "Show grades",
+        )
         self.grades = ("1", "2", "3", "3.5", "4", "4.5", "5", "6")
         self.grade_weight_sem = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
         self.subject_ects_values = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
@@ -301,7 +309,7 @@ class GradesView(BaseView):
         self.subject_views = {
             "add_view": self.add_subject_gui(),
             "delete_view": self.delete_subject_gui(),
-            "edit_view": self.edit_subject_gui()
+            "edit_view": self.edit_subject_gui(),
         }
 
         self.show_view(self.grade_views["edit_view"])
@@ -349,6 +357,16 @@ class GradesView(BaseView):
             self.labels_container[l_key].grid(row=l_row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
 
             self.options_container[o_key] = ctk.CTkOptionMenu(parent, values=o_value, width=150, font=("Roboto", 18))
+            self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+
+    def _display_labels_elements(self, labels_data, parent) -> None:
+        for l_key, l_text, l_row in labels_data:
+            self.labels_container[l_key] = ctk.CTkLabel(parent, text=l_text, font=("Roboto", 18))
+            self.labels_container[l_key].grid(row=l_row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+
+    def _display_options_elements(self, options_data, parent) -> None:
+        for o_key, o_value, o_row in options_data:
+            self.options_container[o_key] = ctk.CTkOptionMenu(parent, values=o_value, width=200, font=("Roboto", 18))
             self.options_container[o_key].grid(row=o_row, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
     def refresh_options_in_frame(self, view_name: str) -> None:
@@ -560,59 +578,75 @@ class GradesView(BaseView):
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
-        self.subject_name = ctk.CTkLabel(frame, text="Subject name:", font=("Roboto", 18))
-        self.subject_name.grid(row=13, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
-        self.subject_ects = ctk.CTkLabel(frame, text="Subject ECTS:", font=("Roboto", 18))
-        self.subject_ects.grid(row=15, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+        labels_data = {
+            ("sub_name_add", "Subject name", 13),
+            ("sub_ects", "Subject ECTS", 15)
+        }
+
+        option_data = {
+            ("add_sub_ects", self.subject_ects_values, 15)
+        }
 
         self.subject_name_input = ctk.CTkEntry(frame, width=200, placeholder_text="subject name")
         self.subject_name_input.grid(row=13, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
-        self.subject_ects_option = ctk.CTkOptionMenu(frame, values=self.subject_ects_values, width=200, font=("Roboto", 18))
-        self.subject_ects_option.grid(row=15, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
-        self.add_subject_btn = ctk.CTkButton(frame, text="Add new subject", font=("Roboto", 18), command=self.add_subject)
+        self._display_labels_elements(labels_data, frame)
+        self._display_options_elements(option_data, frame)
+
+        self.add_subject_btn = ctk.CTkButton(
+            frame, text="Add new subject", font=("Roboto", 18), command=self.add_subject
+        )
         self.add_subject_btn.grid(row=26, rowspan=3, column=3, columnspan=2, padx=(30, 5), pady=5, sticky="nsew")
 
         return frame
-
 
     def edit_subject_gui(self):
         frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
-        self.subject_id = ctk.CTkLabel(frame, text="Current subject ID:", font=("Roboto", 18))
-        self.subject_id.grid(row=10, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
-        self.subject_name = ctk.CTkLabel(frame, text="Subject name:", font=("Roboto", 18))
-        self.subject_name.grid(row=12, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
-        self.subject_ects = ctk.CTkLabel(frame, text="Subject ECTS:", font=("Roboto", 18))
-        self.subject_ects.grid(row=14, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+        labels_data = {
+            ("sub_id_edit", "Current subject ID:", 10),
+            ("sub_name_edit", "Subject name:", 12),
+            ("sub_ects_edit", "Subject ECTS", 14)
+        }
+        #TODO zmienic na dane pobrane z bazy danych
 
-        self.subject_id_option = ctk.CTkOptionMenu(frame, values=["1", "2"], width=200, font=("Roboto", 18))
-        self.subject_id_option.grid(row=10, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+        option_data = {
+            ("sub_id_option_edit", ("1", "2"), 10),
+            ("sub_ects_option_edit", self.subject_ects_values, 15)
+        }
+
         self.subject_name_input = ctk.CTkEntry(frame, width=200, placeholder_text="subject name")
         self.subject_name_input.grid(row=13, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
-        self.subject_ects_option = ctk.CTkOptionMenu(frame, values=self.subject_ects_values, width=200, font=("Roboto", 18))
-        self.subject_ects_option.grid(row=15, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+
+        self._display_labels_elements(labels_data, frame)
+        self._display_options_elements(option_data, frame)
 
         self.add_subject_btn = ctk.CTkButton(frame, text="Edit subject", font=("Roboto", 18), command=self.edit_subject)
         self.add_subject_btn.grid(row=26, rowspan=3, column=3, columnspan=2, padx=(30, 5), pady=5, sticky="nsew")
 
         return frame
 
-
     def delete_subject_gui(self):
         frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
-        self.subject_id = ctk.CTkLabel(frame, text="Current subject ID:", font=("Roboto", 18))
-        self.subject_id.grid(row=14, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+        labels_data = {
+            ("sub_id_delete", "Current subject ID:", 14)
+        }
+        #TODO zmienic na dane pobrane z bazy danych
+        option_data = {
+            ("sub_id_option_delete", ("1", "2"), 14)
+        }
 
-        self.subject_id_option = ctk.CTkOptionMenu(frame, values=["1", "2"], width=200, font=("Roboto", 18))
-        self.subject_id_option.grid(row=14, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+        self._display_labels_elements(labels_data, frame)
+        self._display_options_elements(option_data, frame)
 
-        self.add_subject_btn = ctk.CTkButton(frame, text="Delete subject", font=("Roboto", 18), command=self.delete_subject)
+        self.add_subject_btn = ctk.CTkButton(
+            frame, text="Delete subject", font=("Roboto", 18), command=self.delete_subject
+        )
         self.add_subject_btn.grid(row=26, rowspan=3, column=3, columnspan=2, padx=(30, 5), pady=5, sticky="nsew")
 
         return frame
