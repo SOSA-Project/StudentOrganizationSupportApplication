@@ -283,13 +283,13 @@ class GradesView(BaseView):
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
         self.menu_values = (
+            "Show grades",
             "Add grade",
             "Edit grade",
             "Delete grade",
             "Add subject",
             "Edit subject",
             "Delete subject",
-            "Show grades",
         )
         self.grades = ("1", "2", "3", "3.5", "4", "4.5", "5", "6")
         self.grade_weight_sem = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
@@ -317,7 +317,7 @@ class GradesView(BaseView):
         }
 
         self.show_view(self.grade_views["edit_view"])
-        self.show_view(self.grade_views["add_view"])
+        self.show_view(self.grade_views["show_grades"])
 
     def _prepare_data_for_db(self) -> dict[str, int | str]:
         """
@@ -432,23 +432,28 @@ class GradesView(BaseView):
             case "Add grade":
                 self.refresh_options_in_frame("add_view")
                 self.show_view(self.grade_views["add_view"])
+                self.menu_label.configure(text="")
             case "Edit grade":
                 self.refresh_options_in_frame("edit_view")
                 self.show_view(self.grade_views["edit_view"])
+                self.menu_label.configure(text="")
             case "Delete grade":
                 self.refresh_options_in_frame("delete_view")
                 self.show_view(self.grade_views["delete_view"])
+                self.menu_label.configure(text="")
             case "Show grades":
                 self.refresh_grades_table()
                 self.show_view(self.grade_views["show_grades"])
+                self.menu_label.configure(text="Student grades")
             case "Add subject":
                 self.show_view(self.subject_views["add_view"])
+                self.menu_label.configure(text="")
             case "Edit subject":
                 self.show_view(self.subject_views["edit_view"])
+                self.menu_label.configure(text="")
             case "Delete subject":
                 self.show_view(self.subject_views["delete_view"])
-
-        self.menu_label.configure(text="")
+                self.menu_label.configure(text="")
 
     def add_grade(self) -> None:
         """
@@ -736,8 +741,11 @@ class GradesView(BaseView):
         self.grades_textbox: ctk.CTkTextbox = ctk.CTkTextbox(frame, font=("Consolas", 18), fg_color="#242424")
         self.grades_textbox.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
         self.grades_textbox.configure(state="disabled")
+        self.grades_textbox._textbox.tag_configure("center", justify="center")
+        self.grades_textbox._textbox.tag_configure("right", justify="right")
 
         self.refresh_grades_table()
+        self.menu_label.configure(text="Student grades")
 
         return frame
 
@@ -762,15 +770,18 @@ class GradesView(BaseView):
             headers: tuple[str, ...] = ("ID", "Value", "Subject", "ECTS", "Weight", "Type")
             self.grades_textbox.insert(
                 "end",
-                f"{headers[0]:<6} {headers[1]:<8} {headers[2]:<20} {headers[3]:<6} {headers[4]:<8} {headers[5]:<10}\n",
+                f"  {headers[0]:<6} {headers[1]:<8} "
+                f"{headers[2]:<20} {headers[3]:<6} {headers[4]:<8} {headers[5]:<10}\n",
+                ("center"),
             )
-            self.grades_textbox.insert("end", "-" * 63 + "\n")
+            self.grades_textbox.insert("end", "-" * 63 + "\n", ("center"))
 
             for g_value, s_name, s_ects, g_weight, g_type, g_id in grades_data:
                 self.grades_textbox.insert(
                     "end",
-                    f"{g_id:<6} {g_value:<8} {s_name:<20} {s_ects:<6} "
+                    f"  {g_id:<6} {g_value:<8} {s_name:<20} {s_ects:<6} "
                     f"{g_weight:<8} {decode_grade_type[int(g_type)]:<12}\n",
+                    ("center"),
                 )
 
         self.grades_textbox.configure(state="disabled")
