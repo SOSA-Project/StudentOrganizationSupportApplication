@@ -275,6 +275,203 @@ class NotesView(BaseView):
             content_label.pack(anchor="w", padx=8, pady=(0, 12))
 
 
+class AverageView(BaseView):
+    """
+    View for average widget.
+    """
+
+    def __init__(self, parent: ctk.CTk) -> None:
+        super().__init__(parent)
+        self.canvas: FigureCanvasTkAgg | None = None
+        self.menu_values: tuple[str, ...] = ("Average", "Histogram", "Pie Chart")
+        subjects = Db.fetch_subjects()
+        self.subject_data = tuple(subject[1] for subject in subjects) if subjects else ("None",)
+        self.create_frame_content()
+
+    def update_subject_data(self, new_subjects: tuple[str, ...]) -> None:
+        """
+        This method is responsible for updating option menu values.
+        :param new_subjects: updated subjects data.
+        :return: Nothing, only update data.
+        """
+        self.subject_data = new_subjects
+
+        if hasattr(self, "menu_label") and hasattr(self, "subject_name_option"):
+            self.subject_name_option: ctk.CTkOptionMenu
+            self.subject_name_option.grid_forget()
+            self.subject_name_option.destroy()
+
+            self.subject_name_option = ctk.CTkOptionMenu(
+                self.menu_label, values=self.subject_data, width=150, font=("Roboto", 18), command=self.change_gui
+            )
+            self.subject_name_option.grid(row=0, column=0, padx=6, pady=6, sticky="nsew")
+
+            if self.subject_data:
+                self.subject_name_option.set(self.subject_data[0])
+
+    @classmethod
+    def _create_avg_chart(cls, monitor: GradeMonitor) -> Figure:
+        """
+        This method creates new chart based on provided data.
+        :param monitor: data about grades.
+        :return: New chart.
+        """
+        charts_manager = StatisticsManager(monitor)
+        grades_avg = charts_manager.subjects_averages()
+        return subjects_averages_histogram_plot(grades_avg, "dark")
+
+    @classmethod
+    def _create_grades_pie_plot(cls, grades_data: GradeMonitor, subject: list[str]) -> Figure:
+        """
+        This method creates new chart based on provided data.
+        :param grades_data: data about grades.
+        :param subject: subject name.
+        :return: New chart.
+        """
+        charts_manager = StatisticsManager(grades_data)
+        grades_number: dict[float, int] = charts_manager.grades_number(subject)
+        return all_grades_pie_plot(grades_number, "dark")
+
+    @classmethod
+    def _create_grades_histogram(cls, grades_data: GradeMonitor, subject: list[str]) -> Figure:
+        """
+        This method creates new chart based on provided data.
+        :param grades_data: data about grades.
+        :param subject: subject name.
+        :return: New chart.
+        """
+        charts_manager = StatisticsManager(grades_data)
+        grades_number: dict[float, int] = charts_manager.grades_number(subject)
+        return all_grades_histogram_plot(grades_number, "dark")
+
+    def _destroy_old_canvas(self) -> None:
+        """
+        Method delete old chart from app.
+        :return: Nothing, only delete old chart.
+        """
+        if self.canvas is not None:
+            widget = self.canvas.get_tk_widget()
+            widget.destroy()
+            fig = self.canvas.figure
+            fig.clear()
+            plt.close(fig)
+            self.canvas = None
+            collect()
+
+    def _create_chart_content(self, chart: Figure) -> None:
+        """
+        This method creates GUI content.
+        :param chart: chart to display.
+        :return: Nothing, only creates GUI content.
+        """
+        self.canvas = FigureCanvasTkAgg(chart, master=self)
+        self.canvas.draw()
+
+        canvas_widget = self.canvas.get_tk_widget()
+        canvas_widget.configure(bg=self.cget("fg_color"), highlightthickness=0, bd=0)
+        canvas_widget.grid(row=5, rowspan=27, column=0, columnspan=8, padx=5, pady=5, sticky="nsew")
+
+    def avg_chart_gui(self) -> None:
+        """
+        This method creates avg histogram chart.
+        :return: Nothing, only creates GUI content
+        """
+        if (grades_data := initiate_grade_monitor()) is None:
+            return
+
+        chart: Figure = self._create_avg_chart(grades_data)
+        self._create_chart_content(chart)
+
+    def histogram_grades_gui(self, subject: list[str]) -> None:
+        """
+        This method creates histogram chart.
+        :param subject: subject name.
+        :return: Nothing, only creates GUI content
+        """
+        if (grades_data := initiate_grade_monitor()) is None:
+            return
+
+        chart: Figure = self._create_grades_histogram(grades_data, subject)
+        self._create_chart_content(chart)
+
+    def pie_grades_gui(self, subject: list[str]) -> None:
+        """
+        This method creates pie chart.
+        :param subject: subject name.
+        :return: Nothing, only creates GUI content
+        """
+        if (grades_data := initiate_grade_monitor()) is None:
+            return
+
+        chart: Figure = self._create_grades_pie_plot(grades_data, subject)
+        self._create_chart_content(chart)
+
+    def change_gui(self, _=None) -> None:
+        """
+        This method is responsible for changing GUIs.
+        :param _: temp param for get().
+        :return: Nothing, only changes windows.
+        """
+        button_value = self.menu_button.get()
+        self._destroy_old_canvas()
+
+        match button_value:
+            case "Average":
+                self.avg_chart_gui()
+            case "Histogram":
+                option_value = self.subject_name_option.get()
+                self.subject_name_option.configure(values=self.subject_data)
+                print(self.subject_data)
+                self.histogram_grades_gui(option_value)
+            case "Pie Chart":
+                option_value = self.subject_name_option.get()
+                self.subject_name_option.configure(values=self.subject_data)
+                print(self.subject_data)
+                self.pie_grades_gui(option_value)
+
+    def create_frame_content(self) -> ctk.CTkFrame:
+        """
+        This method creates elements visible on the frame.
+        :return: new ctk frame.
+        """
+        self.menu_button = ctk.CTkSegmentedButton(
+            self,
+            values=self.menu_values,
+            font=("Roboto", 24),
+            command=self.change_gui,
+            height=60,
+            corner_radius=10,
+            fg_color="#242424",
+            border_width=5,
+        )
+        self.menu_button.grid(row=2, rowspan=2, column=1, columnspan=4, padx=1, pady=20, sticky="ew")
+        self.menu_button.set(self.menu_values[0])
+
+        self.menu_label = ctk.CTkLabel(
+            self,
+            text="",
+            font=("Roboto", 24),
+            height=60,
+            corner_radius=10,
+            fg_color="#242424",
+        )
+        self.menu_label.grid(row=2, rowspan=2, column=5, columnspan=2, padx=1, pady=20, sticky="ew")
+
+        self.subject_name_option = ctk.CTkOptionMenu(
+            self.menu_label, values=self.subject_data, width=150, font=("Roboto", 18), command=self.change_gui
+        )
+        self.subject_name_option.grid(row=0, column=0, padx=6, pady=6, sticky="nsew")
+
+        self.change_gui()
+
+    def refresh(self) -> None:
+        """
+        Method refresh chart.
+        :return: Nothing, only refresh chart
+        """
+        self.create_frame_content()
+
+
 class GradesView(BaseView):
     """
     View for grades.
@@ -282,6 +479,8 @@ class GradesView(BaseView):
 
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
+        self.average_view = AverageView(parent=self)
+
         self.menu_values = (
             "Show grades",
             "Add grade",
@@ -610,6 +809,7 @@ class GradesView(BaseView):
         self.subject_id_data = self._update_options_data_sub()
         self.delete_subject_option_menu.configure(values=self.subject_id_data)
         self.sub_id_data_option_menu.configure(values=self.subject_id_data)
+        self.average_view.update_subject_data(self.subject_data)
         self.menu_label.configure(text="New subject has been added")
 
     def edit_subject(self) -> None:
@@ -630,6 +830,7 @@ class GradesView(BaseView):
         self.subject_id_data = self._update_options_data_sub()
         self.delete_subject_option_menu.configure(values=self.subject_id_data)
         self.sub_id_data_option_menu.configure(values=self.subject_id_data)
+        self.average_view.update_subject_data(self.subject_data)
         self.menu_label.configure(text="Subject has been updated")
 
     def delete_subject(self) -> None:
@@ -645,6 +846,7 @@ class GradesView(BaseView):
         self.subject_id_data = self._update_options_data_sub()
         self.delete_subject_option_menu.configure(values=self.subject_id_data)
         self.sub_id_data_option_menu.configure(values=self.subject_id_data)
+        self.average_view.update_subject_data(self.subject_data)
         self.menu_label.configure(text="Subject has been deleted")
 
     def add_subject_gui(self) -> ctk.CTkFrame:
@@ -700,8 +902,10 @@ class GradesView(BaseView):
         self._display_options_elements(option_data, frame)
 
         self.sub_id_data_option_menu = self.options_container["sub_id_option_edit"]
-        self.add_subject_btn = ctk.CTkButton(frame, text="Edit subject", font=("Roboto", 18), command=self.edit_subject)
-        self.add_subject_btn.grid(row=26, rowspan=3, column=3, columnspan=2, padx=(30, 5), pady=5, sticky="nsew")
+        self.edit_subject_btn = ctk.CTkButton(
+            frame, text="Edit subject", font=("Roboto", 18), command=self.edit_subject
+        )
+        self.edit_subject_btn.grid(row=26, rowspan=3, column=3, columnspan=2, padx=(30, 5), pady=5, sticky="nsew")
 
         return frame
 
@@ -722,10 +926,10 @@ class GradesView(BaseView):
         self._display_options_elements(option_data, frame)
         self.delete_subject_option_menu = self.options_container["sub_id_option_delete"]
 
-        self.add_subject_btn = ctk.CTkButton(
+        self.delete_subject_btn = ctk.CTkButton(
             frame, text="Delete subject", font=("Roboto", 18), command=self.delete_subject
         )
-        self.add_subject_btn.grid(row=26, rowspan=3, column=3, columnspan=2, padx=(30, 5), pady=5, sticky="nsew")
+        self.delete_subject_btn.grid(row=26, rowspan=3, column=3, columnspan=2, padx=(30, 5), pady=5, sticky="nsew")
 
         return frame
 
@@ -823,178 +1027,6 @@ class GradesView(BaseView):
         view.tkraise()
         self.current_view = view
         self.current_view.grid(row=6, rowspan=19, column=2, columnspan=4, padx=5, pady=5, sticky="nsew")
-
-
-class AverageView(BaseView):
-    """
-    View for average widget.
-    """
-
-    def __init__(self, parent: ctk.CTk) -> None:
-        super().__init__(parent)
-        self.canvas: FigureCanvasTkAgg | None = None
-        self.menu_values: tuple[str, ...] = ("Average", "Histogram", "Pie Chart")
-        subjects = Db.fetch_subjects()
-        self.subject_data = tuple(subject[1] for subject in subjects) if subjects else ("None",)
-        self.create_frame_content()
-
-    @classmethod
-    def _create_avg_chart(cls, monitor: GradeMonitor) -> Figure:
-        """
-        This method creates new chart based on provided data.
-        :param monitor: data about grades.
-        :return: New chart.
-        """
-        charts_manager = StatisticsManager(monitor)
-        grades_avg = charts_manager.subjects_averages()
-        return subjects_averages_histogram_plot(grades_avg, "dark")
-
-    @classmethod
-    def _create_grades_pie_plot(cls, grades_data: GradeMonitor, subject: list[str]) -> Figure:
-        """
-        This method creates new chart based on provided data.
-        :param grades_data: data about grades.
-        :param subject: subject name.
-        :return: New chart.
-        """
-        charts_manager = StatisticsManager(grades_data)
-        grades_number: dict[float, int] = charts_manager.grades_number(subject)
-        return all_grades_pie_plot(grades_number, "dark")
-
-    @classmethod
-    def _create_grades_histogram(cls, grades_data: GradeMonitor, subject: list[str]) -> Figure:
-        """
-        This method creates new chart based on provided data.
-        :param grades_data: data about grades.
-        :param subject: subject name.
-        :return: New chart.
-        """
-        charts_manager = StatisticsManager(grades_data)
-        grades_number: dict[float, int] = charts_manager.grades_number(subject)
-        return all_grades_histogram_plot(grades_number, "dark")
-
-    def _destroy_old_canvas(self) -> None:
-        """
-        Method delete old chart from app.
-        :return: Nothing, only delete old chart.
-        """
-        if self.canvas is not None:
-            widget = self.canvas.get_tk_widget()
-            widget.destroy()
-            fig = self.canvas.figure
-            fig.clear()
-            plt.close(fig)
-            self.canvas = None
-            collect()
-
-    def _create_chart_content(self, chart: Figure) -> None:
-        """
-        This method creates GUI content.
-        :param chart: chart to display.
-        :return: Nothing, only creates GUI content.
-        """
-        self.canvas = FigureCanvasTkAgg(chart, master=self)
-        self.canvas.draw()
-
-        canvas_widget = self.canvas.get_tk_widget()
-        canvas_widget.configure(bg=self.cget("fg_color"), highlightthickness=0, bd=0)
-        canvas_widget.grid(row=5, rowspan=27, column=0, columnspan=8, padx=5, pady=5, sticky="nsew")
-
-    def avg_chart_gui(self) -> None:
-        """
-        This method creates avg histogram chart.
-        :return: Nothing, only creates GUI content
-        """
-        if (grades_data := initiate_grade_monitor()) is None:
-            return
-
-        chart: Figure = self._create_avg_chart(grades_data)
-        self._create_chart_content(chart)
-
-    def histogram_grades_gui(self, subject: list[str]) -> None:
-        """
-        This method creates histogram chart.
-        :param subject: subject name.
-        :return: Nothing, only creates GUI content
-        """
-        if (grades_data := initiate_grade_monitor()) is None:
-            return
-
-        chart: Figure = self._create_grades_histogram(grades_data, subject)
-        self._create_chart_content(chart)
-
-    def pie_grades_gui(self, subject: list[str]) -> None:
-        """
-        This method creates pie chart.
-        :param subject: subject name.
-        :return: Nothing, only creates GUI content
-        """
-        if (grades_data := initiate_grade_monitor()) is None:
-            return
-
-        chart: Figure = self._create_grades_pie_plot(grades_data, subject)
-        self._create_chart_content(chart)
-
-    def change_gui(self, _=None) -> None:
-        """
-        This method is responsible for changing GUIs.
-        :param _: temp param for get().
-        :return: Nothing, only changes windows.
-        """
-        button_value = self.menu_button.get()
-        self._destroy_old_canvas()
-
-        match button_value:
-            case "Average":
-                self.avg_chart_gui()
-            case "Histogram":
-                option_value = self.subject_name_option.get()
-                self.histogram_grades_gui(option_value)
-            case "Pie Chart":
-                option_value = self.subject_name_option.get()
-                self.pie_grades_gui(option_value)
-
-    def create_frame_content(self) -> ctk.CTkFrame:
-        """
-        This method creates elements visible on the frame.
-        :return: new ctk frame.
-        """
-        self.menu_button = ctk.CTkSegmentedButton(
-            self,
-            values=self.menu_values,
-            font=("Roboto", 24),
-            command=self.change_gui,
-            height=60,
-            corner_radius=10,
-            fg_color="#242424",
-            border_width=5,
-        )
-        self.menu_button.grid(row=2, rowspan=2, column=1, columnspan=4, padx=1, pady=20, sticky="ew")
-        self.menu_button.set(self.menu_values[0])
-
-        self.menu_label = ctk.CTkLabel(
-            self,
-            text="",
-            font=("Roboto", 24),
-            height=60,
-            corner_radius=10,
-            fg_color="#242424",
-        )
-        self.menu_label.grid(row=2, rowspan=2, column=5, columnspan=2, padx=1, pady=20, sticky="ew")
-
-        self.subject_name_option = ctk.CTkOptionMenu(
-            self.menu_label, values=self.subject_data, width=150, font=("Roboto", 18), command=self.change_gui
-        )
-        self.subject_name_option.grid(row=0, column=0, padx=6, pady=6, sticky="nsew")
-
-        self.change_gui()
-
-    def refresh(self) -> None:
-        """
-        Method refresh chart.
-        :return: Nothing, only refresh chart
-        """
-        self.create_frame_content()
 
 
 class ChatView(BaseView):
