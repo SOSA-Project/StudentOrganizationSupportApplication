@@ -1,6 +1,7 @@
 import uuid
 import hashlib
 from app.backend.database import Db
+from app.backend.session import Session
 
 
 def get_all_users() -> list[tuple[int, str, str]] | None:
@@ -16,37 +17,83 @@ def get_all_users() -> list[tuple[int, str, str]] | None:
         return []
 
 
-def encrypt_uuid(plain_uuid: str) -> str:
+class Auth:
     """
-    Encrypts the UUID using SHA-256 hash.
-    :param plain_uuid: UUID string
-    :return: Encrypted (hashed) UUID
+    Class responsible for user registration, login, logout, and session management.
     """
-    return hashlib.sha256(plain_uuid.encode("utf-8")).hexdigest()
 
+    @staticmethod
+    def hash_password(password: str) -> str:
+        """
+        Creates SHA-256 hash of the provided password.
+        :param password: password to hash
+        :return: hashed password as a string
+        """
+        return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
-def register_user(name: str) -> dict[str, str] | None:
-    """
-    Registers a new user if not existing already.
-    Encrypts UUID before storing it.
-    :param name: Username
-    :return: User details or None
-    """
-    if not name or not name.strip():
-        print("Invalid username — cannot be empty.")
-        return None
+    @staticmethod
+    def register_user(username: str, password: str) -> bool:
+        """
+        Registers a new user.
+        :param username: username to register
+        :param password: password to register
+        :return: True if registration was successful, False otherwise
+        """
+        if not username or not password:
+            print("Fields cannot be empty.")
+            return False
 
-    users = get_all_users()
-    if users and any(u[1].lower() == name.lower() for u in users):
-        print(f"User '{name}' already exists.")
-        return None
+        if Db.fetch_user_by_name(username):
+            print("User already exists.")
+            return False
 
-    new_uuid = str(uuid.uuid4())
-    encrypted_uuid = encrypt_uuid(new_uuid)
+        user_uuid = str(uuid.uuid4())
+        password_hash = Auth.hash_password(password)
 
-    success = Db.insert_users(name, encrypted_uuid)
-    if not success:
-        print("Error inserting user into database.")
-        return None
-    print("Successfully registered.")
-    return {"name": name, "uuid": encrypted_uuid}
+        if Db.insert_users(username, user_uuid, password_hash):
+            print("Registration successful!")
+            return True
+
+        print("Registration failed.")
+        return False
+
+    @staticmethod
+    def login_user(username: str, password: str) -> bool:
+        """
+        Login a user.
+        :param username: username to login
+        :param password: password to login
+        :return: True if login was successful, False otherwise
+        """
+        try:
+            user = Db.fetch_user_by_name(username)
+            if not user:
+                print("User not found.")
+                return False
+
+            user_id, stored_name, stored_uuid, stored_hash = user
+            if Auth.hash_password(password) != stored_hash:
+                print("Wrong password.")
+                return False
+
+            Session.set_user_details((user_id, stored_name, stored_uuid))
+            print("Login successful!")
+            return True
+        except Exception as e:
+            print(f"Login failed due to DB error: {e}")
+            return False
+
+    @staticmethod
+    def logout():
+        """
+        Logs out the current user by resetting the session.
+        """
+        Session.reset_session()
+
+    @staticmethod
+    def is_authenticated() -> bool:
+        """
+        Checks if there is an active user session.
+        :return: True if a user is logged in, False otherwise
+        """
+        return Session.id is not None
