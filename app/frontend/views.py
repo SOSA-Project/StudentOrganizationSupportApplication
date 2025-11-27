@@ -236,43 +236,232 @@ class NotesView(BaseView):
 
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
-        self.note_manager = initiate_note_manager()
+
+        self.menu_values = (
+            "Show notes",
+            "Add note",
+            "Delete note",
+            "Edit note",
+        )
+
         self.create_frame_content()
 
-    def create_frame_content(self) -> ctk.CTkFrame:
+        self.note_views = {
+            "show_notes": self.show_notes_gui(),
+            "add_note": self.add_note_gui(),
+            "delete_note": self.delete_note_gui(),
+            "edit_note": self.edit_note_gui(),
+        }
+
+        self.show_view(self.note_views["show_notes"])
+
+    def change_gui(self, _=None) -> None:
         """
-        This method creates elements visible on the frame.
-        :return: new ctk frame.
+        Method that is responsible for changing GUIs.
+        :param _: temp param for get().
+        :return: Nothing
         """
-        label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Notes", font=("Roboto", 18))
-        label_one.grid(row=0, rowspan=2, column=0, columnspan=8, padx=5, pady=5)
+        button_value = self.menu_button.get()
 
-        scrollable_frame: ctk.CTkScrollableFrame = ctk.CTkScrollableFrame(self)
-        scrollable_frame.grid(row=2, column=0, padx=5, pady=5, columnspan=8, sticky="nsew", rowspan=50)
+        match button_value:
+            case "Show notes":
+                self.show_view(self.note_views["show_notes"])
+                self.menu_label.configure(text="")
+            case "Add note":
+                self.show_view(self.note_views["add_note"])
+                self.menu_label.configure(text="")
+            case "Delete note":
+                self.note_id_optionmenu.configure(values=self.get_note_ids())
+                self.show_view(self.note_views["delete_note"])
+                self.menu_label.configure(text="")
+            case "Edit note":
+                self.note_id_optionmenu.configure(values=self.get_note_ids())
+                self.show_view(self.note_views["edit_note"])
+                self.menu_label.configure(text="")
 
-        if not self.note_manager or not self.note_manager.get_all_notes():
-            empty_label: ctk.CTkLabel = ctk.CTkLabel(scrollable_frame, text="Notes are empty", font=("Roboto", 14))
-            empty_label.pack(pady=20)
-            return scrollable_frame
+    def add_note_gui(self) -> ctk.CTkFrame:
+        """
+        Method that creates GUI for adding new notes into database.
+        :return: New CTK frame.
+        """
+        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
+        frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
-        notes: list[Note] = self.note_manager.get_all_notes()
+        labels_data = {
+            ("title_label", "Note title:", 10),
+            ("content_label", "Note content:", 12),
+        }
 
-        for i, note in enumerate(notes):
-            note_frame: ctk.CTkFrame = ctk.CTkFrame(scrollable_frame, fg_color=note.color)
-            note_frame.pack(fill="x", pady=8, padx=8)
+        for key, text, row in labels_data:
+            label = ctk.CTkLabel(frame, text=text, font=("Roboto", 18))
+            label.grid(row=row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+            setattr(self, key, label)
 
-            title_label: ctk.CTkLabel = ctk.CTkLabel(note_frame, text=note.title, font=("Roboto", 20))
-            title_label.pack(anchor="w", padx=8, pady=(8, 0))
+        self.note_title_input = ctk.CTkEntry(frame, width=250)
+        self.note_title_input.grid(row=10, rowspan=2, column=4, columnspan=2, padx=5, pady=5, sticky="ew")
 
-            date_label: ctk.CTkLabel = ctk.CTkLabel(
-                note_frame, text=f"Created at: {note.created_at}", font=("Roboto", 12)
-            )
-            date_label.pack(anchor="w", padx=8, pady=(2, 4))
+        self.note_content_input = ctk.CTkTextbox(frame, width=250, height=250)
+        self.note_content_input.grid(row=12, rowspan=6, column=4, columnspan=2, padx=5, pady=5, sticky="nsew")
 
-            content_label: ctk.CTkLabel = ctk.CTkLabel(
-                note_frame, text=note.content, wraplength=500, font=("Roboto", 18), justify="left"
-            )
-            content_label.pack(anchor="w", padx=8, pady=(0, 12))
+        self.add_note_btn = ctk.CTkButton(
+            frame,
+            text="Add new note",
+            font=("Roboto", 18),
+        )
+        self.add_note_btn.grid(row=26, rowspan=3, column=3, columnspan=2, padx=5, pady=5, sticky="nsew")
+
+        return frame
+
+    def get_note_ids(self) -> tuple[str, ...]:
+        """
+        This method gets note ids from database.
+        :return: Tuple of note ids.
+        """
+        notes = Db.fetch_notes()
+        if not notes:
+            return ("None",)
+        return tuple(str(note[0]) for note in notes)
+
+    def edit_note_gui(self) -> ctk.CTkFrame:
+        """
+        This method creates GUI for editing existing notes into database.
+        :return: New CTK frame.
+        """
+        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
+        frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
+
+        labels_data = {
+            ("note_id_label", "Select note ID:", 10),
+            ("title_label", "Note title:", 12),
+            ("content_label", "Note content:", 14),
+        }
+
+        for key, text, row in labels_data:
+            label = ctk.CTkLabel(frame, text=text, font=("Roboto", 18))
+            label.grid(row=row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+            setattr(self, key, label)
+
+        self.edit_note_id_optionmenu = ctk.CTkOptionMenu(
+            frame, values=self.get_note_ids(), width=200, font=("Roboto", 18)
+        )
+        self.edit_note_id_optionmenu.grid(row=10, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+
+        self.edit_note_title_input = ctk.CTkEntry(frame, width=250)
+        self.edit_note_title_input.grid(row=12, rowspan=2, column=4, columnspan=2, padx=5, pady=5, sticky="ew")
+
+        self.edit_note_content_input = ctk.CTkTextbox(frame, width=250, height=250)
+        self.edit_note_content_input.grid(row=14, rowspan=6, column=4, columnspan=2, padx=5, pady=5, sticky="nsew")
+
+        self.save_note_btn = ctk.CTkButton(
+            frame,
+            text="Save Changes",
+            font=("Roboto", 18),
+        )
+        self.save_note_btn.grid(row=26, rowspan=3, column=3, columnspan=2, padx=5, pady=5, sticky="nsew")
+
+        return frame
+
+    def delete_note_gui(self) -> ctk.CTkFrame:
+        """
+        This method creates GUI for deleting notes from database.
+        :return: New CTK frame.
+        """
+        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
+        frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
+
+        label = ctk.CTkLabel(frame, text="Select note ID to delete:", font=("Roboto", 18))
+        label.grid(row=10, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+
+        self.note_id_optionmenu = ctk.CTkOptionMenu(frame, values=self.get_note_ids(), width=200, font=("Roboto", 18))
+        self.note_id_optionmenu.grid(row=10, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+
+        self.delete_note_btn = ctk.CTkButton(
+            frame,
+            text="Delete Note",
+            font=("Roboto", 18),
+        )
+        self.delete_note_btn.grid(row=26, rowspan=3, column=3, columnspan=2, padx=5, pady=5, sticky="nsew")
+
+        return frame
+
+    def show_notes_gui(self) -> ctk.CTkFrame:
+        """
+        Method that creates GUI for showing grades in database.
+        :return: New CTK frame.
+        """
+        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame.grid_rowconfigure(0, weight=1)
+        frame.grid_columnconfigure(0, weight=1)
+
+        self.notes_textbox = ctk.CTkTextbox(frame, font=("Consolas", 16), fg_color="#242424")
+        self.notes_textbox.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        self.notes_textbox.configure(state="disabled")
+
+        self.refresh_notes_table()
+        return frame
+
+    def refresh_notes_table(self) -> None:
+        """
+        This method creates table for showing grades in database.
+        :return: Nothing.
+        """
+        notes = Db.fetch_notes()
+        self.notes_textbox.configure(state="normal")
+        self.notes_textbox.delete("1.0", "end")
+
+        if not notes:
+            self.notes_textbox.insert("end", "No notes available\n")
+        else:
+            for note in notes:
+                note_id, title, content = note[:3]
+                self.notes_textbox.insert("end", f"ID: {note_id}\n")
+                self.notes_textbox.insert("end", f"Title: {title}\n")
+                self.notes_textbox.insert("end", f"Content:\n{content}\n")
+                self.notes_textbox.insert("end", "-" * 50 + "\n")
+
+        self.notes_textbox.configure(state="disabled")
+
+    def create_frame_content(self) -> None:
+        """
+        This method creates constant GUI content.
+        :return: Nothing.
+        """
+        self.menu_button = ctk.CTkSegmentedButton(
+            self,
+            values=self.menu_values,
+            font=("Roboto", 14.5),
+            command=self.change_gui,
+            height=50,
+            corner_radius=10,
+            fg_color="#242424",
+            border_width=5,
+        )
+
+        self.menu_button.grid(row=2, rowspan=2, column=2, columnspan=4, padx=0, pady=0)
+        self.menu_button.set(self.menu_values[0])
+
+        self.menu_label = ctk.CTkLabel(
+            self,
+            text="",
+            font=("Roboto", 24),
+            height=50,
+            corner_radius=10,
+            fg_color="#242424",
+        )
+        self.menu_label.grid(row=27, rowspan=2, column=2, columnspan=4, padx=5, pady=5, sticky="ew")
+
+    def show_view(self, view: ctk.CTkFrame) -> None:
+        """
+        This method is responsible for changing GUI frames.
+        :param view: new view to display.
+        :return: Nothing, only change GUI windows.
+        """
+        view.tkraise()
+        self.current_view = view
+        self.current_view.grid(row=6, rowspan=19, column=2, columnspan=4, padx=5, pady=5, sticky="nsew")
 
 
 class AverageView(BaseView):
