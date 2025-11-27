@@ -23,8 +23,7 @@ from app.backend.charts import (
     all_grades_pie_plot,
 )
 from app.backend.database import Db
-from app.backend.registration import get_all_users
-from app.backend.registration import register_user
+from app.backend.registration import Auth, get_all_users
 from app.backend.notes import initiate_note_manager
 from app.backend.notes import Note
 from app.backend.tooltip import Tooltip
@@ -1169,6 +1168,9 @@ class LoginRegisterView(ctk.CTkFrame):
         self.username_entry = ctk.CTkEntry(self.bg_frame, placeholder_text="Username", font=("Roboto", 18))
         self.username_entry.grid(row=4, column=2, columnspan=2, sticky="ew", padx=20)
 
+        self.password_entry = ctk.CTkEntry(self.bg_frame, placeholder_text="Password", font=("Roboto", 18), show="*")
+        self.password_entry.grid(row=5, column=2, columnspan=2, sticky="ew", padx=20)
+
         login_btn = ctk.CTkButton(self.bg_frame, text="Login", font=("Roboto", 18), command=self.login_user)
         login_btn.grid(row=6, column=2, sticky="nsew", padx=10, pady=10)
 
@@ -1185,20 +1187,21 @@ class LoginRegisterView(ctk.CTkFrame):
         """
 
         username = self.username_entry.get().strip()
+        password = self.password_entry.get().strip()
         if not username:
             self.feedback_label.configure(text="Username cannot be empty!")
             return
+        if not password:
+            self.feedback_label.configure(text="Password cannot be empty!")
+            return
 
-        users = get_all_users() or []
-        user = next((u for u in users if u[1].lower() == username.lower()), None)
-        if user:
+        if Auth.login_user(username, password):
             self.feedback_label.configure(text="Login successful!", text_color="green")
             self.after(500, self.on_success)
-            Session.set_user_details(user)
             threading.Thread(target=Chat.run, daemon=True).start()
             threading.Thread(target=Server.run, daemon=True).start()
         else:
-            self.feedback_label.configure(text="User not found!")
+            self.feedback_label.configure(text="Wrong login or password!")
 
     def register_user(self) -> None:
         """
@@ -1207,12 +1210,15 @@ class LoginRegisterView(ctk.CTkFrame):
         """
 
         username = self.username_entry.get().strip()
+        password = self.password_entry.get().strip()
         if not username:
             self.feedback_label.configure(text="Username cannot be empty!")
             return
+        if not password:
+            self.feedback_label.configure(text="Password cannot be empty!")
+            return
 
-        result = register_user(username)
-        if result:
+        if Auth.register_user(username, password):
             self.feedback_label.configure(text="Registration successful!", text_color="green")
             self.after(500, self.on_success)
         else:

@@ -70,10 +70,17 @@ class Db:
                 "id"	INTEGER NOT NULL,
                 "name"	TEXT NOT NULL,
                 "uuid"	TEXT NOT NULL,
+                "password"	TEXT NOT NULL,
                 PRIMARY KEY("id")
             )
             """
         )
+        cursor.execute("PRAGMA table_info(users)")
+        columns = [col[1] for col in cursor.fetchall()]
+        if "password" not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN password TEXT NOT NULL DEFAULT ''")
+            print("Added missing 'password' column to 'users' table.")
+
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS "subjects" (
@@ -544,6 +551,20 @@ class Db:
 
     # region users
     @staticmethod
+    def fetch_user_by_name(name: str) -> tuple[int, str, str, str] | None:
+        """
+        This function fetches a single user from the database by their username.
+        :param name: username
+        :return: a tuple representing the user
+        """
+        try:
+            Db.cursor.execute("SELECT * FROM users WHERE name = ?", (name,))
+            return Db.cursor.fetchone()
+        except Exception as e:
+            print(e)
+            return None
+
+    @staticmethod
     def fetch_users() -> list[tuple[int, str, str]] | None:
         """
         This function fetches users from the database.
@@ -557,20 +578,21 @@ class Db:
             return None
 
     @staticmethod
-    def insert_users(name: str, uuid: str) -> bool:
+    def insert_users(name: str, uuid: str, password: str) -> bool:
         """
         This function inserts user into the database.
         :param name: username
         :param uuid: user uuid
+        :param password: password
         :return success status: whether insert was successful or not
         """
         try:
             Db.cursor.execute(
                 """
-                       INSERT INTO users (name, uuid)
-                       VALUES (?, ?)
+                       INSERT INTO users (name, uuid, password)
+                       VALUES (?, ?, ?)
                    """,
-                (name, uuid),
+                (name, uuid, password),
             )
             Db.conn.commit()
             return True
