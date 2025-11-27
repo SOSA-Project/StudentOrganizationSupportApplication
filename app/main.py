@@ -2,6 +2,7 @@
 File contains a function call that runs the entire project
 """
 
+from app.backend.chat import Client, Server
 from app.frontend.main_window import AppGUI
 from app.backend.database import Db
 
@@ -13,6 +14,8 @@ def on_close(app: AppGUI) -> None:
     :return: Nothing, only runs application
     """
     Db.close()
+    Client.stop()
+    Server.stop()
     app.destroy()
 
 
