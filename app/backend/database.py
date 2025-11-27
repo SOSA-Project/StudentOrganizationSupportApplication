@@ -551,7 +551,12 @@ class Db:
 
     # region users
     @staticmethod
-    def fetch_user_by_name(name: str):
+    def fetch_user_by_name(name: str) -> tuple[int, str, str, str] | None:
+        """
+        This function fetches a single user from the database by their username.
+        :param name: username
+        :return: a tuple representing the user
+        """
         try:
             Db.cursor.execute("SELECT * FROM users WHERE name = ?", (name,))
             return Db.cursor.fetchone()
