@@ -3,7 +3,6 @@ This file contains views for all widgets.
 """
 
 import random
-import threading
 import calendar
 from gc import collect
 from typing import Callable
@@ -27,7 +26,7 @@ from app.backend.registration import Auth, get_all_users
 from app.backend.notes import initiate_note_manager
 from app.backend.notes import Note
 from app.backend.tooltip import Tooltip
-from app.backend.chat import Client as Chat, Server
+from app.backend.chat import Client, Server
 from app.backend.session import Session
 
 
@@ -1253,7 +1252,7 @@ class ChatView(BaseView):
         self.chat_display.grid(row=0, rowspan=28, column=2, columnspan=6, sticky="nsew", padx=5, pady=5)
         self.chat_display.configure(state="disabled")
 
-        Chat.chat_display = self.chat_display
+        Client.chat_display = self.chat_display
 
         self.message_entry = ctk.CTkEntry(self, placeholder_text="Type your message...", font=("Roboto", 14))
         self.message_entry.grid(row=28, rowspan=2, column=2, columnspan=5, sticky="ew", padx=5, pady=5)
@@ -1302,7 +1301,7 @@ class ChatView(BaseView):
                 self.chat_display.insert("end", f"You: {message}\n")
                 self.chat_display.configure(state="disabled")
                 self.message_entry.delete(0, "end")
-                Chat.send(self.selected_user, message)
+                Client.send(self.selected_user, message)
 
 
 class SettingsView(BaseView):
@@ -1387,8 +1386,8 @@ class LoginRegisterView(ctk.CTkFrame):
         if Auth.login_user(username, password):
             self.feedback_label.configure(text="Login successful!", text_color="green")
             self.after(500, self.on_success)
-            threading.Thread(target=Chat.run, daemon=True).start()
-            threading.Thread(target=Server.run, daemon=True).start()
+            Client.thread.start()
+            Server.thread.start()
         else:
             self.feedback_label.configure(text="Wrong login or password!")
 
