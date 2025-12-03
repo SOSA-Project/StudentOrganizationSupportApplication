@@ -101,7 +101,14 @@ def initiate_notification_manager() -> NotificationManager | None:
     :return: Initialised instance of NotificationManager or None when data is verified as incorrect
     """
     try:
-        notifications = Db.fetch_notifications()
+        # notifications = Db.fetch_notifications() uncomment when implemented in database
+        notifications = [
+            (1, 1, "Test Notification", 1, "2025-12-04 18:20:00", False),
+            (2, 1, "Second Test Notification", 1, "2025-12-04 17:25:13", True),
+            (3, 1, "Test Alert", 3, "2025-12-04 16:30:23", False),
+            (4, 1, "Test Warning", 4, "2025-12-04 16:42:11", False),
+            (5, 1, "Test Error", 5, "2025-12-04 16:21:37", False),
+        ]
         if not notifications or not isinstance(notifications, list):
             return None
 

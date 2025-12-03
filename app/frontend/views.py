@@ -8,6 +8,7 @@ from gc import collect
 from typing import Callable
 from datetime import datetime
 from abc import ABC, abstractmethod
+from CTkListbox import CTkListbox
 
 import customtkinter as ctk
 import tkinter.font as tkFont
@@ -23,6 +24,7 @@ from app.backend.charts import (
     all_grades_pie_plot,
 )
 from app.backend.database import Db
+from app.backend.notifications import initiate_notification_manager, NotificationManager, NotificationType, Notification
 from app.backend.registration import Auth, get_all_users
 from app.backend.notes import initiate_note_manager
 from app.backend.notes import Note
@@ -68,7 +70,7 @@ class CalendarView(BaseView):
     def create_frame_content(self) -> None:
         """
         This method creates elements visible on the frame.
-        :return: new ctk frame.
+        :return: Nothing
         """
         header_frame = ctk.CTkFrame(self)
         header_frame.pack(pady=10, padx=20, fill="x")
@@ -217,15 +219,76 @@ class NotificationsView(BaseView):
 
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
+        self.notification_manager = initiate_notification_manager()
         self.create_frame_content()
 
-    def create_frame_content(self) -> ctk.CTkFrame:
+    def create_frame_content(self) -> None:
         """
         This method creates elements visible on the frame.
-        :return: new ctk frame.
+        :return: Nothing
         """
+
         label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Notifications", font=("Roboto", 18))
-        label_one.grid(row=0, rowspan=2, column=0, columnspan=8, padx=5, pady=5)
+        label_one.grid(row=2, column=3, columnspan=2, rowspan=4, pady=10)
+
+        notification_types = [nt.name for nt in NotificationType]
+        notification_types.insert(0, "-")
+        self.notifications_types_filter = ctk.CTkOptionMenu(self, values=notification_types, height=50, width=150)
+        self.notifications_types_filter.grid(row=6, column=3, rowspan=4, columnspan=2)
+
+        self.notifications_listbox = CTkListbox(self, height=350, width=750, fg_color="#242424")
+        self.notifications_listbox.grid(row=13, column=1, columnspan=6, rowspan=12)
+
+        mark_as_read_button = ctk.CTkButton(self, text="Mark as Read", command=self.mark_as_read, height=50, width=150)
+        mark_as_read_button.grid(row=26, column=2, pady=10, rowspan=4)
+
+        filter_button = ctk.CTkButton(self, text="Filter", command=self.filter_notifications, height=50, width=150)
+        filter_button.grid(row=26, column=5, pady=10, rowspan=4)
+
+        self.populate_notifications()
+
+    def populate_notifications(self, type_filter: str | None = None) -> None:
+        """
+        Populates notifications list box with fetched notifications
+        :return: Nothing
+        """
+        self.notifications_listbox.delete(0, ctk.END)
+
+        if self.notification_manager is not None:
+            notifications: list[Notification]
+            notifications = self.notification_manager.get_all_notifications()
+            if type_filter is not None and type_filter != "-":
+                notifications = [n for n in notifications if n.notification_type.name == filter]
+
+            for notification in notifications:
+                notification_type = notification.notification_type.name
+                is_read = "Read" if notification.is_read else "Unread"
+                time = (
+                    notification.associated_time.strftime("%Y-%m-%d %H:%M:%S")
+                    if notification.associated_time
+                    else "N/A"
+                )
+                item_text = f"[{notification_type}] {notification.message} - {time} - {is_read}"
+                self.notifications_listbox.insert(ctk.END, item_text)
+
+    def mark_as_read(self) -> None:
+        """
+        Marks a notification as read
+        :return: Nothing
+        """
+        if self.notification_manager is not None:
+            selected_index = self.notifications_listbox.curselection()
+            if selected_index is not None:
+                selected_notification = self.notification_manager.get_all_notifications()[selected_index]
+                selected_notification.mark_as_read()
+                self.populate_notifications()
+
+    def filter_notifications(self) -> None:
+        """
+        Filters notifications by type
+        :return: Nothing
+        """
+        self.populate_notifications(self.notifications_types_filter.get())
 
 
 class NotesView(BaseView):
