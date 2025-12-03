@@ -258,7 +258,7 @@ class NotificationsView(BaseView):
             notifications: list[Notification]
             notifications = self.notification_manager.get_all_notifications()
             if type_filter is not None and type_filter != "-":
-                notifications = [n for n in notifications if n.notification_type.name == filter]
+                notifications = [n for n in notifications if n.notification_type.name == type_filter]
 
             for notification in notifications:
                 notification_type = notification.notification_type.name
