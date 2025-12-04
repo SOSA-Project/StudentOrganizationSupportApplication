@@ -5,6 +5,8 @@ File contains tests for notes file.
 import pytest
 from unittest.mock import patch
 from datetime import datetime
+
+from app.backend.database import Db
 from app.backend.notes import Note, NoteManager, initiate_note_manager
 
 
@@ -70,7 +72,7 @@ def mock_fetch_notes():
     Fixture that mocks fetch_notes function to provide controlled database output.
     :return: yields the patch object
     """
-    with patch("app.backend.notes.fetch_notes") as mock:
+    with patch.object(Db, "fetch_notes") as mock:
         yield mock
 
 
