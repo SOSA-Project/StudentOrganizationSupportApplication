@@ -1,6 +1,5 @@
 from datetime import datetime
 from enum import Enum
-from app.backend.database import Db
 
 
 class NotificationType(Enum):
