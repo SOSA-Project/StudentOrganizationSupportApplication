@@ -24,7 +24,7 @@ from app.backend.charts import (
     all_grades_pie_plot,
 )
 from app.backend.database import Db
-from app.backend.notifications import initiate_notification_manager, NotificationManager, NotificationType, Notification
+from app.backend.notifications import initiate_notification_manager, NotificationType, Notification
 from app.backend.registration import Auth, get_all_users
 from app.backend.notes import initiate_note_manager
 from app.backend.notes import Note
