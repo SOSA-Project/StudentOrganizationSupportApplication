@@ -4,6 +4,8 @@ This file contains views for all widgets.
 
 import random
 import calendar
+import json
+import pyperclip
 from gc import collect
 from typing import Callable
 from datetime import datetime
@@ -24,7 +26,7 @@ from app.backend.charts import (
     all_grades_pie_plot,
 )
 from app.backend.database import Db
-from app.backend.notifications import initiate_notification_manager, NotificationManager, NotificationType, Notification
+from app.backend.notifications import initiate_notification_manager, NotificationType, Notification
 from app.backend.registration import Auth, get_all_users
 from app.backend.notes import initiate_note_manager
 from app.backend.notes import Note
@@ -87,9 +89,25 @@ class CalendarView(BaseView):
         self.calendar_frame = ctk.CTkFrame(self)
         self.calendar_frame.pack(pady=10, padx=20, fill="both", expand=True)
 
+        footer_frame = ctk.CTkFrame(self)
+        footer_frame.pack(pady=5, padx=20)
+
+        share_btn = ctk.CTkButton(
+            footer_frame, text="Share", width=40, command=lambda: pyperclip.copy(self.calendar_to_json())
+        )
+        share_btn.pack(side="right", padx=(5, 10), pady=10)
+
+        paste_btn = ctk.CTkButton(
+            footer_frame,
+            text="Paste",
+            width=40,
+            command=lambda: self.update_calendar(self.json_to_notes(pyperclip.paste())),
+        )
+        paste_btn.pack(side="left", padx=(10, 5), pady=10)
+
         self.update_calendar()
 
-    def update_calendar(self) -> None:
+    def update_calendar(self, notes: list[Note] | None = None) -> None:
         """
         This method updates the calendar view with the according month and a year destroying previous widgets
         and creating new ones in their place
@@ -110,7 +128,11 @@ class CalendarView(BaseView):
             if idx == len(week_days) - 1:
                 lab.grid_configure(padx=(3, 6))
 
-        current_notes: list[Note] = self.get_notes_for_current_month()
+        current_notes: list[Note]
+        if notes is None or len(notes) <= 0:
+            current_notes = self.get_notes_for_current_month()
+        else:
+            current_notes = notes
 
         cal = calendar.monthcalendar(year, month)
         for r, w in enumerate(cal, start=1):
@@ -210,6 +232,61 @@ class CalendarView(BaseView):
         b = int(b * factor)
 
         return f"#{r:02x}{g:02x}{b:02x}"
+
+    def calendar_to_json(self) -> str:
+        """
+        Converts current calendar month information to json format for sharing
+        :return: String containing data converter to json format
+        """
+        notes = self.get_notes_for_current_month()
+        calendar_data = {
+            "identifier": "SOSA",
+            "year": self.current_date.year,
+            "month": self.current_date.month,
+            "notes": [
+                {
+                    "associated_date": (
+                        note.associated_date.strftime("%Y-%m-%d %H:%M:%S")
+                        if note.associated_date is not None else None
+                    ),
+                    "content": note.content,
+                    "color": note.color,
+                    "title": note.title,
+                }
+                for note in notes
+            ],
+        }
+        return json.dumps(calendar_data)
+
+    def json_to_notes(self, json_data: str) -> list[Note] | None:
+        """
+        Converts json formatted data of a calendar month back to usable format
+        :param json_data: json data string containing calendar information
+        :return: List of notes retrieved from json data string or None if a wrong format is read
+        """
+        try:
+            data = json.loads(json_data)
+            year = data["year"]
+            month = data["month"]
+            notes = [
+                Note(
+                    0,
+                    0,
+                    note["title"],
+                    note["content"],
+                    note["color"],
+                    (
+                        datetime.strptime(note["associated_date"], "%Y-%m-%d %H:%M:%S")
+                        if note["associated_date"] != "None"
+                        else None
+                    ),
+                )
+                for note in data["notes"]
+            ]
+            self.current_date = self.current_date.replace(year=year + 1, month=month)
+            return notes
+        except Exception:
+            return None
 
 
 class NotificationsView(BaseView):

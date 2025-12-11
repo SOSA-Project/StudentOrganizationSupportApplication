@@ -3,6 +3,7 @@ This file contains main window script.
 """
 
 import customtkinter as ctk
+from PIL import Image
 
 from app.frontend.buttons import ButtonsCreator as ButtonsCreator
 from app.frontend.icons import IconsHolder as IconsHolder
@@ -45,16 +46,39 @@ class LabelsCreator:
     """
 
     def __init__(self, parent: ctk.CTk) -> None:
-        self.parent: ctk.CTk = parent
+        self.parent = parent
+        self.original_img = Image.open("./app/assets/logo.png")
+        self.current_ctk_img = None
         self.create_labels()
 
     def create_labels(self) -> None:
         """
-        Method creates labels for GUI.
-        :return: Nothing, only creates labels.
+        This method creates image on GUI.
+        :return: nothing.
         """
-        label_one: ctk.CTkLabel = ctk.CTkLabel(self.parent, text="Student Planner", font=("Roboto", 24))
-        label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
+        self.current_ctk_img = ctk.CTkImage(
+            light_image=self.original_img, dark_image=self.original_img, size=(100, 100)
+        )
+
+        self.logo_label = ctk.CTkLabel(self.parent, text="", image=self.current_ctk_img)
+        self.logo_label.grid(row=2, rowspan=2, column=0, padx=5, pady=5)
+
+    def resize_logo(self, size: int) -> None:
+        """
+        This method resize application logo.
+        :param size: new logo size.
+        :return: nothing, only change image size.
+        """
+
+        if size < 30:
+            size = 30
+
+        self.current_ctk_img = ctk.CTkImage(
+            light_image=self.original_img, dark_image=self.original_img, size=(size, size)
+        )
+
+        self.logo_label.configure(image=self.current_ctk_img)
+        self.logo_label.image = self.current_ctk_img
 
 
 class AppGUI(ctk.CTk):
@@ -191,3 +215,4 @@ class AppGUI(ctk.CTk):
                 self.buttons.destroy_buttons()
                 self.buttons.font_size = new_font_img_size
                 self.buttons.create_buttons()
+                self.labels.resize_logo(new_font_img_size * 6)
