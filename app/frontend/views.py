@@ -246,8 +246,7 @@ class CalendarView(BaseView):
             "notes": [
                 {
                     "associated_date": (
-                        note.associated_date.strftime("%Y-%m-%d %H:%M:%S")
-                        if note.associated_date is not None else None
+                        note.associated_date.strftime("%Y-%m-%d %H:%M:%S") if note.associated_date is not None else None
                     ),
                     "content": note.content,
                     "color": note.color,
@@ -1641,15 +1640,73 @@ class SettingsView(BaseView):
 
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
+        self.container = ctk.CTkFrame(self, fg_color="transparent")
+        self.container.pack(fill="both", expand=True)
+        self.container.grid_rowconfigure(tuple(range(30)), weight=1)
+        self.container.grid_columnconfigure(tuple(range(8)), weight=1)
         self.create_frame_content()
 
-    def create_frame_content(self) -> ctk.CTkFrame:
-        """
-        This method creates elements visible on the frame.
-        :return: new ctk frame.
-        """
-        label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Settings", font=("Roboto", 18))
-        label_one.grid(row=0, rowspan=2, column=0, columnspan=8, padx=5, pady=5)
+    def create_frame_content(self) -> None:
+        self.create_settings_content()
+        self.create_footer()
+        self.create_header()
+
+    def create_settings_content(self) -> None:
+        self.settings_frame = ctk.CTkFrame(
+            self.container,
+            fg_color="#242424",
+            corner_radius=10,
+        )
+        self.settings_frame.grid(
+            row=5,
+            rowspan=18,
+            column=1,
+            columnspan=6,
+            padx=10,
+            pady=(10, 5),
+            sticky="nsew",
+        )
+
+        self.settings_frame.grid_rowconfigure(tuple(range(20)), weight=1)
+        self.settings_frame.grid_columnconfigure(tuple(range(6)), weight=1)
+
+    def create_footer(self) -> None:
+        self.menu_label = ctk.CTkLabel(
+            self.container,
+            text="Settings",
+            font=("Roboto", 24),
+            height=50,
+            corner_radius=10,
+            fg_color="#242424",
+        )
+        self.menu_label.grid(
+            row=25,
+            rowspan=2,
+            column=1,
+            columnspan=6,
+            padx=10,
+            pady=(5, 10),
+            sticky="ew",
+        )
+
+    def create_header(self) -> None:
+        self.change_theme_label = ctk.CTkLabel(
+            self.container,
+            text="Settings",
+            font=("Roboto", 24),
+            height=100,
+            corner_radius=10,
+            fg_color="#242424",
+        )
+        self.change_theme_label.grid(
+            row=1,
+            rowspan=4,
+            column=1,
+            columnspan=6,
+            padx=10,
+            pady=(5, 10),
+            sticky="ew",
+        )
 
 
 class LoginRegisterView(ctk.CTkFrame):
