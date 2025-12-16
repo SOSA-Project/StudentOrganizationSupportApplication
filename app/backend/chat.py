@@ -8,6 +8,12 @@ from app.backend.session import Session
 
 
 def make_payload(recipient: str, msg: str) -> bytes:
+    """
+    Function to create a payload for a message
+    :param recipient: recipient of the message
+    :param msg: message to be sent
+    :return: bytes
+    """
     return json.dumps(
         {
             "name": Session.username,
@@ -131,8 +137,6 @@ class Server:
         :return: None
         """
         Server.stop_event.set()
-        if Server.thread.is_alive():
-            Server.thread.join()
 
     @staticmethod
     async def handle(ws) -> None:
