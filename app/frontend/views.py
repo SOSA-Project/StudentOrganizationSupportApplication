@@ -1651,6 +1651,8 @@ class SettingsView(BaseView):
         self.create_theme_toggle()
         self.create_footer()
 
+    def change_password(self):
+        print("zmiana hasla")
 
     def create_settings_content(self) -> None:
         self.settings_frame = ctk.CTkFrame(
@@ -1668,6 +1670,43 @@ class SettingsView(BaseView):
         )
         self.settings_frame.grid_rowconfigure(tuple(range(20)), weight=1)
         self.settings_frame.grid_columnconfigure(tuple(range(6)), weight=1)
+
+        self.old_password_entry = ctk.CTkEntry(
+            master=self.settings_frame,
+            placeholder_text="Old password",
+            font=("Roboto", 18),
+            corner_radius=8,
+            show="*"
+        )
+        self.old_password_entry.grid(row=5, rowspan=1, column=1, columnspan=4, padx=10, pady=10, sticky="ew")
+
+        self.new_password_entry = ctk.CTkEntry(
+            master=self.settings_frame,
+            placeholder_text="New password",
+            font=("Roboto", 18),
+            corner_radius=8,
+            show="*"
+        )
+        self.new_password_entry.grid(row=7, rowspan=1, column=1, columnspan=4, padx=10, pady=10, sticky="ew")
+
+        self.confirm_password_entry = ctk.CTkEntry(
+            master=self.settings_frame,
+            placeholder_text="Confirm password",
+            font=("Roboto", 18),
+            corner_radius=8,
+            show="*"
+        )
+        self.confirm_password_entry.grid(row=9, rowspan=1, column=1, columnspan=4, padx=10, pady=10, sticky="ew")
+
+        self.submit_button = ctk.CTkButton(
+            master=self.settings_frame,
+            text="Change password",
+            corner_radius=8,
+            height=60,
+            font=("Roboto", 18),
+            command=self.change_password
+        )
+        self.submit_button.grid(row=11, rowspan=6, column=1, columnspan=4, padx=10, pady=10, sticky="ew")
 
     def create_theme_toggle(self) -> None:
         self.theme_frame = ctk.CTkFrame(
@@ -1704,7 +1743,7 @@ class SettingsView(BaseView):
             command=self.toggle_dark_mode,
             variable=self.dark_mode_var,
             onvalue=True,
-            offvalue=False
+            offvalue=False,
         )
         self.dark_mode_switch.grid(row=0, column=1, padx=20, sticky="e")
 
