@@ -1641,15 +1641,16 @@ class SettingsView(BaseView):
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
         self.container = ctk.CTkFrame(self, fg_color="transparent")
-        self.container.pack(fill="both", expand=True)
+        self.container.place(x=20, y=20, relwidth=0.95, relheight=0.95, anchor="nw")
         self.container.grid_rowconfigure(tuple(range(30)), weight=1)
         self.container.grid_columnconfigure(tuple(range(8)), weight=1)
         self.create_frame_content()
 
     def create_frame_content(self) -> None:
         self.create_settings_content()
+        self.create_theme_toggle()
         self.create_footer()
-        self.create_header()
+
 
     def create_settings_content(self) -> None:
         self.settings_frame = ctk.CTkFrame(
@@ -1658,20 +1659,65 @@ class SettingsView(BaseView):
             corner_radius=10,
         )
         self.settings_frame.grid(
-            row=5,
-            rowspan=18,
+            row=7,
+            rowspan=15,
             column=1,
             columnspan=6,
-            padx=10,
-            pady=(10, 5),
+            pady=(5, 5),
             sticky="nsew",
         )
-
         self.settings_frame.grid_rowconfigure(tuple(range(20)), weight=1)
         self.settings_frame.grid_columnconfigure(tuple(range(6)), weight=1)
 
+    def create_theme_toggle(self) -> None:
+        self.theme_frame = ctk.CTkFrame(
+            self.container,
+            fg_color="#242424",
+            corner_radius=10,
+            height=100,
+        )
+        self.theme_frame.grid(
+            row=1,
+            rowspan=4,
+            column=1,
+            columnspan=6,
+            pady=(5, 5),
+            sticky="ew",
+        )
+
+        self.theme_frame.grid_columnconfigure(0, weight=1)
+        self.theme_frame.grid_columnconfigure(1, weight=0)
+
+        self.dark_mode_label = ctk.CTkLabel(
+            self.theme_frame,
+            text="Dark mode",
+            font=("Roboto", 18),
+            anchor="w",
+        )
+        self.dark_mode_label.grid(row=0, column=0, padx=20, sticky="w")
+
+        self.dark_mode_var = ctk.BooleanVar(value=True)  # switch włączony na starcie
+
+        self.dark_mode_switch = ctk.CTkSwitch(
+            self.theme_frame,
+            text="",
+            command=self.toggle_dark_mode,
+            variable=self.dark_mode_var,
+            onvalue=True,
+            offvalue=False
+        )
+        self.dark_mode_switch.grid(row=0, column=1, padx=20, sticky="e")
+
+        ctk.set_appearance_mode("dark")
+
+    def toggle_dark_mode(self):
+        if self.dark_mode_switch.get():
+            ctk.set_appearance_mode("dark")
+        else:
+            ctk.set_appearance_mode("light")
+
     def create_footer(self) -> None:
-        self.menu_label = ctk.CTkLabel(
+        self.footer_label = ctk.CTkLabel(
             self.container,
             text="Settings",
             font=("Roboto", 24),
@@ -1679,31 +1725,11 @@ class SettingsView(BaseView):
             corner_radius=10,
             fg_color="#242424",
         )
-        self.menu_label.grid(
+        self.footer_label.grid(
             row=25,
             rowspan=2,
             column=1,
             columnspan=6,
-            padx=10,
-            pady=(5, 10),
-            sticky="ew",
-        )
-
-    def create_header(self) -> None:
-        self.change_theme_label = ctk.CTkLabel(
-            self.container,
-            text="Settings",
-            font=("Roboto", 24),
-            height=100,
-            corner_radius=10,
-            fg_color="#242424",
-        )
-        self.change_theme_label.grid(
-            row=1,
-            rowspan=4,
-            column=1,
-            columnspan=6,
-            padx=10,
             pady=(5, 10),
             sticky="ew",
         )
