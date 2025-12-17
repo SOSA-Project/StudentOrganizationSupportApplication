@@ -1647,14 +1647,27 @@ class SettingsView(BaseView):
         self.create_frame_content()
 
     def create_frame_content(self) -> None:
+        """
+        This method creates frame content.
+        :return: Nothing, only creates frame content.
+        """
         self.create_settings_content()
         self.create_theme_toggle()
         self.create_footer()
 
-    def change_password(self):
+    def change_password(self) -> None:
+        """
+        Work in progress
+        #TODO
+        :return:
+        """
         print("zmiana hasla")
 
     def create_settings_content(self) -> None:
+        """
+        This method is responsible for creating main settings frame and its content.
+        :return: Nothing, only creates main frame.
+        """
         self.settings_frame = ctk.CTkFrame(
             self.container,
             fg_color="#242424",
@@ -1672,20 +1685,12 @@ class SettingsView(BaseView):
         self.settings_frame.grid_columnconfigure(tuple(range(6)), weight=1)
 
         self.old_password_entry = ctk.CTkEntry(
-            master=self.settings_frame,
-            placeholder_text="Old password",
-            font=("Roboto", 18),
-            corner_radius=8,
-            show="*"
+            master=self.settings_frame, placeholder_text="Old password", font=("Roboto", 18), corner_radius=8, show="*"
         )
         self.old_password_entry.grid(row=5, rowspan=1, column=1, columnspan=4, padx=10, pady=10, sticky="ew")
 
         self.new_password_entry = ctk.CTkEntry(
-            master=self.settings_frame,
-            placeholder_text="New password",
-            font=("Roboto", 18),
-            corner_radius=8,
-            show="*"
+            master=self.settings_frame, placeholder_text="New password", font=("Roboto", 18), corner_radius=8, show="*"
         )
         self.new_password_entry.grid(row=7, rowspan=1, column=1, columnspan=4, padx=10, pady=10, sticky="ew")
 
@@ -1694,7 +1699,7 @@ class SettingsView(BaseView):
             placeholder_text="Confirm password",
             font=("Roboto", 18),
             corner_radius=8,
-            show="*"
+            show="*",
         )
         self.confirm_password_entry.grid(row=9, rowspan=1, column=1, columnspan=4, padx=10, pady=10, sticky="ew")
 
@@ -1704,11 +1709,15 @@ class SettingsView(BaseView):
             corner_radius=8,
             height=60,
             font=("Roboto", 18),
-            command=self.change_password
+            command=self.change_password,
         )
         self.submit_button.grid(row=11, rowspan=6, column=1, columnspan=4, padx=10, pady=10, sticky="ew")
 
     def create_theme_toggle(self) -> None:
+        """
+        This frame is responsible for creating frame for dark mode switch.
+        :return: Nothing, only creates new frame.
+        """
         self.theme_frame = ctk.CTkFrame(
             self.container,
             fg_color="#242424",
@@ -1749,13 +1758,23 @@ class SettingsView(BaseView):
 
         ctk.set_appearance_mode("dark")
 
-    def toggle_dark_mode(self):
+    def toggle_dark_mode(self) -> None:
+        """
+        This method is responsible for change application theme.
+        (Work in progress)
+        #TODO
+        :return:
+        """
         if self.dark_mode_switch.get():
             ctk.set_appearance_mode("dark")
         else:
             ctk.set_appearance_mode("light")
 
     def create_footer(self) -> None:
+        """
+        This method is responsible for creating bottom frame.
+        :return: Nothing, only creates frame.
+        """
         self.footer_label = ctk.CTkLabel(
             self.container,
             text="Settings",
