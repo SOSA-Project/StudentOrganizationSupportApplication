@@ -283,7 +283,7 @@ class CalendarView(BaseView):
                 )
                 for note in data["notes"]
             ]
-            self.current_date = self.current_date.replace(year=year + 1, month=month)
+            self.current_date = self.current_date.replace(year=year, month=month)
             return notes
         except Exception:
             return None
