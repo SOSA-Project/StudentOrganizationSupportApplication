@@ -26,7 +26,7 @@ from app.backend.charts import (
     all_grades_pie_plot,
 )
 from app.backend.database import Db
-from app.backend.notifications import initiate_notification_manager, NotificationType, Notification
+from app.backend.notifications import NotificationManager, NotificationType, Notification
 from app.backend.registration import Auth, get_all_users
 from app.backend.notes import initiate_note_manager
 from app.backend.notes import Note
@@ -246,8 +246,7 @@ class CalendarView(BaseView):
             "notes": [
                 {
                     "associated_date": (
-                        note.associated_date.strftime("%Y-%m-%d %H:%M:%S")
-                        if note.associated_date is not None else None
+                        note.associated_date.strftime("%Y-%m-%d %H:%M:%S") if note.associated_date is not None else None
                     ),
                     "content": note.content,
                     "color": note.color,
@@ -294,9 +293,11 @@ class NotificationsView(BaseView):
     View for notifications widget.
     """
 
-    def __init__(self, parent: ctk.CTk) -> None:
+    def __init__(self, parent: ctk.CTk, notification_manager: NotificationManager | None) -> None:
         super().__init__(parent)
-        self.notification_manager = initiate_notification_manager()
+        self.notification_manager = notification_manager
+        if notification_manager is not None:
+            notification_manager.notifications_updated = self.populate_notifications
         self.create_frame_content()
 
     def create_frame_content(self) -> None:

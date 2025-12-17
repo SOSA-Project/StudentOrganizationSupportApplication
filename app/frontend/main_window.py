@@ -5,6 +5,7 @@ This file contains main window script.
 import customtkinter as ctk
 from PIL import Image
 
+from app.backend.notifications import initiate_notification_manager, NotificationManager
 from app.frontend.buttons import ButtonsCreator as ButtonsCreator
 from app.frontend.icons import IconsHolder as IconsHolder
 from app.frontend.frames import LeftFrame, RightFrame
@@ -91,11 +92,14 @@ class AppGUI(ctk.CTk):
         self.title("SOSA")
         self.geometry("961x541")
         self.minsize(961, 541)
+        self.notifications_manager: NotificationManager | None = None
 
         # Basic main app window setup
         self.grid_maker: GridMaker = GridMaker(self, rows=9, columns=24)
         self.login_view = LoginRegisterView(self, on_success=self.show_main_app)
         self.login_view.pack(expand=True, fill="both")
+
+        self.protocol("WM_DELETE_WINDOW", self.close_app)
 
     def show_main_app(self) -> None:
         """
@@ -104,6 +108,7 @@ class AppGUI(ctk.CTk):
         :return: Nothing, only builds main interface.
         """
         self.login_view.pack_forget()
+        self.notifications_manager = initiate_notification_manager(self)
         self.btn_icons: IconsHolder = IconsHolder()
         self.left_frame: LeftFrame = LeftFrame(self, color="#444444")
         self.right_frame: RightFrame = RightFrame(self, color="#242424")
@@ -154,7 +159,12 @@ class AppGUI(ctk.CTk):
 
         if name not in self.views:
             if name in self.view_classes:
-                self.views[name] = self.view_classes[name](self.right_frame.frame)
+                if name == "notifications":
+                    self.views[name] = NotificationsView(
+                        parent=self.right_frame.frame, notification_manager=self.notifications_manager
+                    )
+                else:
+                    self.views[name] = self.view_classes[name](self.right_frame.frame)
             else:
                 print(f"Unknown view name: {name}")
                 return
@@ -216,3 +226,12 @@ class AppGUI(ctk.CTk):
                 self.buttons.font_size = new_font_img_size
                 self.buttons.create_buttons()
                 self.labels.resize_logo(new_font_img_size * 6)
+
+    def close_app(self) -> None:
+        """
+        Method that manages closing all processes before terminating application
+        :return:
+        """
+        if self.notifications_manager is not None:
+            self.notifications_manager.stop_checking()
+        self.quit()
