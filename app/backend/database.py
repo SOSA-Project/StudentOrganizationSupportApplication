@@ -5,6 +5,8 @@ The file creates a database and operates on it.
 import sqlite3
 import asyncio
 
+from datetime import datetime
+
 from app.backend.chat import Client
 
 
@@ -38,6 +40,8 @@ class Db:
                 "content"	TEXT,
                 "created_at"	TEXT,
                 "user_id"	INTEGER,
+                "associated_date"   DATETIME,
+                "color" TEXT,
                 PRIMARY KEY("id")
             )
             """
@@ -229,7 +233,7 @@ class Db:
 
     # region notes
     @staticmethod
-    def fetch_notes() -> list[tuple[int, str, str, str, int]] | None:
+    def fetch_notes() -> list[tuple[int, str, str, str, int, datetime, str]] | None:
         """
         This function fetches notes from the database.
         :return list of tuple: list of tuple representing notes
@@ -242,22 +246,26 @@ class Db:
             return None
 
     @staticmethod
-    def insert_note(title: str, content: str, created_at: str, user_id: int) -> bool:
+    def insert_note(
+        title: str, content: str, created_at: str, user_id: int, associated_date: datetime, color: str
+    ) -> bool:
         """
         This function inserts note into the database.
         :param title: note title
         :param content: note content
         :param created_at: note creation date
         :param user_id: user id
+        :param associated_date: note association date
+        :param color: note color
         :return success status: whether insert was successful or not
         """
         try:
             Db.cursor.execute(
                 """
-                       INSERT INTO notes (title, content, created_at, user_id)
-                       VALUES (?, ?, ?, ?)
+                       INSERT INTO notes (title, content, created_at, user_id, associated_date, color)
+                       VALUES (?, ?, ?, ?, ?, ?)
                        """,
-                (title, content, created_at, user_id),
+                (title, content, created_at, user_id, associated_date, color),
             )
             Db.conn.commit()
             return True
@@ -266,7 +274,9 @@ class Db:
             return False
 
     @staticmethod
-    def update_note(note_id: int, title: str, content: str, created_at: str, user_id: int) -> bool:
+    def update_note(
+        note_id: int, title: str, content: str, created_at: str, user_id: int, associated_date: datetime, color: str
+    ) -> bool:
         """
         This function updates note in the database.
         :param note_id: id of a note to update
@@ -274,6 +284,8 @@ class Db:
         :param content: note content
         :param created_at: note creation date
         :param user_id: user id
+        :param associated_date: note association date
+        :param color: note color
         :return success status: whether update was successful or not
         """
         try:
@@ -283,10 +295,12 @@ class Db:
                        SET title      = ?,
                            content    = ?,
                            created_at = ?,
-                           user_id    = ?
+                           user_id    = ?,
+                           associated_date = ?,
+                           color = ?
                        WHERE id       = ?
                    """,
-                (title, content, created_at, user_id, note_id),
+                (title, content, created_at, user_id, associated_date, color, note_id),
             )
             Db.conn.commit()
             return True
