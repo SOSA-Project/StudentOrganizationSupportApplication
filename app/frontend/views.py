@@ -246,8 +246,7 @@ class CalendarView(BaseView):
             "notes": [
                 {
                     "associated_date": (
-                        note.associated_date.strftime("%Y-%m-%d %H:%M:%S")
-                        if note.associated_date is not None else None
+                        note.associated_date.strftime("%Y-%m-%d %H:%M:%S") if note.associated_date is not None else None
                     ),
                     "content": note.content,
                     "color": note.color,
