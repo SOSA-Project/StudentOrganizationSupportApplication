@@ -92,7 +92,7 @@ def initiate_note_manager() -> NoteManager | None:
             return None
 
         def valid_item(item: tuple) -> bool:
-            expected_types = (int, str, str, str, int)
+            expected_types = (int, str, str, str, int, datetime, str)
             if not isinstance(item, tuple) or len(item) != len(expected_types):
                 return False
             return all(isinstance(x, t) for x, t in zip(item, expected_types))
