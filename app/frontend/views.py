@@ -441,20 +441,28 @@ class NotesView(BaseView):
         notes = Db.fetch_notes()
         return tuple(str(n[0]) for n in notes) if notes else ("None",)
 
-    def _prepare_data_for_db(self) -> dict[str, str | int]:
+    def _prepare_data_for_db(self) -> dict[str, str]:
         """
         Method prepares data for db view.
         :return:
         """
-        data: dict[str, str | int] = {}
+        data: dict[str, str] = {}
 
         if hasattr(self, "add_note_title_input"):
             data["title_add"] = str(self.add_note_title_input.get())
             data["content_add"] = self.add_note_content_input.get("1.0", "end").rstrip("\n")
+
+        if hasattr(self, "add_note_associated_date_input"):
+            data["associated_date_add"] = self.add_note_associated_date_input.get()
+
         if hasattr(self, "edit_note_id_optionmenu"):
             data["id_edit"] = str(self.edit_note_id_optionmenu.get())
             data["title_edit"] = str(self.edit_note_title_input.get())
             data["content_edit"] = self.edit_note_content_input.get("1.0", "end").rstrip("\n")
+
+        if hasattr(self, "edit_note_associated_date_input"):
+            data["associated_date_edit"] = self.edit_note_associated_date_input.get()
+
         if hasattr(self, "note_id_optionmenu"):
             data["id_del"] = str(self.note_id_optionmenu.get())
         return data
@@ -499,10 +507,36 @@ class NotesView(BaseView):
         if not title and not content:
             self.menu_label.configure(text="Title or content required")
             return
+
         created_at = datetime.now().isoformat()
         temp_user_id: int = 1
+        color = "white"
 
-        succes = Db.insert_note(title=title, content=content, created_at=created_at, user_id=temp_user_id)
+        associated_date_raw = data.get("associated_date_add")
+
+        if associated_date_raw is None:
+            self.menu_label.configure(text="Associated date is required")
+            return
+
+        associated_date_raw = associated_date_raw.strip()
+        if not associated_date_raw:
+            self.menu_label.configure(text="Associated date is required")
+            return
+
+        try:
+            associated_date: datetime = datetime.strptime(associated_date_raw, "%Y-%m-%d")
+        except ValueError:
+            self.menu_label.configure(text="Invalid date format (YYYY-MM-DD)")
+            return
+
+        succes = Db.insert_note(
+            title=title,
+            content=content,
+            created_at=created_at,
+            user_id=temp_user_id,
+            associated_date=associated_date,
+            color=color,
+        )
         if succes:
             self.note_id_data = self._update_options_data()
             if hasattr(self, "note_id_optionmenu"):
@@ -522,21 +556,50 @@ class NotesView(BaseView):
         :return: Nothing
         """
         data = self._prepare_data_for_db()
+
         try:
             nid = int(data.get("id_edit", "0"))
         except Exception:
             self.menu_label.configure(text="Invalid ID")
             return
+
         title = str(data.get("title_edit", "")).strip()
         content = str(data.get("content_edit", "")).strip()
+
         if nid == 0:
             self.menu_label.configure(text="Select valid ID")
             return
 
         created_at = datetime.now().isoformat()
         temp_user_id = 1
+        color = "white"
 
-        success = Db.update_note(note_id=nid, title=title, content=content, created_at=created_at, user_id=temp_user_id)
+        associated_date_raw = data.get("associated_date_edit")
+
+        if associated_date_raw is None:
+            self.menu_label.configure(text="Associated date is required")
+            return
+
+        associated_date_raw = associated_date_raw.strip()
+        if not associated_date_raw:
+            self.menu_label.configure(text="Associated date is required")
+            return
+
+        try:
+            associated_date = datetime.strptime(associated_date_raw, "%Y-%m-%d")
+        except ValueError:
+            self.menu_label.configure(text="Invalid date format (YYYY-MM-DD)")
+            return
+
+        success = Db.update_note(
+            note_id=nid,
+            title=title,
+            content=content,
+            created_at=created_at,
+            user_id=temp_user_id,
+            associated_date=associated_date,
+            color=color,
+        )
         if success:
             self.note_id_data = self._update_options_data()
             if hasattr(self, "note_id_optionmenu"):
@@ -586,7 +649,8 @@ class NotesView(BaseView):
 
         labels_data = {
             ("title_label", "Note title:", 10),
-            ("content_label", "Note content:", 12),
+            ("associated_date", "Note associated date(YYYY-MM-DD):", 12),
+            ("content_label", "Note content:", 14),
         }
 
         for key, text, row in labels_data:
@@ -597,8 +661,11 @@ class NotesView(BaseView):
         self.add_note_title_input = ctk.CTkEntry(frame, width=250)
         self.add_note_title_input.grid(row=10, rowspan=2, column=4, columnspan=2, padx=5, pady=5, sticky="ew")
 
+        self.add_note_associated_date_input = ctk.CTkEntry(frame, width=250)
+        self.add_note_associated_date_input.grid(row=12, rowspan=2, column=4, columnspan=2, padx=5, pady=5, sticky="ew")
+
         self.add_note_content_input = ctk.CTkTextbox(frame, width=250, height=250)
-        self.add_note_content_input.grid(row=12, rowspan=6, column=4, columnspan=2, padx=5, pady=5, sticky="nsew")
+        self.add_note_content_input.grid(row=14, rowspan=6, column=4, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         self.add_note_btn = ctk.CTkButton(
             frame,
@@ -632,7 +699,8 @@ class NotesView(BaseView):
         labels_data = {
             ("note_id_label", "Select note ID:", 10),
             ("title_label", "Note title:", 12),
-            ("content_label", "Note content:", 14),
+            ("associated_date_label", "Note associated date:(YYYY-MM-DD)", 14),
+            ("content_label", "Note content:", 16),
         }
 
         for key, text, row in labels_data:
@@ -648,8 +716,13 @@ class NotesView(BaseView):
         self.edit_note_title_input = ctk.CTkEntry(frame, width=250)
         self.edit_note_title_input.grid(row=12, rowspan=2, column=4, columnspan=2, padx=5, pady=5, sticky="ew")
 
+        self.edit_note_associated_date_input = ctk.CTkEntry(frame, width=250)
+        self.edit_note_associated_date_input.grid(
+            row=14, rowspan=2, column=4, columnspan=2, padx=5, pady=5, sticky="ew"
+        )
+
         self.edit_note_content_input = ctk.CTkTextbox(frame, width=250, height=250)
-        self.edit_note_content_input.grid(row=14, rowspan=6, column=4, columnspan=2, padx=5, pady=5, sticky="nsew")
+        self.edit_note_content_input.grid(row=16, rowspan=6, column=4, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         self.save_note_btn = ctk.CTkButton(
             frame,
@@ -741,9 +814,22 @@ class NotesView(BaseView):
             self.notes_textbox.insert("end", "No notes available\n")
         else:
             for note in notes:
-                note_id, title, content = note[:3]
+                note_id = note[0]
+                title = note[1]
+                content = note[2]
+                associated_date = note[5]
+
                 self.notes_textbox.insert("end", f"ID: {note_id}\n")
                 self.notes_textbox.insert("end", f"Title: {title}\n")
+
+                if associated_date is not None:
+                    if isinstance(associated_date, datetime):
+                        self.notes_textbox.insert("end", f"Associated Date: {associated_date.date()}\n")
+                    elif isinstance(associated_date, str):
+                        self.notes_textbox.insert("end", f"Associated Date: {associated_date[:10]}\n")
+                    else:
+                        self.notes_textbox.insert("end", f"Associated Date: {str(associated_date)}\n")
+
                 self.notes_textbox.insert("end", f"Content:\n{content}\n")
                 self.notes_textbox.insert("end", separator + "\n")
 
