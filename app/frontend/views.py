@@ -26,7 +26,7 @@ from app.backend.charts import (
     all_grades_pie_plot,
 )
 from app.backend.database import Db
-from app.backend.notifications import initiate_notification_manager, NotificationType, Notification
+from app.backend.notifications import NotificationManager, NotificationType, Notification
 from app.backend.registration import Auth, get_all_users
 from app.backend.notes import initiate_note_manager
 from app.backend.notes import Note
@@ -282,7 +282,7 @@ class CalendarView(BaseView):
                 )
                 for note in data["notes"]
             ]
-            self.current_date = self.current_date.replace(year=year + 1, month=month)
+            self.current_date = self.current_date.replace(year=year, month=month)
             return notes
         except Exception:
             return None
@@ -293,9 +293,11 @@ class NotificationsView(BaseView):
     View for notifications widget.
     """
 
-    def __init__(self, parent: ctk.CTk) -> None:
+    def __init__(self, parent: ctk.CTk, notification_manager: NotificationManager | None) -> None:
         super().__init__(parent)
-        self.notification_manager = initiate_notification_manager()
+        self.notification_manager = notification_manager
+        if notification_manager is not None:
+            notification_manager.notifications_updated = self.populate_notifications
         self.create_frame_content()
 
     def create_frame_content(self) -> None:
@@ -1726,15 +1728,157 @@ class SettingsView(BaseView):
 
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
+        self.container = ctk.CTkFrame(self, fg_color="transparent")
+        self.container.place(x=20, y=20, relwidth=0.95, relheight=0.95, anchor="nw")
+        self.container.grid_rowconfigure(tuple(range(30)), weight=1)
+        self.container.grid_columnconfigure(tuple(range(8)), weight=1)
         self.create_frame_content()
 
-    def create_frame_content(self) -> ctk.CTkFrame:
+    def create_frame_content(self) -> None:
         """
-        This method creates elements visible on the frame.
-        :return: new ctk frame.
+        This method creates frame content.
+        :return: Nothing, only creates frame content.
         """
-        label_one: ctk.CTkLabel = ctk.CTkLabel(self, text="Settings", font=("Roboto", 18))
-        label_one.grid(row=0, rowspan=2, column=0, columnspan=8, padx=5, pady=5)
+        self.create_settings_content()
+        self.create_theme_toggle()
+        self.create_footer()
+
+    def change_password(self) -> None:
+        """
+        Work in progress
+        #TODO
+        :return:
+        """
+        print("zmiana hasla")
+
+    def create_settings_content(self) -> None:
+        """
+        This method is responsible for creating main settings frame and its content.
+        :return: Nothing, only creates main frame.
+        """
+        self.settings_frame = ctk.CTkFrame(
+            self.container,
+            fg_color="#242424",
+            corner_radius=10,
+        )
+        self.settings_frame.grid(
+            row=7,
+            rowspan=15,
+            column=1,
+            columnspan=6,
+            pady=(5, 5),
+            sticky="nsew",
+        )
+        self.settings_frame.grid_rowconfigure(tuple(range(20)), weight=1)
+        self.settings_frame.grid_columnconfigure(tuple(range(6)), weight=1)
+
+        self.old_password_entry = ctk.CTkEntry(
+            master=self.settings_frame, placeholder_text="Old password", font=("Roboto", 18), corner_radius=8, show="*"
+        )
+        self.old_password_entry.grid(row=5, rowspan=1, column=1, columnspan=4, padx=10, pady=10, sticky="ew")
+
+        self.new_password_entry = ctk.CTkEntry(
+            master=self.settings_frame, placeholder_text="New password", font=("Roboto", 18), corner_radius=8, show="*"
+        )
+        self.new_password_entry.grid(row=7, rowspan=1, column=1, columnspan=4, padx=10, pady=10, sticky="ew")
+
+        self.confirm_password_entry = ctk.CTkEntry(
+            master=self.settings_frame,
+            placeholder_text="Confirm password",
+            font=("Roboto", 18),
+            corner_radius=8,
+            show="*",
+        )
+        self.confirm_password_entry.grid(row=9, rowspan=1, column=1, columnspan=4, padx=10, pady=10, sticky="ew")
+
+        self.submit_button = ctk.CTkButton(
+            master=self.settings_frame,
+            text="Change password",
+            corner_radius=8,
+            height=60,
+            font=("Roboto", 18),
+            command=self.change_password,
+        )
+        self.submit_button.grid(row=11, rowspan=6, column=1, columnspan=4, padx=10, pady=10, sticky="ew")
+
+    def create_theme_toggle(self) -> None:
+        """
+        This frame is responsible for creating frame for dark mode switch.
+        :return: Nothing, only creates new frame.
+        """
+        self.theme_frame = ctk.CTkFrame(
+            self.container,
+            fg_color="#242424",
+            corner_radius=10,
+            height=100,
+        )
+        self.theme_frame.grid(
+            row=1,
+            rowspan=4,
+            column=1,
+            columnspan=6,
+            pady=(5, 5),
+            sticky="ew",
+        )
+
+        self.theme_frame.grid_columnconfigure(0, weight=1)
+        self.theme_frame.grid_columnconfigure(1, weight=0)
+
+        self.dark_mode_label = ctk.CTkLabel(
+            self.theme_frame,
+            text="Dark mode",
+            font=("Roboto", 18),
+            anchor="w",
+        )
+        self.dark_mode_label.grid(row=0, column=0, padx=20, sticky="w")
+
+        self.dark_mode_var = ctk.BooleanVar(value=True)  # switch włączony na starcie
+
+        self.dark_mode_switch = ctk.CTkSwitch(
+            self.theme_frame,
+            text="",
+            command=self.toggle_dark_mode,
+            variable=self.dark_mode_var,
+            onvalue=True,
+            offvalue=False,
+        )
+        self.dark_mode_switch.grid(row=0, column=1, padx=20, sticky="e")
+
+        ctk.set_appearance_mode("dark")
+
+    def toggle_dark_mode(self) -> None:
+        """
+        This method is responsible for change application theme.
+        (Work in progress)
+        #TODO
+        :return:
+        """
+        if self.dark_mode_switch.get():
+            ctk.set_appearance_mode("dark")
+        else:
+            ctk.set_appearance_mode("light")
+
+    def create_footer(self) -> None:
+        """
+        This method is responsible for creating bottom frame.
+        :return: Nothing, only creates frame.
+        """
+        self.footer_label = ctk.CTkLabel(
+            self.container,
+            text="Settings",
+            font=("Roboto", 24),
+            height=50,
+            corner_radius=10,
+            fg_color="#242424",
+        )
+        self.footer_label.grid(
+            row=25,
+            rowspan=2,
+            column=1,
+            columnspan=6,
+            pady=(5, 10),
+            sticky="ew",
+        )
 
 
 class LoginRegisterView(ctk.CTkFrame):

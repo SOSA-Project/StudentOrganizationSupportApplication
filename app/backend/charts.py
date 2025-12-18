@@ -80,7 +80,7 @@ def all_grades_histogram_plot(grades: dict[float, int], theme: str) -> Figure:
     :param theme: 'light' or 'dark'
     :return: Figure that can be displayed in application GUI
     """
-    colors = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
+
     t_color, edge_color = _configure_theme(theme)
 
     unique_sorted = sorted(grades.keys())
@@ -91,7 +91,8 @@ def all_grades_histogram_plot(grades: dict[float, int], theme: str) -> Figure:
     fig, ax = plt.subplots(figsize=(10, 6), frameon=False)
     _setup_axes(ax, edge_color)
 
-    ax.bar(x, heights, color=colors[: len(heights)], width=0.5, edgecolor=edge_color)
+    ax.bar(x, heights, width=0.5, edgecolor=edge_color)
+
     ax.set_xticks(list(x))
     ax.set_xticklabels(labels)
     ax.set_xlabel("Grade", color=edge_color)
@@ -111,7 +112,7 @@ def all_grades_pie_plot(grades: dict[float, int], theme: str) -> Figure:
     :param theme: 'light' or 'dark'
     :return: Figure that can be displayed in application GUI
     """
-    colors: list[str] = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
+    colors: list[str] = ["seagreen", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
 
     values = list(grades.values())
 
