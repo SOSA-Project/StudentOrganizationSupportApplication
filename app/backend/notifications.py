@@ -1,5 +1,9 @@
 from datetime import datetime
 from enum import Enum
+import customtkinter as ctk
+from typing import Callable
+
+from app.backend.tooltip import NotificationPopUp
 
 
 class NotificationType(Enum):
@@ -56,9 +60,16 @@ class NotificationManager:
     Class responsible for managing notifications.
     """
 
-    def __init__(self, notifications_list: list[tuple[int, int, str, int, str, bool]]) -> None:
+    def __init__(self, notifications_list: list[tuple[int, int, str, int, str, bool]], app: ctk.CTk) -> None:
         self.notifications: list[Notification] = []
         self.fill_notifications_table(notifications_list)
+        self.app = app
+        self.check_interval_ms = 500
+        self.popup_window: NotificationPopUp | None = None
+        self.check_id = None
+        self.notifications_updated: None | Callable = None
+
+        self.check_notifications()
 
     def fill_notifications_table(self, notifications_list: list[tuple[int, int, str, int, str, bool]]) -> None:
         """
@@ -92,8 +103,48 @@ class NotificationManager:
         """
         return [n for n in self.notifications if not n.is_read]
 
+    def check_notifications(self) -> None:
+        """
+        Method which cyclically checks whether a notification should be displayed
+        :return: Nothing
+        """
 
-def initiate_notification_manager() -> NotificationManager | None:
+        now = datetime.now()
+
+        for notification in self.get_unread_notifications():
+            if notification.associated_time is not None and now >= notification.associated_time:
+                if self.show_notification(notification):
+                    notification.is_read = True
+                    if self.notifications_updated is not None:
+                        self.notifications_updated()
+
+        self.check_id = self.app.after(self.check_interval_ms, self.check_notifications)
+
+    def stop_checking(self) -> None:
+        """
+        Method that stops notification checking process
+        :return: Nothing
+        """
+        if self.check_id:
+            self.app.after_cancel(self.check_id)
+            self.check_id = None
+
+    def show_notification(self, notification: Notification) -> bool:
+        """
+        Method responsible for displaying a notification
+        :param notification: Notification to be displayed
+        :return: Whether the notification is still active
+        """
+        if self.popup_window:
+            if not self.popup_window.active:
+                del self.popup_window
+                self.popup_window = None
+            return False
+        self.popup_window = NotificationPopUp(self.app, notification.message)
+        return True
+
+
+def initiate_notification_manager(app: ctk.CTk) -> NotificationManager | None:
     """
     Function fetches notifications data from database, verifies it
     and initiates an instance of notification manager with it.
@@ -102,11 +153,11 @@ def initiate_notification_manager() -> NotificationManager | None:
     try:
         # notifications = Db.fetch_notifications() uncomment when implemented in database
         notifications = [
-            (1, 1, "Test Notification", 1, "2025-12-04 18:20:00", False),
-            (2, 1, "Second Test Notification", 1, "2025-12-04 17:25:13", True),
-            (3, 1, "Test Alert", 3, "2025-12-04 16:30:23", False),
-            (4, 1, "Test Warning", 4, "2025-12-04 16:42:11", False),
-            (5, 1, "Test Error", 5, "2025-12-04 16:21:37", False),
+            (1, 1, "Test Notification TEST MESSAGE TEST MESSAGE TEST MESSAGE  ", 1, "2025-12-17 17:58:30", False),
+            (2, 1, "Second Test Notification", 1, "2025-12-04 17:25:13", False),
+            (3, 1, "Test Alert", 3, "2025-12-04 16:30:23", True),
+            (4, 1, "Test Warning", 4, "2025-12-04 16:42:11", True),
+            (5, 1, "Test Error", 5, "2025-12-04 16:21:37", True),
         ]
         if not notifications or not isinstance(notifications, list):
             return None
@@ -118,7 +169,7 @@ def initiate_notification_manager() -> NotificationManager | None:
             return all(isinstance(x, t) for x, t in zip(item, expected_types))
 
         if all(valid_item(item) for item in notifications):
-            return NotificationManager(notifications)
+            return NotificationManager(notifications, app)
 
         return None
 
