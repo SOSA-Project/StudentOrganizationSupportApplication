@@ -206,8 +206,8 @@ class CalendarView(BaseView):
                 current_notes = list(
                     filter(
                         lambda n: n.associated_date is not None
-                        and n.associated_date.year == self.current_date.year
-                        and n.associated_date.month == self.current_date.month,
+                                  and n.associated_date.year == self.current_date.year
+                                  and n.associated_date.month == self.current_date.month,
                         current_notes,
                     )
                 )
@@ -1749,7 +1749,34 @@ class SettingsView(BaseView):
         #TODO
         :return:
         """
-        print("zmiana hasla")
+        if not Auth.is_authenticated():
+            self.footer_label.configure(text="User is not logged")
+            return
+
+        logged_user = Session.id
+        password_from_db = Db.fetch_user_password(logged_user)[0]
+        old_password = self.old_password_entry.get()
+        new_password = self.new_password_entry.get()
+        new_password_conf = self.confirm_password_entry.get()
+
+        if old_password == "" or new_password == "" or new_password_conf == "":
+            self.footer_label.configure(text="Password can not be empty")
+            return
+
+        if not password_from_db == Auth.hash_password(old_password):
+            self.footer_label.configure(text="Wrong account password")
+            return
+
+        if not new_password == new_password_conf:
+            self.footer_label.configure(text="Passwords are different")
+            return
+
+        hashed_password = Auth.hash_password(new_password)
+
+        if Db.update_user_password(logged_user, hashed_password):
+            self.footer_label.configure(text="Password has been changed")
+        else:
+            self.footer_label.configure(text="Error while changing password")
 
     def create_settings_content(self) -> None:
         """
@@ -1869,6 +1896,7 @@ class SettingsView(BaseView):
             font=("Roboto", 24),
             height=50,
             corner_radius=10,
+            width=400,
             fg_color="#242424",
         )
         self.footer_label.grid(

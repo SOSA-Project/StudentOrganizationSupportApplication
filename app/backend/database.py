@@ -181,7 +181,7 @@ class Db:
 
     @staticmethod
     def update_grade(
-        grade_id: int, value: float, weight: float, sub_type: int, semester: int, subject_id: int, user_id: int
+            grade_id: int, value: float, weight: float, sub_type: int, semester: int, subject_id: int, user_id: int
     ) -> bool:
         """
         This function updates the grade in the database.
@@ -247,7 +247,7 @@ class Db:
 
     @staticmethod
     def insert_note(
-        title: str, content: str, created_at: str, user_id: int, associated_date: datetime, color: str
+            title: str, content: str, created_at: str, user_id: int, associated_date: datetime, color: str
     ) -> bool:
         """
         This function inserts note into the database.
@@ -275,7 +275,7 @@ class Db:
 
     @staticmethod
     def update_note(
-        note_id: int, title: str, content: str, created_at: str, user_id: int, associated_date: datetime, color: str
+            note_id: int, title: str, content: str, created_at: str, user_id: int, associated_date: datetime, color: str
     ) -> bool:
         """
         This function updates note in the database.
@@ -652,6 +652,43 @@ class Db:
         """
         try:
             Db.cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+            Db.conn.commit()
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
+    @staticmethod
+    def fetch_user_password(user_id: int) -> str | None:
+        """
+        This function fetches user password from database.
+        :param user_id: user id
+        :return: success status
+        """
+        try:
+            Db.cursor.execute("SELECT password FROM users where id = ?", (user_id,))
+            return Db.cursor.fetchone()
+        except Exception as e:
+            print(e)
+            return None
+
+    @staticmethod
+    def update_user_password(user_id: int, new_password: str) -> bool:
+        """
+        This function update user password.
+        :param user_id: user id
+        :param new_password: new user password
+        :return: success status
+        """
+        try:
+            Db.cursor.execute(
+                """
+                       UPDATE users
+                       SET password = ?
+                       WHERE id = ?
+                   """,
+                (new_password, user_id),
+            )
             Db.conn.commit()
             return True
         except Exception as e:
