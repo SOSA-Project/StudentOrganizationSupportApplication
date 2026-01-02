@@ -1,5 +1,3 @@
-from doctest import debug
-
 import customtkinter as ctk
 
 
@@ -96,6 +94,7 @@ class NotificationPopUp:
     """
     Class representing a notification pop up window
     """
+
     def __init__(
         self,
         widget: ctk,

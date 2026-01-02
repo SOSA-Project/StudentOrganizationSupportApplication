@@ -181,7 +181,7 @@ class Db:
 
     @staticmethod
     def update_grade(
-            grade_id: int, value: float, weight: float, sub_type: int, semester: int, subject_id: int, user_id: int
+        grade_id: int, value: float, weight: float, sub_type: int, semester: int, subject_id: int, user_id: int
     ) -> bool:
         """
         This function updates the grade in the database.
@@ -247,7 +247,7 @@ class Db:
 
     @staticmethod
     def insert_note(
-            title: str, content: str, created_at: str, user_id: int, associated_date: datetime, color: str
+        title: str, content: str, created_at: str, user_id: int, associated_date: datetime, color: str
     ) -> bool:
         """
         This function inserts note into the database.
@@ -275,7 +275,7 @@ class Db:
 
     @staticmethod
     def update_note(
-            note_id: int, title: str, content: str, created_at: str, user_id: int, associated_date: datetime, color: str
+        note_id: int, title: str, content: str, created_at: str, user_id: int, associated_date: datetime, color: str
     ) -> bool:
         """
         This function updates note in the database.
