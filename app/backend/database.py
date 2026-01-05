@@ -658,4 +658,41 @@ class Db:
             print(e)
             return False
 
+    @staticmethod
+    def fetch_user_password(user_id: int) -> str | None:
+        """
+        This function fetches user password from database.
+        :param user_id: user id
+        :return: success status
+        """
+        try:
+            Db.cursor.execute("SELECT password FROM users where id = ?", (user_id,))
+            return Db.cursor.fetchone()
+        except Exception as e:
+            print(e)
+            return None
+
+    @staticmethod
+    def update_user_password(user_id: int, new_password: str) -> bool:
+        """
+        This function update user password.
+        :param user_id: user id
+        :param new_password: new user password
+        :return: success status
+        """
+        try:
+            Db.cursor.execute(
+                """
+                       UPDATE users
+                       SET password = ?
+                       WHERE id = ?
+                   """,
+                (new_password, user_id),
+            )
+            Db.conn.commit()
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
     # endregion
