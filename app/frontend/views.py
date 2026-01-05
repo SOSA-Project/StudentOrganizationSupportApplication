@@ -1693,12 +1693,10 @@ class ChatView(BaseView):
                 self.chat_display.delete("1.0", "end")
                 msgs = Db.fetch_messages() or []
                 for msg in msgs:
-                    if msg[2] == str(uuid):
-                        if msg[3]:
-                            self.chat_display.insert("end", f"{user[1]}: {msg[1]}\n")
-                        else:
-                            self.chat_display.insert("end", f"You: {msg[1]}\n")
-                    pass
+                    if msg[2] == str(Session.uuid) and msg[3] == uuid:
+                        self.chat_display.insert("end", f"You: {msg[1]}\n")
+                    elif msg[2] == uuid and msg[3] == str(Session.uuid):
+                        self.chat_display.insert("end", f"{user[1]}: {msg[1]}\n")
                 self.chat_display.configure(state="disabled")
             else:
                 self.chat_display.configure(state="normal")
@@ -1718,7 +1716,7 @@ class ChatView(BaseView):
                 self.chat_display.configure(state="disabled")
                 self.message_entry.delete(0, "end")
                 Client.send(self.selected_user, message)
-                Db.insert_message(message, self.selected_user, 0)
+                Db.insert_message(message, str(Session.uuid), self.selected_user)
 
 
 class SettingsView(BaseView):
