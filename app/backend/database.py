@@ -80,6 +80,19 @@ class Db:
             )
             """
         )
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS "notifications" (
+                "id"	INTEGER UNIQUE,
+                "user_id"	TEXT,
+                "message"	TEXT,
+                "notification_type"	INTEGER,
+                "is_read"	INTEGER,
+                "associated_time"	TEXT,
+                PRIMARY KEY("id")
+            )
+            """
+        )
         cursor.execute("PRAGMA table_info(users)")
         columns = [col[1] for col in cursor.fetchall()]
         if "password" not in columns:
@@ -696,3 +709,105 @@ class Db:
             return False
 
     # endregion
+
+    # region notifications
+
+    @staticmethod
+    def fetch_notifications() -> list[tuple[int, str, str, int, int, str]] | None:
+        """
+        This function fetches notifications from the database.
+        :return list of tuple: list of tuple representing notifications
+        """
+        try:
+            Db.cursor.execute("SELECT * FROM notifications")
+            return Db.cursor.fetchall()
+        except Exception as e:
+            print(e)
+            return None
+
+    @staticmethod
+    def insert_notification(
+        user_id: str,
+        message: str,
+        notification_type: int,
+        is_read: int,
+        associated_time: str,
+    ) -> bool:
+        """
+        This function inserts notification into the database.
+        :param user_id: user id
+        :param message: message
+        :param notification_type: notification type
+        :param is_read: is read
+        :param associated_time: associated time
+        :return success status: whether insert was successful or not
+        """
+        try:
+            Db.cursor.execute(
+                """
+                INSERT INTO notifications (user_id, message, notification_type, is_read, associated_time)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (user_id, message, notification_type, is_read, associated_time),
+            )
+            Db.conn.commit()
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
+    @staticmethod
+    def update_notification(
+        notification_id: int,
+        user_id: str,
+        message: str,
+        notification_type: int,
+        is_read: int,
+        associated_time: str,
+    ) -> bool:
+        """
+        This function updates notification in the database.
+        :param notification_id: notification id
+        :param user_id: user id
+        :param message: notification message
+        :param notification_type: notification type
+        :param is_read: notification read
+        :param associated_time: notification associated time
+        :return success status: whether update was successful or not
+        """
+        try:
+            Db.cursor.execute(
+                """
+                UPDATE notifications
+                SET user_id          = ?,
+                    message          = ?,
+                    notification_type = ?,
+                    is_read          = ?,
+                    associated_time  = ?
+                WHERE id             = ?
+                """,
+                (user_id, message, notification_type, is_read, associated_time, notification_id),
+            )
+            Db.conn.commit()
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
+    @staticmethod
+    def delete_notification(notification_id: int) -> bool:
+        """
+        This function deletes the notification in the database.
+        :param notification_id: notification id
+        :return success status: whether delete was successful or not
+        """
+        try:
+            Db.cursor.execute(
+                "DELETE FROM notifications WHERE id = ?",
+                (notification_id,),
+            )
+            Db.conn.commit()
+            return True
+        except Exception as e:
+            print(e)
+            return False
