@@ -109,7 +109,7 @@ class Db:
         """
         while Client.msg_queue.qsize():
             result = asyncio.run(Client.msg_queue.get())
-            Db.insert_message(result["msg"], result["sender"], 1)
+            Db.insert_message(result["msg"], result["sender"], result["recipient"])
 
     @staticmethod
     def close() -> None:
@@ -501,10 +501,10 @@ class Db:
             return None
 
     @staticmethod
-    def insert_message(content: str, user_uuid: str, incoming: int) -> bool:
+    def insert_message(content: str, user_uuid: str, recipient_uuid: str) -> bool:
         """
         This function inserts event into the database.
-        :param incoming: 1 if message is incoming 0 if not
+        :param recipient_uuid: recipient uuid
         :param content: message content
         :param user_uuid: user universally unique identifier
         :return success status: whether insert was successful or not
@@ -512,10 +512,10 @@ class Db:
         try:
             Db.cursor.execute(
                 """
-                       INSERT INTO messages (content, user_uuid, incoming)
+                       INSERT INTO messages (content, user_uuid, recipient_uuid)
                        VALUES (?, ?, ?)
                    """,
-                (content, user_uuid, incoming),
+                (content, user_uuid, recipient_uuid),
             )
             Db.conn.commit()
             return True
@@ -524,10 +524,10 @@ class Db:
             return False
 
     @staticmethod
-    def update_message(message_id: int, content: str, user_uuid: int, incoming: int) -> bool:
+    def update_message(message_id: int, content: str, user_uuid: int, recipient_uuid: str) -> bool:
         """
         This function updates event in the database.
-        :param incoming: 1 if message is incoming 0 if not
+        :param recipient_uuid: recipient uuid
         :param content: message content
         :param user_uuid: user universally unique identifier
         :param message_id: message id
@@ -537,12 +537,12 @@ class Db:
             Db.cursor.execute(
                 """
                        UPDATE messages
-                       SET content    = ?,
-                           user_uuid  = ?,
-                           incoming   = ?
-                       WHERE id       = ?
+                       SET content        = ?,
+                           user_uuid      = ?,
+                           recipient_uuid = ?
+                       WHERE id           = ?
                    """,
-                (content, user_uuid, message_id, incoming),
+                (content, user_uuid, message_id, recipient_uuid),
             )
             Db.conn.commit()
             return True
