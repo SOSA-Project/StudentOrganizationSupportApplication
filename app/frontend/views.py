@@ -41,7 +41,7 @@ class BaseView(ctk.CTkFrame, ABC):
     """
 
     def __init__(self, parent: ctk.CTk) -> None:
-        super().__init__(parent, fg_color=("#c7c7c7","#444444"), corner_radius=10)
+        super().__init__(parent, fg_color=("#c7c7c7", "#444444"), corner_radius=10)
         [self.grid_rowconfigure(index=i, weight=1, uniform="rowcol") for i in range(32)]
         [self.grid_columnconfigure(index=i, weight=1, uniform="rowcol") for i in range(8)]
 
@@ -1028,12 +1028,10 @@ class AverageView(BaseView):
             case "Histogram":
                 option_value = self.subject_name_option.get()
                 self.subject_name_option.configure(values=self.subject_data)
-                print(self.subject_data)
                 self.histogram_grades_gui(option_value)
             case "Pie Chart":
                 option_value = self.subject_name_option.get()
                 self.subject_name_option.configure(values=self.subject_data)
-                print(self.subject_data)
                 self.pie_grades_gui(option_value)
 
     def create_frame_content(self) -> ctk.CTkFrame:
@@ -1549,7 +1547,9 @@ class GradesView(BaseView):
         frame.grid_rowconfigure(0, weight=1)
         frame.grid_columnconfigure(0, weight=1)
 
-        self.grades_textbox: ctk.CTkTextbox = ctk.CTkTextbox(frame, font=("Consolas", 18), fg_color=("white", "#242424"))
+        self.grades_textbox: ctk.CTkTextbox = ctk.CTkTextbox(
+            frame, font=("Consolas", 18), fg_color=("white", "#242424")
+        )
         self.grades_textbox.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
         self.grades_textbox.configure(state="disabled")
         self.grades_textbox._textbox.tag_configure("center", justify="center")
@@ -1886,9 +1886,7 @@ class SettingsView(BaseView):
     def toggle_dark_mode(self) -> None:
         """
         This method is responsible for change application theme.
-        (Work in progress)
-        #TODO
-        :return:
+        :return: Nothing
         """
         if self.dark_mode_switch.get():
             ctk.set_appearance_mode("dark")
