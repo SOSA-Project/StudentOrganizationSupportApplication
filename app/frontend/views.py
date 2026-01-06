@@ -41,7 +41,7 @@ class BaseView(ctk.CTkFrame, ABC):
     """
 
     def __init__(self, parent: ctk.CTk) -> None:
-        super().__init__(parent, fg_color="#444444", corner_radius=10)
+        super().__init__(parent, fg_color=("#c7c7c7","#444444"), corner_radius=10)
         [self.grid_rowconfigure(index=i, weight=1, uniform="rowcol") for i in range(32)]
         [self.grid_columnconfigure(index=i, weight=1, uniform="rowcol") for i in range(8)]
 
@@ -314,7 +314,7 @@ class NotificationsView(BaseView):
         self.notifications_types_filter = ctk.CTkOptionMenu(self, values=notification_types, height=50, width=150)
         self.notifications_types_filter.grid(row=6, column=3, rowspan=4, columnspan=2)
 
-        self.notifications_listbox = CTkListbox(self, height=350, width=750, fg_color="#242424")
+        self.notifications_listbox = CTkListbox(self, height=350, width=750, fg_color=("white", "#242424"))
         self.notifications_listbox.grid(row=13, column=1, columnspan=6, rowspan=12)
 
         mark_as_read_button = ctk.CTkButton(self, text="Mark as Read", command=self.mark_as_read, height=50, width=150)
@@ -643,7 +643,7 @@ class NotesView(BaseView):
         Method that creates GUI for adding new notes into database.
         :return: New CTK frame.
         """
-        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame = ctk.CTkFrame(self, fg_color=("white", "#242424"), corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
@@ -692,7 +692,7 @@ class NotesView(BaseView):
         This method creates GUI for editing existing notes into database.
         :return: New CTK frame.
         """
-        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame = ctk.CTkFrame(self, fg_color=("white", "#242424"), corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
@@ -739,7 +739,7 @@ class NotesView(BaseView):
         This method creates GUI for deleting notes from database.
         :return: New CTK frame.
         """
-        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame = ctk.CTkFrame(self, fg_color=("white", "#242424"), corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
@@ -774,11 +774,11 @@ class NotesView(BaseView):
         Method that creates GUI for showing grades in database.
         :return: New CTK frame.
         """
-        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame = ctk.CTkFrame(self, fg_color=("#c7c7c7", "#242424"), corner_radius=10)
         frame.grid_rowconfigure(0, weight=1)
         frame.grid_columnconfigure(0, weight=1)
 
-        self.notes_textbox = ctk.CTkTextbox(frame, font=("Consolas", 16), fg_color="#242424")
+        self.notes_textbox = ctk.CTkTextbox(frame, font=("Consolas", 16), fg_color=("white", "#242424"))
         self.notes_textbox.bind("<Configure>", self._on_textbox_resize)
         try:
             self.notes_textbox._textbox.bind("<Configure>", self._on_textbox_resize)
@@ -847,7 +847,7 @@ class NotesView(BaseView):
             command=self.change_gui,
             height=50,
             corner_radius=10,
-            fg_color="#242424",
+            fg_color=("white", "#242424"),
             border_width=5,
         )
 
@@ -860,7 +860,7 @@ class NotesView(BaseView):
             font=("Roboto", 24),
             height=50,
             corner_radius=10,
-            fg_color="#242424",
+            fg_color=("white", "#242424"),
         )
         self.menu_label.grid(row=27, rowspan=2, column=2, columnspan=4, padx=5, pady=5, sticky="ew")
 
@@ -918,7 +918,8 @@ class AverageView(BaseView):
         """
         charts_manager = StatisticsManager(monitor)
         grades_avg = charts_manager.subjects_averages()
-        return subjects_averages_histogram_plot(grades_avg, "dark")
+        theme = ctk.get_appearance_mode().lower()
+        return subjects_averages_histogram_plot(grades_avg, theme)
 
     @classmethod
     def _create_grades_pie_plot(cls, grades_data: GradeMonitor, subject: list[str]) -> Figure:
@@ -930,7 +931,8 @@ class AverageView(BaseView):
         """
         charts_manager = StatisticsManager(grades_data)
         grades_number: dict[float, int] = charts_manager.grades_number(subject)
-        return all_grades_pie_plot(grades_number, "dark")
+        theme = ctk.get_appearance_mode().lower()
+        return all_grades_pie_plot(grades_number, theme)
 
     @classmethod
     def _create_grades_histogram(cls, grades_data: GradeMonitor, subject: list[str]) -> Figure:
@@ -942,7 +944,8 @@ class AverageView(BaseView):
         """
         charts_manager = StatisticsManager(grades_data)
         grades_number: dict[float, int] = charts_manager.grades_number(subject)
-        return all_grades_histogram_plot(grades_number, "dark")
+        theme = ctk.get_appearance_mode().lower()
+        return all_grades_histogram_plot(grades_number, theme)
 
     def _destroy_old_canvas(self) -> None:
         """
@@ -967,8 +970,12 @@ class AverageView(BaseView):
         self.canvas = FigureCanvasTkAgg(chart, master=self)
         self.canvas.draw()
 
+        appearance = ctk.get_appearance_mode()
+        fg = self.cget("fg_color")
+        bg_color = fg[0] if appearance == "Light" else fg[1]
+
         canvas_widget = self.canvas.get_tk_widget()
-        canvas_widget.configure(bg=self.cget("fg_color"), highlightthickness=0, bd=0)
+        canvas_widget.configure(bg=bg_color, highlightthickness=0, bd=0)
         canvas_widget.grid(row=5, rowspan=27, column=0, columnspan=8, padx=5, pady=5, sticky="nsew")
 
     def avg_chart_gui(self) -> None:
@@ -1041,7 +1048,7 @@ class AverageView(BaseView):
             command=self.change_gui,
             height=60,
             corner_radius=10,
-            fg_color="#242424",
+            fg_color=("white", "#242424"),
             border_width=5,
         )
         self.menu_button.grid(row=2, rowspan=2, column=1, columnspan=4, padx=1, pady=20, sticky="ew")
@@ -1053,7 +1060,7 @@ class AverageView(BaseView):
             font=("Roboto", 24),
             height=60,
             corner_radius=10,
-            fg_color="#242424",
+            fg_color=("white", "#242424"),
         )
         self.menu_label.grid(row=2, rowspan=2, column=5, columnspan=2, padx=1, pady=20, sticky="ew")
 
@@ -1314,7 +1321,7 @@ class GradesView(BaseView):
         This method creates GUI for adding new grades into database.
         :return: New CTK frame.
         """
-        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame = ctk.CTkFrame(self, fg_color=("white", "#242424"), corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
@@ -1345,7 +1352,7 @@ class GradesView(BaseView):
         This method creates GUI for deleting grades into database.
         :return: New CTK frame.
         """
-        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame = ctk.CTkFrame(self, fg_color=("white", "#242424"), corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
@@ -1367,7 +1374,7 @@ class GradesView(BaseView):
         This method creates GUI for update new grades in database.
         :return: New CTK frame.
         """
-        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame = ctk.CTkFrame(self, fg_color=("white", "#242424"), corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
@@ -1454,7 +1461,7 @@ class GradesView(BaseView):
         This method creates GUI for adding new subjects into database.
         :return: New CTK frame.
         """
-        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame = ctk.CTkFrame(self, fg_color=("white", "#242424"), corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
@@ -1480,7 +1487,7 @@ class GradesView(BaseView):
         This method creates GUI for editing current subjects in database.
         :return: New CTK frame.
         """
-        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame = ctk.CTkFrame(self, fg_color=("white", "#242424"), corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
@@ -1514,7 +1521,7 @@ class GradesView(BaseView):
         This method creates GUI for deleting existing subjects from database.
         :return: New CTK frame.
         """
-        frame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame = ctk.CTkFrame(self, fg_color=("white", "#242424"), corner_radius=10)
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
@@ -1538,11 +1545,11 @@ class GradesView(BaseView):
         Method that creates GUI for showing grades in database.
         :return: New CTK frame.
         """
-        frame: ctk.CTkFrame = ctk.CTkFrame(self, fg_color="#242424", corner_radius=10)
+        frame: ctk.CTkFrame = ctk.CTkFrame(self, fg_color=("white", "#242424"), corner_radius=10)
         frame.grid_rowconfigure(0, weight=1)
         frame.grid_columnconfigure(0, weight=1)
 
-        self.grades_textbox: ctk.CTkTextbox = ctk.CTkTextbox(frame, font=("Consolas", 18), fg_color="#242424")
+        self.grades_textbox: ctk.CTkTextbox = ctk.CTkTextbox(frame, font=("Consolas", 18), fg_color=("white", "#242424"))
         self.grades_textbox.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
         self.grades_textbox.configure(state="disabled")
         self.grades_textbox._textbox.tag_configure("center", justify="center")
@@ -1602,7 +1609,7 @@ class GradesView(BaseView):
             command=self.change_gui,
             height=50,
             corner_radius=10,
-            fg_color="#242424",
+            fg_color=("white", "#242424"),
             border_width=5,
         )
         self.menu_button.grid(row=2, rowspan=2, column=2, columnspan=4, padx=0, pady=0)
@@ -1614,7 +1621,7 @@ class GradesView(BaseView):
             font=("Roboto", 24),
             height=50,
             corner_radius=10,
-            fg_color="#242424",
+            fg_color=("white", "#242424"),
         )
         self.menu_label.grid(row=27, rowspan=2, column=2, columnspan=4, padx=5, pady=5, sticky="ew")
 
@@ -1788,7 +1795,7 @@ class SettingsView(BaseView):
         """
         self.settings_frame = ctk.CTkFrame(
             self.container,
-            fg_color="#242424",
+            fg_color=("white", "#242424"),
             corner_radius=10,
         )
         self.settings_frame.grid(
@@ -1838,7 +1845,7 @@ class SettingsView(BaseView):
         """
         self.theme_frame = ctk.CTkFrame(
             self.container,
-            fg_color="#242424",
+            fg_color=("white", "#242424"),
             corner_radius=10,
             height=100,
         )
@@ -1900,7 +1907,7 @@ class SettingsView(BaseView):
             height=50,
             corner_radius=10,
             width=400,
-            fg_color="#242424",
+            fg_color=("white", "#242424"),
         )
         self.footer_label.grid(
             row=25,
