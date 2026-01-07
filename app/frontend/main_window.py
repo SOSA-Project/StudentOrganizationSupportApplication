@@ -110,8 +110,8 @@ class AppGUI(ctk.CTk):
         self.login_view.pack_forget()
         self.notifications_manager = initiate_notification_manager(self)
         self.btn_icons: IconsHolder = IconsHolder()
-        self.left_frame: LeftFrame = LeftFrame(self, color="#444444")
-        self.right_frame: RightFrame = RightFrame(self, color="#242424")
+        self.left_frame: LeftFrame = LeftFrame(self, color=("#c7c7c7", "#444444"))
+        self.right_frame: RightFrame = RightFrame(self, color=("#ebebeb", "#242424"))
 
         # Container for all available views
         self.view_classes: dict[str, type[ctk.CTkFrame]] = {
