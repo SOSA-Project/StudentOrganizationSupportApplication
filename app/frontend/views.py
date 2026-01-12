@@ -384,6 +384,8 @@ class NotesView(BaseView):
             "Edit note",
         )
 
+        self.note_colors = ("red", "green", "blue", "brown", "purple")
+
         self.note_id_data = self._update_options_data()
 
         self.labels_container: dict[str, ctk.CTkLabel] = {}
@@ -464,6 +466,13 @@ class NotesView(BaseView):
 
         if hasattr(self, "note_id_optionmenu"):
             data["id_del"] = str(self.note_id_optionmenu.get())
+
+        if hasattr(self, "add_note_color_optionmenu"):
+            data["color_add"] = self.add_note_color_optionmenu.get()
+
+        if hasattr(self, "edit_note_color_optionmenu"):
+            data["color_edit"] = self.edit_note_color_optionmenu.get()
+
         return data
 
     def _get_notes_title_id_map(self) -> dict[str, int]:
@@ -531,7 +540,7 @@ class NotesView(BaseView):
 
         created_at = datetime.now().isoformat()
         temp_user_id: int = 1
-        color = "white"
+        color = data.get("color_add", "white")
 
         associated_date_raw = data.get("associated_date_add")
 
@@ -595,7 +604,7 @@ class NotesView(BaseView):
 
         created_at = datetime.now().isoformat()
         temp_user_id = 1
-        color = "white"
+        color = data.get("color_edit", "white")
 
         associated_date_raw = data.get("associated_date_edit")
 
@@ -674,7 +683,8 @@ class NotesView(BaseView):
         labels_data = {
             ("title_label", "Note title:", 10),
             ("associated_date", "Note associated date(YYYY-MM-DD):", 12),
-            ("content_label", "Note content:", 14),
+            ("color_label", "Note color:", 14),
+            ("content_label", "Note content:", 16),
         }
 
         for key, text, row in labels_data:
@@ -688,8 +698,18 @@ class NotesView(BaseView):
         self.add_note_associated_date_input = ctk.CTkEntry(frame, width=250)
         self.add_note_associated_date_input.grid(row=12, rowspan=2, column=4, columnspan=2, padx=5, pady=5, sticky="ew")
 
+        color_label = ctk.CTkLabel(frame, text="Note color:", font=("Roboto", 18))
+        color_label.grid(row=14, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+        self.add_note_color_optionmenu = ctk.CTkOptionMenu(
+            frame,
+            values=self.note_colors,
+            width=250,
+            font=("Roboto", 18)
+        )
+        self.add_note_color_optionmenu.grid(row=14, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+
         self.add_note_content_input = ctk.CTkTextbox(frame, width=250, height=250)
-        self.add_note_content_input.grid(row=14, rowspan=6, column=4, columnspan=2, padx=5, pady=5, sticky="nsew")
+        self.add_note_content_input.grid(row=16, rowspan=6, column=4, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         self.add_note_btn = ctk.CTkButton(
             frame,
@@ -700,16 +720,6 @@ class NotesView(BaseView):
         self.add_note_btn.grid(row=26, rowspan=3, column=3, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         return frame
-
-    def get_note_ids(self) -> tuple[str, ...]:
-        """
-        This method gets note ids from database.
-        :return: Tuple of note ids.
-        """
-        notes = Db.fetch_notes()
-        if not notes:
-            return ("None",)
-        return tuple(str(note[0]) for note in notes)
 
     def edit_note_gui(self) -> ctk.CTkFrame:
         """
@@ -724,7 +734,8 @@ class NotesView(BaseView):
             ("note_title_label", "Select note title:", 10),
             ("title_label", "Note title:", 12),
             ("associated_date_label", "Note associated date:(YYYY-MM-DD)", 14),
-            ("content_label", "Note content:", 16),
+            ("color_label", "Note color:", 16),
+            ("content_label", "Note content:", 18),
         }
 
         for key, text, row in labels_data:
@@ -745,8 +756,18 @@ class NotesView(BaseView):
             row=14, rowspan=2, column=4, columnspan=2, padx=5, pady=5, sticky="ew"
         )
 
+        color_label = ctk.CTkLabel(frame, text="Note color:", font=("Roboto", 18))
+        color_label.grid(row=16, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
+        self.edit_note_color_optionmenu = ctk.CTkOptionMenu(
+            frame,
+            values=self.note_colors,
+            width=250,
+            font=("Roboto", 18)
+        )
+        self.edit_note_color_optionmenu.grid(row=16, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+
         self.edit_note_content_input = ctk.CTkTextbox(frame, width=250, height=250)
-        self.edit_note_content_input.grid(row=16, rowspan=6, column=4, columnspan=2, padx=5, pady=5, sticky="nsew")
+        self.edit_note_content_input.grid(row=18, rowspan=6, column=4, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         self.save_note_btn = ctk.CTkButton(
             frame,
@@ -793,6 +814,22 @@ class NotesView(BaseView):
         """
         self.refresh_notes_table()
 
+    def _configure_color_tags(self) -> None:
+        """
+        This method configures the color tags.
+        :return: Nothing
+        """
+        try:
+            textbox = self.notes_textbox._textbox
+        except AttributeError:
+            textbox = self.notes_textbox
+
+        textbox.tag_configure("red", foreground="#FF6B6B")
+        textbox.tag_configure("green", foreground="#55EFC4")
+        textbox.tag_configure("blue", foreground="#74B9FF")
+        textbox.tag_configure("brown", foreground="#B08968")
+        textbox.tag_configure("purple", foreground="#A29BFE")
+
     def show_notes_gui(self) -> ctk.CTkFrame:
         """
         Method that creates GUI for showing grades in database.
@@ -808,6 +845,7 @@ class NotesView(BaseView):
             self.notes_textbox._textbox.bind("<Configure>", self._on_textbox_resize)
         except AttributeError:
             pass
+        self._configure_color_tags()
         self.notes_textbox.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
         self.notes_textbox.configure(state="disabled")
 
@@ -841,18 +879,21 @@ class NotesView(BaseView):
                 title = note[1]
                 content = note[2]
                 associated_date = note[5]
+                color = note[6] if note[6] in self.note_colors else None
 
-                self.notes_textbox.insert("end", f"Title: {title}\n")
+                tag = color if color else None
+
+                self.notes_textbox.insert("end", f"Title: {title}\n", tag)
 
                 if associated_date is not None:
                     if isinstance(associated_date, datetime):
-                        self.notes_textbox.insert("end", f"Associated Date: {associated_date.date()}\n")
+                        self.notes_textbox.insert("end", f"Associated Date: {associated_date.date()}\n", tag)
                     elif isinstance(associated_date, str):
-                        self.notes_textbox.insert("end", f"Associated Date: {associated_date[:10]}\n")
+                        self.notes_textbox.insert("end", f"Associated Date: {associated_date[:10]}\n", tag)
                     else:
-                        self.notes_textbox.insert("end", f"Associated Date: {str(associated_date)}\n")
+                        self.notes_textbox.insert("end", f"Associated Date: {str(associated_date)}\n", tag)
 
-                self.notes_textbox.insert("end", f"Content:\n{content}\n")
+                self.notes_textbox.insert("end", f"Content: {content}\n", tag)
                 self.notes_textbox.insert("end", separator + "\n")
 
         self.notes_textbox.configure(state="disabled")
