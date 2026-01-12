@@ -155,8 +155,9 @@ class CalendarView(BaseView):
                 ]
                 for i, note in enumerate(date_notes):
                     Tooltip(btn, note.content, self.get_color(note.color), x_offset=i * 265 + 10)
-                    btn.configure(fg_color=self.get_color(note.color),
-                                  hover_color=self.darken_color(self.get_color(note.color)))
+                    btn.configure(
+                        fg_color=self.get_color(note.color), hover_color=self.darken_color(self.get_color(note.color))
+                    )
 
         for col in range(7):
             self.calendar_frame.grid_columnconfigure(col, weight=1)
@@ -316,6 +317,7 @@ class NotificationsView(BaseView):
         if notification_manager is not None:
             notification_manager.notifications_updated = self.populate_notifications
         self.create_frame_content()
+        self.mode: str = "list"
 
     def create_frame_content(self) -> None:
         """
@@ -331,8 +333,19 @@ class NotificationsView(BaseView):
         self.notifications_types_filter = ctk.CTkOptionMenu(self, values=notification_types, height=50, width=150)
         self.notifications_types_filter.grid(row=6, column=3, rowspan=4, columnspan=2)
 
-        self.notifications_listbox = CTkListbox(self, height=350, width=750, fg_color=("white", "#242424"))
-        self.notifications_listbox.grid(row=13, column=1, columnspan=6, rowspan=12)
+        self.notifications_middle_window = ctk.CTkFrame(
+            self, fg_color=("white", "#242424"), height=350, width=750, corner_radius=10
+        )
+        self.notifications_middle_window.grid(row=13, column=1, columnspan=6, rowspan=12)
+
+        self.notifications_listbox = CTkListbox(
+            self.notifications_middle_window, height=350, width=750, fg_color=("white", "#242424")
+        )
+
+        self.notifications_listbox.grid(row=0, column=0, sticky="nsew")
+
+        self.notifications_middle_window.grid_rowconfigure(0, weight=1)
+        self.notifications_middle_window.grid_columnconfigure(0, weight=1)
 
         mark_as_read_button = ctk.CTkButton(self, text="Mark as Read", command=self.mark_as_read, height=50, width=90)
         mark_as_read_button.grid(row=26, column=2, pady=10, rowspan=4)
@@ -340,11 +353,11 @@ class NotificationsView(BaseView):
         filter_button = ctk.CTkButton(self, text="Filter", command=self.filter_notifications, height=50, width=90)
         filter_button.grid(row=26, column=3, pady=10, rowspan=4)
 
-        add_button = ctk.CTkButton(self, text="Add", height=50, width=90)
-        add_button.grid(row=26, column=4, pady=10, rowspan=4)
+        delete_button = ctk.CTkButton(self, text="Delete", command=self.delete_notification, height=50, width=90)
+        delete_button.grid(row=26, column=4, pady=10, rowspan=4)
 
-        delete_button = ctk.CTkButton(self, text="Delete", height=50, width=90)
-        delete_button.grid(row=26, column=5, pady=10, rowspan=4)
+        add_button = ctk.CTkButton(self, text="Add", command=self.show_form, height=50, width=90)
+        add_button.grid(row=26, column=5, pady=10, rowspan=4)
 
         self.populate_notifications()
 
@@ -381,7 +394,7 @@ class NotificationsView(BaseView):
             selected_index = self.notifications_listbox.curselection()
             if selected_index is not None:
                 selected_notification = self.notification_manager.get_all_notifications()[selected_index]
-                selected_notification.mark_as_read()
+                self.notification_manager.mark_as_read(selected_notification.id)
                 self.populate_notifications()
 
     def filter_notifications(self) -> None:
@@ -390,6 +403,88 @@ class NotificationsView(BaseView):
         :return: Nothing
         """
         self.populate_notifications(self.notifications_types_filter.get())
+
+    def delete_notification(self) -> None:
+        """
+        Deletes selected notification
+        :return:  Nothing
+        """
+        if self.notification_manager is not None and self.mode == "list":
+            selected_index = self.notifications_listbox.curselection()
+            if selected_index is not None:
+                selected_notification = self.notification_manager.get_all_notifications()[selected_index]
+                self.notification_manager.delete_notification(selected_notification.id)
+                self.populate_notifications()
+
+    def show_form(self) -> None:
+        """
+        Shows the add notification form
+        :return: Nothing
+        """
+        self.mode = "form"
+
+        for widget in self.notifications_middle_window.winfo_children():
+            widget.grid_forget()
+
+        self.notification_message_label = ctk.CTkLabel(self.notifications_middle_window, text="Message")
+        self.notification_message_label.grid(row=0, column=0, columnspan=2, padx=10, pady=5)
+
+        self.notification_message_entry = ctk.CTkEntry(self.notifications_middle_window, height=40, width=300)
+        self.notification_message_entry.grid(row=1, column=0, columnspan=2, padx=10, pady=5)
+
+        self.notification_type_label = ctk.CTkLabel(self.notifications_middle_window, text="Notification Type")
+        self.notification_type_label.grid(row=2, column=0, columnspan=2, padx=10, pady=5)
+
+        self.notification_type_entry = ctk.CTkOptionMenu(
+            self.notifications_middle_window, values=[nt.name for nt in NotificationType]
+        )
+        self.notification_type_entry.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+
+        self.notification_date_label = ctk.CTkLabel(
+            self.notifications_middle_window, text="Notification date (YYYY-MM" "-DD HH:mm:SS)"
+        )
+        self.notification_date_label.grid(row=4, column=0, columnspan=2, padx=10, pady=5)
+
+        self.notification_date_entry = ctk.CTkEntry(self.notifications_middle_window, height=40, width=300)
+        self.notification_date_entry.grid(row=5, column=0, columnspan=2, padx=10, pady=5)
+
+        self.submit_button = ctk.CTkButton(self.notifications_middle_window, text="Submit", command=self.submit_form)
+        self.submit_button.grid(row=6, column=0, padx=10, pady=5)
+
+        self.cancel_button = ctk.CTkButton(self.notifications_middle_window, text="Cancel", command=self.show_list)
+        self.cancel_button.grid(row=6, column=1, padx=10, pady=5)
+
+    def submit_form(self) -> None:
+        """
+        Submits the form and adds notification to database
+        :return: Nothing
+        """
+
+        try:
+            datetime.strptime(self.notification_date_entry.get(), "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            return
+        message = self.notification_message_entry.get()
+        notification_type = NotificationType[self.notification_type_entry.get()].value
+        if self.notification_manager is not None:
+            self.notification_manager.add_notification(
+                message=message, notification_type=notification_type, associated_time=self.notification_date_entry.get()
+            )
+
+        self.show_list()
+
+    def show_list(self) -> None:
+        """
+        Shows the notification list
+        :return: Nothing
+        """
+        self.mode = "list"
+
+        for widget in self.notifications_middle_window.winfo_children():
+            widget.grid_forget()
+
+        self.notifications_listbox.grid(row=0, column=0, sticky="nsew")
+        self.populate_notifications()
 
 
 class NotesView(BaseView):
@@ -724,10 +819,7 @@ class NotesView(BaseView):
         color_label = ctk.CTkLabel(frame, text="Note color:", font=("Roboto", 18))
         color_label.grid(row=14, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
         self.add_note_color_optionmenu = ctk.CTkOptionMenu(
-            frame,
-            values=self.note_colors,
-            width=250,
-            font=("Roboto", 18)
+            frame, values=self.note_colors, width=250, font=("Roboto", 18)
         )
         self.add_note_color_optionmenu.grid(row=14, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
@@ -782,10 +874,7 @@ class NotesView(BaseView):
         color_label = ctk.CTkLabel(frame, text="Note color:", font=("Roboto", 18))
         color_label.grid(row=16, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
         self.edit_note_color_optionmenu = ctk.CTkOptionMenu(
-            frame,
-            values=self.note_colors,
-            width=250,
-            font=("Roboto", 18)
+            frame, values=self.note_colors, width=250, font=("Roboto", 18)
         )
         self.edit_note_color_optionmenu.grid(row=16, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 

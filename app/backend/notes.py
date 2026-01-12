@@ -69,8 +69,9 @@ class NoteManager:
         """
         for row in notes_list:
             note_id, title, content, created_at, user_id, associated_date, color = row
-            note = Note(note_id, user_id, title, content, color, datetime.strptime(associated_date, "%Y-%m-%d "
-                                                                                                    "%H:%M:%S"))
+            note = Note(
+                note_id, user_id, title, content, color, datetime.strptime(associated_date, "%Y-%m-%d " "%H:%M:%S")
+            )
             note.created_at = created_at
             self.notes.append(note)
 

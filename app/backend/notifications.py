@@ -61,7 +61,7 @@ class NotificationManager:
     Class responsible for managing notifications.
     """
 
-    def __init__(self, notifications_list: list[tuple[int, str, str, int, bool, str]], app: ctk.CTk) -> None:
+    def __init__(self, notifications_list: list[tuple[int, str, str, int, int, str]], app: ctk.CTk) -> None:
         self.notifications: list[Notification] = []
         self.fill_notifications_table(notifications_list)
         self.app = app
@@ -72,7 +72,7 @@ class NotificationManager:
 
         self.check_notifications()
 
-    def fill_notifications_table(self, notifications_list: list[tuple[int, str, str, int, bool, str]]) -> None:
+    def fill_notifications_table(self, notifications_list: list[tuple[int, str, str, int, int, str]]) -> None:
         """
         Method that fills notifications list with fetched notifications.
         :param notifications_list: List of tuples representing notifications data
@@ -80,13 +80,18 @@ class NotificationManager:
         """
         for row in notifications_list:
             notification_id, user_id, message, notification_type, is_read, associated_time = row
+            try:
+                datetime.strptime(associated_time, "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                associated_time = "2026-1-1 00:00:00"
+
             notification = Notification(
                 notification_id,
                 user_id=user_id,
                 message=message,
                 notification_type=notification_type,
-                is_read=is_read,
-                associated_time=datetime.strptime(associated_time, "%Y-%m-%d %H:%M"),
+                is_read=bool(is_read),
+                associated_time=datetime.strptime(associated_time, "%Y-%m-%d %H:%M:%S"),
             )
             self.notifications.append(notification)
 
@@ -104,6 +109,73 @@ class NotificationManager:
         """
         return [n for n in self.notifications if not n.is_read]
 
+    def delete_notification(self, notification_id: int) -> None:
+        """
+        Deletes notification from database and manager
+        :param notification_id: Id of a notification to delete
+        :return: Nothing
+        """
+        notification_to_delete = None
+        for notification in self.notifications:
+            if notification.id == notification_id:
+                notification_to_delete = notification
+        if notification_to_delete is not None:
+            self.notifications.remove(notification_to_delete)
+            Db.delete_notification(notification_to_delete.id)
+
+    def mark_as_read(self, notification_id: int):
+        notification_to_update = None
+        for notification in self.notifications:
+            if notification.id == notification_id:
+                notification_to_update = notification
+        if notification_to_update is not None:
+            notification_to_update.mark_as_read()
+            Db.update_notification(
+                notification_id=notification_to_update.id,
+                is_read=True,
+                user_id=notification_to_update.user_id,
+                associated_time=str(notification_to_update.associated_time),
+                message=notification_to_update.message,
+                notification_type=notification_to_update.notification_type.value,
+            )
+
+    def add_notification(self, message: str, notification_type: int, associated_time: str) -> None:
+        """
+        Adds new notification to database and manager
+        :param message: Notification message
+        :param notification_type: Notification type
+        :param associated_time: Notification date
+        :return: Nothing
+        """
+        Db.insert_notification(
+            message=message,
+            notification_type=notification_type,
+            associated_time=associated_time,
+            is_read=False,
+            user_id="1",
+        )
+        db_notifications = Db.fetch_notifications()
+        notification_to_add = None
+        if db_notifications is not None:
+            for notification in db_notifications:
+                if (
+                    notification[2] == message
+                    and notification[3] == notification_type
+                    and associated_time == notification[5]
+                ):
+                    notification_to_add = notification
+            if notification_to_add is not None:
+                self.notifications.append(
+                    Notification(
+                        notification_to_add[0],
+                        user_id=notification_to_add[1],
+                        message=notification_to_add[2],
+                        notification_type=notification_to_add[3],
+                        is_read=bool(notification_to_add[4]),
+                        associated_time=datetime.strptime(notification_to_add[5], "%Y-%m-%d %H:%M:%S"),
+                    )
+                )
+
     def check_notifications(self) -> None:
         """
         Method which cyclically checks whether a notification should be displayed
@@ -116,6 +188,14 @@ class NotificationManager:
             if notification.associated_time is not None and now >= notification.associated_time:
                 if self.show_notification(notification):
                     notification.is_read = True
+                    Db.update_notification(
+                        notification_id=notification.id,
+                        is_read=True,
+                        user_id=notification.user_id,
+                        associated_time=str(notification.associated_time),
+                        message=notification.message,
+                        notification_type=notification.notification_type.value,
+                    )
                     if self.notifications_updated is not None:
                         self.notifications_updated()
 
@@ -153,7 +233,6 @@ def initiate_notification_manager(app: ctk.CTk) -> NotificationManager | None:
     """
     try:
         notifications = Db.fetch_notifications()
-        print(notifications)
         if not notifications or not isinstance(notifications, list):
             return None
 
