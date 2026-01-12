@@ -444,7 +444,7 @@ class NotesView(BaseView):
     def _prepare_data_for_db(self) -> dict[str, str]:
         """
         Method prepares data for db view.
-        :return:
+        :return: Dictionary with prepared data
         """
         data: dict[str, str] = {}
 
@@ -455,8 +455,7 @@ class NotesView(BaseView):
         if hasattr(self, "add_note_associated_date_input"):
             data["associated_date_add"] = self.add_note_associated_date_input.get()
 
-        if hasattr(self, "edit_note_id_optionmenu"):
-            data["id_edit"] = str(self.edit_note_id_optionmenu.get())
+        if hasattr(self, "edit_note_title_input"):
             data["title_edit"] = str(self.edit_note_title_input.get())
             data["content_edit"] = self.edit_note_content_input.get("1.0", "end").rstrip("\n")
 
@@ -466,6 +465,24 @@ class NotesView(BaseView):
         if hasattr(self, "note_id_optionmenu"):
             data["id_del"] = str(self.note_id_optionmenu.get())
         return data
+
+    def _get_notes_title_id_map(self) -> dict[str, int]:
+        """
+        Method that create mapping betwen notes titles and IDs
+        :return: Dictionary with notes titles and IDs
+        """
+        notes = Db.fetch_notes()
+        if not notes:
+            return {"No notes": 0}
+        return {str(note[1]): int(note[0]) for note in notes}
+
+    def _get_note_titles(self) -> tuple[str, ...]:
+        """
+        Method that gets titles of notes.
+        :return: Tuple of note titles
+        """
+        self.notes_map = self._get_notes_title_id_map()
+        return tuple(self.notes_map.keys())
 
     def change_gui(self, _=None) -> None:
         """
@@ -485,12 +502,16 @@ class NotesView(BaseView):
                 self.menu_label.configure(text="")
             case "Delete note":
                 self.note_id_data = self._update_options_data()
+                titles = self._get_note_titles()
+                self.note_title_optionmenu.configure(values=titles)
                 if hasattr(self, "note_id_optionmenu"):
                     self.note_id_optionmenu.configure(values=self.note_id_data)
                 self.show_view(self.note_views["delete_note"])
                 self.menu_label.configure(text="")
             case "Edit note":
                 self.note_id_data = self._update_options_data()
+                titles = self._get_note_titles()
+                self.edit_note_title_optionmenu.configure(values=titles)
                 if hasattr(self, "edit_note_id_optionmenu"):
                     self.edit_note_id_optionmenu.configure(values=self.note_id_data)
                 self.show_view(self.note_views["edit_note"])
@@ -557,8 +578,10 @@ class NotesView(BaseView):
         """
         data = self._prepare_data_for_db()
 
+        title_selected = self.edit_note_title_optionmenu.get()
+
         try:
-            nid = int(data.get("id_edit", "0"))
+            nid = self.notes_map.get(title_selected, 0)
         except Exception:
             self.menu_label.configure(text="Invalid ID")
             return
@@ -567,7 +590,7 @@ class NotesView(BaseView):
         content = str(data.get("content_edit", "")).strip()
 
         if nid == 0:
-            self.menu_label.configure(text="Select valid ID")
+            self.menu_label.configure(text="Select valid note")
             return
 
         created_at = datetime.now().isoformat()
@@ -616,14 +639,15 @@ class NotesView(BaseView):
         Method deletes note.
         :return: Nothing
         """
-        data = self._prepare_data_for_db()
+
+        title_selected = self.note_title_optionmenu.get()
         try:
-            nid = int(data.get("id_del", "0"))
+            nid = self.notes_map.get(title_selected, 0)
         except Exception:
             self.menu_label.configure(text="Invalid ID")
             return
         if nid == 0:
-            self.menu_label.configure(text="Select valid ID")
+            self.menu_label.configure(text="Select valid note")
             return
 
         success = Db.delete_note(note_id=nid)
@@ -697,7 +721,7 @@ class NotesView(BaseView):
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
         labels_data = {
-            ("note_id_label", "Select note ID:", 10),
+            ("note_title_label", "Select note title:", 10),
             ("title_label", "Note title:", 12),
             ("associated_date_label", "Note associated date:(YYYY-MM-DD)", 14),
             ("content_label", "Note content:", 16),
@@ -708,10 +732,10 @@ class NotesView(BaseView):
             label.grid(row=row, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
             setattr(self, key, label)
 
-        self.edit_note_id_optionmenu = ctk.CTkOptionMenu(
-            frame, values=self._update_options_data(), width=200, font=("Roboto", 18)
+        self.edit_note_title_optionmenu = ctk.CTkOptionMenu(
+            frame, values=self._get_note_titles(), width=250, font=("Roboto", 18)
         )
-        self.edit_note_id_optionmenu.grid(row=10, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+        self.edit_note_title_optionmenu.grid(row=10, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
         self.edit_note_title_input = ctk.CTkEntry(frame, width=250)
         self.edit_note_title_input.grid(row=12, rowspan=2, column=4, columnspan=2, padx=5, pady=5, sticky="ew")
@@ -743,13 +767,13 @@ class NotesView(BaseView):
         frame.grid_rowconfigure(tuple(range(32)), weight=1, uniform="rowcol")
         frame.grid_columnconfigure(tuple(range(8)), weight=1, uniform="rowcol")
 
-        label = ctk.CTkLabel(frame, text="Select note ID:", font=("Roboto", 18))
+        label = ctk.CTkLabel(frame, text="Select note title:", font=("Roboto", 18))
         label.grid(row=10, rowspan=2, column=2, columnspan=2, padx=5, pady=5)
 
-        self.note_id_optionmenu = ctk.CTkOptionMenu(
-            frame, values=self._update_options_data(), width=200, font=("Roboto", 18)
+        self.note_title_optionmenu = ctk.CTkOptionMenu(
+            frame, values=self._get_note_titles(), width=250, font=("Roboto", 18)
         )
-        self.note_id_optionmenu.grid(row=10, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
+        self.note_title_optionmenu.grid(row=10, rowspan=2, column=4, columnspan=2, padx=5, pady=5)
 
         self.delete_note_btn = ctk.CTkButton(
             frame,
@@ -814,12 +838,10 @@ class NotesView(BaseView):
             self.notes_textbox.insert("end", "No notes available\n")
         else:
             for note in notes:
-                note_id = note[0]
                 title = note[1]
                 content = note[2]
                 associated_date = note[5]
 
-                self.notes_textbox.insert("end", f"ID: {note_id}\n")
                 self.notes_textbox.insert("end", f"Title: {title}\n")
 
                 if associated_date is not None:
