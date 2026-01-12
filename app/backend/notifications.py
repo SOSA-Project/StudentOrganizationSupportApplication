@@ -4,6 +4,7 @@ import customtkinter as ctk
 from typing import Callable
 
 from app.backend.tooltip import NotificationPopUp
+from app.backend.database import Db
 
 
 class NotificationType(Enum):
@@ -26,14 +27,14 @@ class Notification:
     def __init__(
         self,
         id: int,
-        user_id: int,
+        user_id: str,
         message: str,
         notification_type: int = 1,
         is_read: bool = False,
         associated_time: datetime | None = None,
     ) -> None:
         self.id: int = id
-        self.user_id: int = user_id
+        self.user_id: str = user_id
         self.message: str = message
         self.notification_type: NotificationType = NotificationType(notification_type)
         self.is_read: bool = is_read
@@ -60,7 +61,7 @@ class NotificationManager:
     Class responsible for managing notifications.
     """
 
-    def __init__(self, notifications_list: list[tuple[int, int, str, int, str, bool]], app: ctk.CTk) -> None:
+    def __init__(self, notifications_list: list[tuple[int, str, str, int, bool, str]], app: ctk.CTk) -> None:
         self.notifications: list[Notification] = []
         self.fill_notifications_table(notifications_list)
         self.app = app
@@ -71,21 +72,21 @@ class NotificationManager:
 
         self.check_notifications()
 
-    def fill_notifications_table(self, notifications_list: list[tuple[int, int, str, int, str, bool]]) -> None:
+    def fill_notifications_table(self, notifications_list: list[tuple[int, str, str, int, bool, str]]) -> None:
         """
         Method that fills notifications list with fetched notifications.
         :param notifications_list: List of tuples representing notifications data
         :return: Nothing
         """
         for row in notifications_list:
-            notification_id, user_id, message, notification_type, associated_time, is_read = row
+            notification_id, user_id, message, notification_type, is_read, associated_time = row
             notification = Notification(
                 notification_id,
                 user_id=user_id,
                 message=message,
                 notification_type=notification_type,
                 is_read=is_read,
-                associated_time=datetime.strptime(associated_time, "%Y-%m-%d %H:%M:%S"),
+                associated_time=datetime.strptime(associated_time, "%Y-%m-%d %H:%M"),
             )
             self.notifications.append(notification)
 
@@ -151,19 +152,13 @@ def initiate_notification_manager(app: ctk.CTk) -> NotificationManager | None:
     :return: Initialised instance of NotificationManager or None when data is verified as incorrect
     """
     try:
-        # notifications = Db.fetch_notifications() uncomment when implemented in database
-        notifications = [
-            (1, 1, "Test Notification TEST MESSAGE TEST MESSAGE TEST MESSAGE  ", 1, "2025-12-17 17:58:30", False),
-            (2, 1, "Second Test Notification", 1, "2025-12-04 17:25:13", False),
-            (3, 1, "Test Alert", 3, "2025-12-04 16:30:23", True),
-            (4, 1, "Test Warning", 4, "2025-12-04 16:42:11", True),
-            (5, 1, "Test Error", 5, "2025-12-04 16:21:37", True),
-        ]
+        notifications = Db.fetch_notifications()
+        print(notifications)
         if not notifications or not isinstance(notifications, list):
             return None
 
         def valid_item(item: tuple) -> bool:
-            expected_types = (int, int, str, int, str, bool)
+            expected_types = (int, str, str, int, int, str)
             if not isinstance(item, tuple) or len(item) != len(expected_types):
                 return False
             return all(isinstance(x, t) for x, t in zip(item, expected_types))

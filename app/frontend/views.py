@@ -113,6 +113,8 @@ class CalendarView(BaseView):
         and creating new ones in their place
         :return: Nothing
         """
+        self.note_manager = initiate_note_manager()
+
         for widget in self.calendar_frame.winfo_children():
             widget.destroy()
 
@@ -152,8 +154,9 @@ class CalendarView(BaseView):
                     n for n in current_notes if n.associated_date is not None and n.associated_date.day == d
                 ]
                 for i, note in enumerate(date_notes):
-                    Tooltip(btn, note.content, note.color, x_offset=i * 265 + 10)
-                    btn.configure(fg_color=note.color, hover_color=self.darken_color(note.color))
+                    Tooltip(btn, note.content, self.get_color(note.color), x_offset=i * 265 + 10)
+                    btn.configure(fg_color=self.get_color(note.color),
+                                  hover_color=self.darken_color(self.get_color(note.color)))
 
         for col in range(7):
             self.calendar_frame.grid_columnconfigure(col, weight=1)
@@ -198,10 +201,6 @@ class CalendarView(BaseView):
         current_notes: list[Note] = []
         if self.note_manager is not None:
             current_notes = self.note_manager.get_all_notes()
-            current_notes[0].associated_date = datetime(year=2025, month=11, day=1)
-            current_notes[1].associated_date = datetime(year=2025, month=11, day=19)
-            current_notes[2].associated_date = datetime(year=2025, month=11, day=19)
-            current_notes[3].associated_date = datetime(year=2025, month=11, day=30)
             if current_notes is not None:
                 current_notes = list(
                     filter(
@@ -232,6 +231,24 @@ class CalendarView(BaseView):
         b = int(b * factor)
 
         return f"#{r:02x}{g:02x}{b:02x}"
+
+    def get_color(self, color_name: str) -> str:
+        """
+        Converts color name to hex representation
+        :param color_name: Name of a given color
+        :return: Hex code for a given color
+        """
+        if color_name == "red":
+            return "#FF6B6B"
+        if color_name == "green":
+            return "#55EFC4"
+        if color_name == "blue":
+            return "#74B9FF"
+        if color_name == "brown":
+            return "#B08968"
+        if color_name == "purple":
+            return "#A29BFE"
+        return "#FF6B6B"
 
     def calendar_to_json(self) -> str:
         """
@@ -317,11 +334,17 @@ class NotificationsView(BaseView):
         self.notifications_listbox = CTkListbox(self, height=350, width=750, fg_color=("white", "#242424"))
         self.notifications_listbox.grid(row=13, column=1, columnspan=6, rowspan=12)
 
-        mark_as_read_button = ctk.CTkButton(self, text="Mark as Read", command=self.mark_as_read, height=50, width=150)
+        mark_as_read_button = ctk.CTkButton(self, text="Mark as Read", command=self.mark_as_read, height=50, width=90)
         mark_as_read_button.grid(row=26, column=2, pady=10, rowspan=4)
 
-        filter_button = ctk.CTkButton(self, text="Filter", command=self.filter_notifications, height=50, width=150)
-        filter_button.grid(row=26, column=5, pady=10, rowspan=4)
+        filter_button = ctk.CTkButton(self, text="Filter", command=self.filter_notifications, height=50, width=90)
+        filter_button.grid(row=26, column=3, pady=10, rowspan=4)
+
+        add_button = ctk.CTkButton(self, text="Add", height=50, width=90)
+        add_button.grid(row=26, column=4, pady=10, rowspan=4)
+
+        delete_button = ctk.CTkButton(self, text="Delete", height=50, width=90)
+        delete_button.grid(row=26, column=5, pady=10, rowspan=4)
 
         self.populate_notifications()
 

@@ -57,11 +57,11 @@ class NoteManager:
     Class responsible for managing notes fetched from the database.
     """
 
-    def __init__(self, notes_list: list[tuple[int, str, str, str, int, datetime, str]]) -> None:
+    def __init__(self, notes_list: list[tuple[int, str, str, str, int, str, str]]) -> None:
         self.notes: list[Note] = []
         self.fill_notes_table(notes_list)
 
-    def fill_notes_table(self, notes_list: list[tuple[int, str, str, str, int, datetime, str]]) -> None:
+    def fill_notes_table(self, notes_list: list[tuple[int, str, str, str, int, str, str]]) -> None:
         """
         Method that fills notes table with data fetched from the database.
         :param notes_list: List of tuples representing notes
@@ -69,7 +69,8 @@ class NoteManager:
         """
         for row in notes_list:
             note_id, title, content, created_at, user_id, associated_date, color = row
-            note = Note(note_id, user_id, title, content, color, associated_date)
+            note = Note(note_id, user_id, title, content, color, datetime.strptime(associated_date, "%Y-%m-%d "
+                                                                                                    "%H:%M:%S"))
             note.created_at = created_at
             self.notes.append(note)
 
@@ -92,7 +93,7 @@ def initiate_note_manager() -> NoteManager | None:
             return None
 
         def valid_item(item: tuple) -> bool:
-            expected_types = (int, str, str, str, int, datetime, str)
+            expected_types = (int, str, str, str, int, str, str)
             if not isinstance(item, tuple) or len(item) != len(expected_types):
                 return False
             return all(isinstance(x, t) for x, t in zip(item, expected_types))
