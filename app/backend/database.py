@@ -246,7 +246,7 @@ class Db:
 
     # region notes
     @staticmethod
-    def fetch_notes() -> list[tuple[int, str, str, str, int, datetime, str]] | None:
+    def fetch_notes() -> list[tuple[int, str, str, str, int, str, str]] | None:
         """
         This function fetches notes from the database.
         :return list of tuple: list of tuple representing notes

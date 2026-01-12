@@ -4,6 +4,7 @@ import customtkinter as ctk
 from typing import Callable
 
 from app.backend.tooltip import NotificationPopUp
+from app.backend.database import Db
 
 
 class NotificationType(Enum):
@@ -26,14 +27,14 @@ class Notification:
     def __init__(
         self,
         id: int,
-        user_id: int,
+        user_id: str,
         message: str,
         notification_type: int = 1,
         is_read: bool = False,
         associated_time: datetime | None = None,
     ) -> None:
         self.id: int = id
-        self.user_id: int = user_id
+        self.user_id: str = user_id
         self.message: str = message
         self.notification_type: NotificationType = NotificationType(notification_type)
         self.is_read: bool = is_read
@@ -60,7 +61,7 @@ class NotificationManager:
     Class responsible for managing notifications.
     """
 
-    def __init__(self, notifications_list: list[tuple[int, int, str, int, str, bool]], app: ctk.CTk) -> None:
+    def __init__(self, notifications_list: list[tuple[int, str, str, int, int, str]], app: ctk.CTk) -> None:
         self.notifications: list[Notification] = []
         self.fill_notifications_table(notifications_list)
         self.app = app
@@ -71,20 +72,25 @@ class NotificationManager:
 
         self.check_notifications()
 
-    def fill_notifications_table(self, notifications_list: list[tuple[int, int, str, int, str, bool]]) -> None:
+    def fill_notifications_table(self, notifications_list: list[tuple[int, str, str, int, int, str]]) -> None:
         """
         Method that fills notifications list with fetched notifications.
         :param notifications_list: List of tuples representing notifications data
         :return: Nothing
         """
         for row in notifications_list:
-            notification_id, user_id, message, notification_type, associated_time, is_read = row
+            notification_id, user_id, message, notification_type, is_read, associated_time = row
+            try:
+                datetime.strptime(associated_time, "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                associated_time = "2026-1-1 00:00:00"
+
             notification = Notification(
                 notification_id,
                 user_id=user_id,
                 message=message,
                 notification_type=notification_type,
-                is_read=is_read,
+                is_read=bool(is_read),
                 associated_time=datetime.strptime(associated_time, "%Y-%m-%d %H:%M:%S"),
             )
             self.notifications.append(notification)
@@ -103,6 +109,73 @@ class NotificationManager:
         """
         return [n for n in self.notifications if not n.is_read]
 
+    def delete_notification(self, notification_id: int) -> None:
+        """
+        Deletes notification from database and manager
+        :param notification_id: Id of a notification to delete
+        :return: Nothing
+        """
+        notification_to_delete = None
+        for notification in self.notifications:
+            if notification.id == notification_id:
+                notification_to_delete = notification
+        if notification_to_delete is not None:
+            self.notifications.remove(notification_to_delete)
+            Db.delete_notification(notification_to_delete.id)
+
+    def mark_as_read(self, notification_id: int):
+        notification_to_update = None
+        for notification in self.notifications:
+            if notification.id == notification_id:
+                notification_to_update = notification
+        if notification_to_update is not None:
+            notification_to_update.mark_as_read()
+            Db.update_notification(
+                notification_id=notification_to_update.id,
+                is_read=True,
+                user_id=notification_to_update.user_id,
+                associated_time=str(notification_to_update.associated_time),
+                message=notification_to_update.message,
+                notification_type=notification_to_update.notification_type.value,
+            )
+
+    def add_notification(self, message: str, notification_type: int, associated_time: str) -> None:
+        """
+        Adds new notification to database and manager
+        :param message: Notification message
+        :param notification_type: Notification type
+        :param associated_time: Notification date
+        :return: Nothing
+        """
+        Db.insert_notification(
+            message=message,
+            notification_type=notification_type,
+            associated_time=associated_time,
+            is_read=False,
+            user_id="1",
+        )
+        db_notifications = Db.fetch_notifications()
+        notification_to_add = None
+        if db_notifications is not None:
+            for notification in db_notifications:
+                if (
+                    notification[2] == message
+                    and notification[3] == notification_type
+                    and associated_time == notification[5]
+                ):
+                    notification_to_add = notification
+            if notification_to_add is not None:
+                self.notifications.append(
+                    Notification(
+                        notification_to_add[0],
+                        user_id=notification_to_add[1],
+                        message=notification_to_add[2],
+                        notification_type=notification_to_add[3],
+                        is_read=bool(notification_to_add[4]),
+                        associated_time=datetime.strptime(notification_to_add[5], "%Y-%m-%d %H:%M:%S"),
+                    )
+                )
+
     def check_notifications(self) -> None:
         """
         Method which cyclically checks whether a notification should be displayed
@@ -115,6 +188,14 @@ class NotificationManager:
             if notification.associated_time is not None and now >= notification.associated_time:
                 if self.show_notification(notification):
                     notification.is_read = True
+                    Db.update_notification(
+                        notification_id=notification.id,
+                        is_read=True,
+                        user_id=notification.user_id,
+                        associated_time=str(notification.associated_time),
+                        message=notification.message,
+                        notification_type=notification.notification_type.value,
+                    )
                     if self.notifications_updated is not None:
                         self.notifications_updated()
 
@@ -151,19 +232,12 @@ def initiate_notification_manager(app: ctk.CTk) -> NotificationManager | None:
     :return: Initialised instance of NotificationManager or None when data is verified as incorrect
     """
     try:
-        # notifications = Db.fetch_notifications() uncomment when implemented in database
-        notifications = [
-            (1, 1, "Test Notification TEST MESSAGE TEST MESSAGE TEST MESSAGE  ", 1, "2025-12-17 17:58:30", False),
-            (2, 1, "Second Test Notification", 1, "2025-12-04 17:25:13", False),
-            (3, 1, "Test Alert", 3, "2025-12-04 16:30:23", True),
-            (4, 1, "Test Warning", 4, "2025-12-04 16:42:11", True),
-            (5, 1, "Test Error", 5, "2025-12-04 16:21:37", True),
-        ]
+        notifications = Db.fetch_notifications()
         if not notifications or not isinstance(notifications, list):
             return None
 
         def valid_item(item: tuple) -> bool:
-            expected_types = (int, int, str, int, str, bool)
+            expected_types = (int, str, str, int, int, str)
             if not isinstance(item, tuple) or len(item) != len(expected_types):
                 return False
             return all(isinstance(x, t) for x, t in zip(item, expected_types))

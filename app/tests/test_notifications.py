@@ -17,7 +17,7 @@ def test_mark_as_read() -> None:
     Tests the mark_as_read method of Notification.
     :return: Nothing, only provides test.
     """
-    notif = Notification(1, 10, "msg", 1, False)
+    notif = Notification(1, "10", "msg", 1, False)
     notif.mark_as_read()
     assert notif.is_read is True
 
@@ -27,7 +27,7 @@ def test_update_message() -> None:
     Tests the update_message method of Notification.
     :return: Nothing, only provides test.
     """
-    notif = Notification(1, 10, "old", 1, False)
+    notif = Notification(1, "10", "old", 1, False)
     notif.update_message("new")
     assert notif.message == "new"
 
@@ -39,7 +39,7 @@ def test_notification_type_enum(ntype: int) -> None:
     :param ntype: Integer representing notification type.
     :return: Nothing, only provides test.
     """
-    notif = Notification(1, 10, "msg", ntype)
+    notif = Notification(1, "10", "msg", ntype)
     assert notif.notification_type == NotificationType(ntype)
 
 
