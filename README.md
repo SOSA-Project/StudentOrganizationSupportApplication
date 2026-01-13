@@ -17,7 +17,7 @@ Application supporting students' daily work
 4. Create virtual environment for Python using command below:
 
 ```bash
-  py -3.13 -m venv venv
+  py -3.13 -m venv .venv
 ```
 
 5. Activate virtual environment using command bellow:
@@ -29,7 +29,7 @@ Application supporting students' daily work
 
 - For Linux users:
 ```bash
-    . .\venv\Scripts\activate
+    . ./venv/Scripts/activate
 ```
 
 6. Install required libraries (after virtual venv activation):
