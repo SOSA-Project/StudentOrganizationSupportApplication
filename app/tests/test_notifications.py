@@ -3,6 +3,7 @@ File contains tests for notifications module.
 """
 
 import pytest
+from unittest.mock import patch
 
 from app.backend.notifications import (
     Notification,
@@ -10,6 +11,21 @@ from app.backend.notifications import (
     NotificationManager,
     initiate_notification_manager,
 )
+from app.backend.database import Db
+
+
+class DummyApp:
+    """
+    Minimal dummy application used for testing purposes (mock of CTk).
+    NotificationManager relies on the .after() and .after_cancel() methods,
+    so this class provides minimal implementations of them.
+    """
+
+    def after(self, _ms, _func):
+        return "after_id"
+
+    def after_cancel(self, _id):
+        return None
 
 
 def test_mark_as_read() -> None:
@@ -50,11 +66,14 @@ def test_notification_manager_fills_notifications() -> None:
     :return: Nothing, only provides test.
     """
     sample = [
-        (1, 1, "A", 1, "2025-12-04 12:00:00", False),
-        (2, 1, "B", 2, "2025-12-04 13:00:00", True),
+        (1, "1", "A", 1, 0, "2025-12-04 12:00:00"),
+        (2, "1", "B", 2, 1, "2025-12-04 13:00:00"),
     ]
 
-    mgr = NotificationManager(sample)
+    dummy_app = DummyApp()
+
+    with patch.object(NotificationManager, "check_notifications", return_value=None):
+        mgr = NotificationManager(sample, dummy_app)
 
     assert len(mgr.notifications) == 2
     assert mgr.notifications[0].message == "A"
@@ -67,12 +86,15 @@ def test_get_unread_notifications() -> None:
     :return: Nothing, only provides test.
     """
     sample = [
-        (1, 1, "A", 1, "2025-12-04 12:00:00", False),
-        (2, 1, "B", 2, "2025-12-04 13:00:00", True),
-        (3, 1, "C", 3, "2025-12-04 14:00:00", False),
+        (1, "1", "A", 1, 0, "2025-12-04 12:00:00"),
+        (2, "1", "B", 2, 1, "2025-12-04 13:00:00"),
+        (3, "1", "C", 3, 0, "2025-12-04 14:00:00"),
     ]
 
-    mgr = NotificationManager(sample)
+    dummy_app = DummyApp()
+
+    with patch.object(NotificationManager, "check_notifications", return_value=None):
+        mgr = NotificationManager(sample, dummy_app)
 
     unread = mgr.get_unread_notifications()
     assert len(unread) == 2
@@ -86,8 +108,17 @@ def test_initiate_notification_manager_returns_manager() -> None:
     Ensures that it returns a NotificationManager instance with correct data.
     :return: Nothing, only provides test.
     """
-    mgr = initiate_notification_manager()
+    dummy_app = DummyApp()
+
+    fake_db_notifications = [
+        (1, "1", "Msg1", 1, 0, "2025-12-04 12:00:00"),
+        (2, "1", "Msg2", 2, 1, "2025-12-04 13:00:00"),
+    ]
+    with patch.object(Db, "fetch_notifications", return_value=fake_db_notifications):
+        with patch.object(NotificationManager, "check_notifications", return_value=None):
+            mgr = initiate_notification_manager(dummy_app)
+
     assert mgr is not None
     assert isinstance(mgr, NotificationManager)
-    assert len(mgr.notifications) == 5
+    assert len(mgr.notifications) == 2
     assert all(isinstance(n, Notification) for n in mgr.notifications)
