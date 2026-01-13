@@ -56,14 +56,16 @@ def test_note_manager_fill_and_get_all_notes() -> None:
     :return: Nothing, only provides test.
     """
     notes_data = [
-        (1, "Title1", "Content1", "2025-01-01 10:00", 10),
-        (2, "Title2", "Content2", "2025-01-02 11:00", 20),
+        (1, "Title1", "Content1", "2025-01-01 10:00", 10, "2025-01-01 10:00:00", "#ada132"),
+        (2, "Title2", "Content2", "2025-01-02 11:00", 20, "2025-01-02 11:00:00", "#2d7523"),
     ]
     manager = NoteManager(notes_data)
     all_notes = manager.get_all_notes()
     assert len(all_notes) == 2
     assert all_notes[0].title == "Title1"
     assert all_notes[1].user_id == 20
+    assert isinstance(all_notes[0].associated_date, datetime)
+    assert all_notes[0].associated_date == datetime.strptime("2025-01-01 10:00:00", "%Y-%m-%d %H:%M:%S")
 
 
 @pytest.fixture
@@ -82,7 +84,7 @@ def test_initiate_note_manager_success(mock_fetch_notes) -> None:
     :param mock_fetch_notes: mocked fetch_notes function.
     :return: Nothing, only provides test.
     """
-    mock_fetch_notes.return_value = [(1, "Title", "Content", "2025-01-01 10:00", 10)]
+    mock_fetch_notes.return_value = [(1, "Title", "Content", "2025-01-01 10:00", 10, "2025-01-01 10:00:00", "#ada132")]
     manager = initiate_note_manager()
     assert manager is not None
     assert isinstance(manager, NoteManager)
