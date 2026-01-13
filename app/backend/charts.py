@@ -3,10 +3,14 @@ This file contains functions that creates plots
 """
 
 from typing import Callable
+
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
 from app.backend.grade_monitor import GradeMonitor
+
+matplotlib.rcParams["toolbar"] = "none"
 
 
 class StatisticsManager:
@@ -29,6 +33,16 @@ class StatisticsManager:
         subjects_averages["All subjects"] = self.monitor.calculate_total_grade_average()
 
         return subjects_averages
+
+    def grades_number(self, subjects=None) -> dict[float, int]:
+        """
+        Method prepare data for charts
+        :param subjects: subject names
+        :return: Dictionary containing subject and the average subject grade
+        """
+        if subjects is None:
+            subjects = []
+        return self.monitor.grade_counts(subjects)
 
 
 def _configure_theme(theme: str) -> tuple[str, str]:
@@ -66,7 +80,7 @@ def all_grades_histogram_plot(grades: dict[float, int], theme: str) -> Figure:
     :param theme: 'light' or 'dark'
     :return: Figure that can be displayed in application GUI
     """
-    colors = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
+
     t_color, edge_color = _configure_theme(theme)
 
     unique_sorted = sorted(grades.keys())
@@ -77,7 +91,8 @@ def all_grades_histogram_plot(grades: dict[float, int], theme: str) -> Figure:
     fig, ax = plt.subplots(figsize=(10, 6), frameon=False)
     _setup_axes(ax, edge_color)
 
-    ax.bar(x, heights, color=colors[: len(heights)], width=0.5, edgecolor=edge_color)
+    ax.bar(x, heights, width=0.5, edgecolor=edge_color)
+
     ax.set_xticks(list(x))
     ax.set_xticklabels(labels)
     ax.set_xlabel("Grade", color=edge_color)
@@ -97,7 +112,7 @@ def all_grades_pie_plot(grades: dict[float, int], theme: str) -> Figure:
     :param theme: 'light' or 'dark'
     :return: Figure that can be displayed in application GUI
     """
-    colors: list[str] = ["red", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
+    colors: list[str] = ["seagreen", "darkgreen", "green", "forestgreen", "limegreen", "lime"]
 
     values = list(grades.values())
 
@@ -132,15 +147,15 @@ def subjects_averages_histogram_plot(averages: dict[str, float], theme: str) -> 
     :param theme: 'light' or 'dark'
     :return: Figure that can be displayed in application GUI
     """
+    fig = Figure(figsize=(10, 6), frameon=False)
+    ax = fig.add_subplot(111)
 
     t_color, edge_color = _configure_theme(theme)
 
-    unique_sorted = averages.keys()
-    labels = [str(g) for g in unique_sorted]
-    heights: list[float] = [averages[s] for s in labels]
+    labels = list(averages.keys())
+    heights = [averages[s] for s in labels]
     x = range(len(labels))
 
-    fig, ax = plt.subplots(figsize=(15, 10), frameon=False)
     _setup_axes(ax, edge_color)
 
     ax.bar(x, heights, width=0.5, edgecolor=edge_color)

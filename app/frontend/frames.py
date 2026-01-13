@@ -10,13 +10,13 @@ class LeftFrame:
     Class is responsible for creating left frame for GUI.
     """
 
-    def __init__(self, parent: ctk.CTk, color: str) -> None:
+    def __init__(self, parent: ctk.CTk, color: tuple[str, str]) -> None:
         self.parent: ctk.CTk = parent
-        self.color: str = color
+        self.color: tuple[str, str] = color
         self.left_frame: ctk.CTkFrame | None = None
         self._create_left_frame(self.color)
 
-    def _create_left_frame(self, color: str) -> None:
+    def _create_left_frame(self, color: tuple[str, str]) -> None:
         """
         Method creates left frame for GUI.
         :return: Nothing, only create left frame.
@@ -41,13 +41,13 @@ class RightFrame:
     Class is responsible for creating right frame for GUI.
     """
 
-    def __init__(self, parent: ctk.CTk, color: str) -> None:
+    def __init__(self, parent: ctk.CTk, color: tuple[str, str]) -> None:
         self.parent: ctk.CTk = parent
-        self.color: str = color
+        self.color: tuple[str, str] = color
         self.right_frame: ctk.CTkFrame | None = None
         self._create_right_frame(self.color)
 
-    def _create_right_frame(self, color: str) -> None:
+    def _create_right_frame(self, color: tuple[str, str]) -> None:
         """
         Method creates right frame for GUI.
         :return: Nothing, only create right frame.

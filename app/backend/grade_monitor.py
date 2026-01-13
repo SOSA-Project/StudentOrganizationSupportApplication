@@ -4,7 +4,7 @@ File contains definition for GradeMonitor class, its functionality and definitio
 
 import math
 
-from app.backend.data_base import fetch_grades
+from app.backend.database import Db
 from enum import Enum
 
 
@@ -106,7 +106,7 @@ class GradeMonitor:
             total_ects += ects_value
             grade_total += self.calculate_subject_average(subject.name) * ects_value
 
-        return grade_total / total_ects
+        return round(grade_total / total_ects, 2)
 
     def calculate_subject_average(self, subject_name: str) -> float:
         """
@@ -123,7 +123,7 @@ class GradeMonitor:
             for tp in subject_types_grades.values():
                 grade_total += tp[0] * tp[1]
                 grade_total_weights += tp[1]
-            return grade_total / grade_total_weights
+            return round(grade_total / grade_total_weights, 2)
 
     def calculate_subject_regular_average(self, subject_name: str) -> float:
         """
@@ -142,7 +142,7 @@ class GradeMonitor:
                     grade_weight = grade.weight
                 grade_total += grade.value * grade_weight
                 grade_total_weights += grade_weight
-        return grade_total / grade_total_weights
+        return round(grade_total / grade_total_weights, 2)
 
     def calculate_subject_type_average(self, subject_name: str) -> dict[GradeType, tuple[float, float]]:
         """
@@ -192,7 +192,7 @@ def initiate_grade_monitor(ignore_ects: bool = False) -> GradeMonitor | None:
     :return: An instance of GradeMonitor class
     """
     try:
-        grades = fetch_grades()
+        grades = Db.fetch_grades()
         if not grades or not isinstance(grades, list):
             return None
 

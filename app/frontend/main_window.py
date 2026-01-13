@@ -3,7 +3,9 @@ This file contains main window script.
 """
 
 import customtkinter as ctk
+from PIL import Image
 
+from app.backend.notifications import initiate_notification_manager, NotificationManager
 from app.frontend.buttons import ButtonsCreator as ButtonsCreator
 from app.frontend.icons import IconsHolder as IconsHolder
 from app.frontend.frames import LeftFrame, RightFrame
@@ -15,6 +17,7 @@ from app.frontend.views import (
     AverageView,
     SettingsView,
     ChatView,
+    LoginRegisterView,
 )
 
 
@@ -44,16 +47,39 @@ class LabelsCreator:
     """
 
     def __init__(self, parent: ctk.CTk) -> None:
-        self.parent: ctk.CTk = parent
+        self.parent = parent
+        self.original_img = Image.open("./app/assets/logo.png")
+        self.current_ctk_img = None
         self.create_labels()
 
     def create_labels(self) -> None:
         """
-        Method creates labels for GUI.
-        :return: Nothing, only creates labels.
+        This method creates image on GUI.
+        :return: nothing.
         """
-        label_one: ctk.CTkLabel = ctk.CTkLabel(self.parent, text="Student Planner", font=("Roboto", 24))
-        label_one.grid(row=0, rowspan=2, column=0, columnspan=1, padx=5, pady=5)
+        self.current_ctk_img = ctk.CTkImage(
+            light_image=self.original_img, dark_image=self.original_img, size=(100, 100)
+        )
+
+        self.logo_label = ctk.CTkLabel(self.parent, text="", image=self.current_ctk_img)
+        self.logo_label.grid(row=2, rowspan=2, column=0, padx=5, pady=5)
+
+    def resize_logo(self, size: int) -> None:
+        """
+        This method resize application logo.
+        :param size: new logo size.
+        :return: nothing, only change image size.
+        """
+
+        if size < 30:
+            size = 30
+
+        self.current_ctk_img = ctk.CTkImage(
+            light_image=self.original_img, dark_image=self.original_img, size=(size, size)
+        )
+
+        self.logo_label.configure(image=self.current_ctk_img)
+        self.logo_label.image = self.current_ctk_img
 
 
 class AppGUI(ctk.CTk):
@@ -64,25 +90,41 @@ class AppGUI(ctk.CTk):
     def __init__(self) -> None:
         super().__init__()
         self.title("SOSA")
-        self.geometry("960x540")
-        self.minsize(960, 540)
+        self.geometry("961x541")
+        self.minsize(961, 541)
+        self.notifications_manager: NotificationManager | None = None
 
         # Basic main app window setup
         self.grid_maker: GridMaker = GridMaker(self, rows=9, columns=24)
+        self.login_view = LoginRegisterView(self, on_success=self.show_main_app)
+        self.login_view.pack(expand=True, fill="both")
+
+        self.protocol("WM_DELETE_WINDOW", self.close_app)
+
+    def show_main_app(self) -> None:
+        """
+        Method displays the main part of the application after successful login.
+        Creates main layout and initializes necessary frames, buttons and views.
+        :return: Nothing, only builds main interface.
+        """
+        self.login_view.pack_forget()
+        self.notifications_manager = initiate_notification_manager(self)
         self.btn_icons: IconsHolder = IconsHolder()
-        self.left_frame: LeftFrame = LeftFrame(self, color="#444444")
-        self.right_frame: RightFrame = RightFrame(self, color="#242424")
+        self.left_frame: LeftFrame = LeftFrame(self, color=("#c7c7c7", "#444444"))
+        self.right_frame: RightFrame = RightFrame(self, color=("#ebebeb", "#242424"))
 
         # Container for all available views
-        self.views: dict[str, ctk.CTkFrame] = {
-            "calendar": CalendarView(self.right_frame.frame),
-            "notifications": NotificationsView(self.right_frame.frame),
-            "notes": NotesView(self.right_frame.frame),
-            "grades": GradesView(self.right_frame.frame),
-            "average": AverageView(self.right_frame.frame),
-            "settings": SettingsView(self.right_frame.frame),
-            "chat": ChatView(self.right_frame.frame),
+        self.view_classes: dict[str, type[ctk.CTkFrame]] = {
+            "calendar": CalendarView,
+            "notifications": NotificationsView,
+            "notes": NotesView,
+            "grades": GradesView,
+            "average": AverageView,
+            "settings": SettingsView,
+            "chat": ChatView,
         }
+
+        self.views: dict[str, ctk.CTkFrame] = {}
 
         # Buttons for left gui frame
         self.buttons: ButtonsCreator = ButtonsCreator(self.left_frame.frame, self.btn_icons.icons, self.views, self)
@@ -90,7 +132,7 @@ class AppGUI(ctk.CTk):
 
         # Current right frame view
         self.current_view: None | ctk.CTkFrame = None
-        self.show_view(self.views["calendar"])
+        self.show_view_by_name("calendar")
 
         # Resizable text and images in buttons
         self.counter = 0
@@ -108,6 +150,29 @@ class AppGUI(ctk.CTk):
 
         self.current_view = view
         self.current_view.pack(expand=True, fill="both")
+
+    def show_view_by_name(self, name: str) -> None:
+        """
+        Displays a view by its name, creating it only once (lazy loading).
+        :param name: View key from self.view_classes.
+        """
+
+        if name not in self.views:
+            if name in self.view_classes:
+                if name == "notifications":
+                    self.views[name] = NotificationsView(
+                        parent=self.right_frame.frame, notification_manager=self.notifications_manager
+                    )
+                else:
+                    self.views[name] = self.view_classes[name](self.right_frame.frame)
+            else:
+                print(f"Unknown view name: {name}")
+                return
+
+        if name == "average":
+            self.views[name].refresh()
+
+        self.show_view(self.views[name])
 
     def on_resize(self, event) -> None:
         """
@@ -160,3 +225,13 @@ class AppGUI(ctk.CTk):
                 self.buttons.destroy_buttons()
                 self.buttons.font_size = new_font_img_size
                 self.buttons.create_buttons()
+                self.labels.resize_logo(new_font_img_size * 6)
+
+    def close_app(self) -> None:
+        """
+        Method that manages closing all processes before terminating application
+        :return:
+        """
+        if self.notifications_manager is not None:
+            self.notifications_manager.stop_checking()
+        self.quit()

@@ -6,7 +6,7 @@ Application supporting students' daily work
 - [Project set up for devs](#set-up-for-developers)
 
 # Set up for developers
-1. Download and install interpreter for `Python 3.11.x` from: `https://www.python.org/downloads/`.
+1. Download and install interpreter for `Python 3.13.0` from: `https://www.python.org/downloads/`.
 2. Clone git repository using following command: 
 
 ```bash 
@@ -17,7 +17,7 @@ Application supporting students' daily work
 4. Create virtual environment for Python using command below:
 
 ```bash
-  py -3.11 -m venv venv
+  py -3.13 -m venv .venv
 ```
 
 5. Activate virtual environment using command bellow:
@@ -29,7 +29,7 @@ Application supporting students' daily work
 
 - For Linux users:
 ```bash
-    . .\venv\Scripts\activate
+    . ./venv/Scripts/activate
 ```
 
 6. Install required libraries (after virtual venv activation):
@@ -49,6 +49,8 @@ or
 
 ## Tips
 
+- For Windows users:
+
 - After first configuration you can use `code_check.ps1` 
 script which can activate virtual environment and improve 
 your code format style into PEP8 using following command (only for Windows users):
@@ -58,3 +60,19 @@ your code format style into PEP8 using following command (only for Windows users
 ```
 
 - This script will give you feedback about your code and improve it automatically.
+
+
+- For Unix users:
+- Paste following commands in CLI:
+
+```text
+python -m mypy .\app\ --ignore-missing-imports
+```
+
+```text
+python -m black --line-length 120 .\app\
+```
+
+```text
+python -m flake8 .\app\ --max-line-length 120
+```
