@@ -3,3 +3,6 @@ venv/
 .idea
 .mypy_cache
 .venv/
+dist/
+build/
+SOSA.spec
