@@ -3,7 +3,7 @@ Application supporting students' daily work
 
 # Table of content
 
-- [Project set up for devs](#set-up-for-developers)
+- [Project set up for developers](#set-up-for-developers)
 - [Application installation](#application-installation-for-users)
 - [Application appearance](#application-appearance)
 
