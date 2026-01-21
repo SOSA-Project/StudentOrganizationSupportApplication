@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>&lt;no title&gt; &#8212; StudentOrganizationSupportApplication 2026 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=fc6fd62b"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="app_backend_grade_monitor.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="app_backend_chat.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <p id="module-app.backend.database">The file creates a database and operates on it.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="app.backend.database.Db">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.backend.database.</span></span><span class="sig-name descname"><span class="pre">Db</span></span><a class="headerlink" href="#app.backend.database.Db" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.close">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.close" title="Link to this definition">¶</a></dt>
+<dd><p>Commit all data to db and close connection
+:return None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.backend.database.Db.conn">
+<span class="sig-name descname"><span class="pre">conn</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;sqlite3.Connection</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#app.backend.database.Db.conn" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.connect_to_database">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">connect_to_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.connect_to_database" title="Link to this definition">¶</a></dt>
+<dd><p>The function checks whether the database exists, and if not, it creates it.
+:type conn: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></span>
+:param conn: connection to database
+:return sqlite3.Cursor:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cursor</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.backend.database.Db.cursor">
+<span class="sig-name descname"><span class="pre">cursor</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;sqlite3.Cursor</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#app.backend.database.Db.cursor" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.delete_event">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">delete_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.delete_event" title="Link to this definition">¶</a></dt>
+<dd><p>This function deletes the event in the database.
+:type event_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param event_id: id of a subject to delete
+:return success status: whether delete was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.delete_grade">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">delete_grade</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grade_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.delete_grade" title="Link to this definition">¶</a></dt>
+<dd><p>This function deletes the grade in the database.
+:type grade_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param grade_id: id of a grade to delete
+:return success status: whether delete was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.delete_message">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">delete_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.delete_message" title="Link to this definition">¶</a></dt>
+<dd><p>This function deletes the message in the database.
+:type message_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param message_id: id of a message to delete
+:return success status: whether delete was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.delete_note">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">delete_note</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.delete_note" title="Link to this definition">¶</a></dt>
+<dd><p>This function deletes the note in the database.
+:type note_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param note_id: id of a note to delete
+:return success status: whether delete was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.delete_notification">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">delete_notification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">notification_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.delete_notification" title="Link to this definition">¶</a></dt>
+<dd><p>This function deletes the notification in the database.
+:type notification_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param notification_id: notification id
+:return success status: whether delete was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.delete_subject">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">delete_subject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.delete_subject" title="Link to this definition">¶</a></dt>
+<dd><p>This function deletes the subject in the database.
+:type subject_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param subject_id: id of a subject to delete
+:return success status: whether delete was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.delete_user">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">delete_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.delete_user" title="Link to this definition">¶</a></dt>
+<dd><p>This function deletes the user in the database.
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param user_id: user id
+:return success status: whether delete was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.dequeue_messages">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">dequeue_messages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.dequeue_messages" title="Link to this definition">¶</a></dt>
+<dd><p>Insert all data from async queue to db
+:return None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.fetch_events">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fetch_events</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.fetch_events" title="Link to this definition">¶</a></dt>
+<dd><p>This function fetches events from the database.
+:return list of tuple: list of tuple representing events</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.fetch_grades">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fetch_grades</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.fetch_grades" title="Link to this definition">¶</a></dt>
+<dd><p>This function fetches the grades from the database.
+:return list of tuple: list of tuple representing grades</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.fetch_grades_id">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fetch_grades_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.fetch_grades_id" title="Link to this definition">¶</a></dt>
+<dd><p>This function fetches grades form the database.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: grades ids.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.fetch_messages">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fetch_messages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.fetch_messages" title="Link to this definition">¶</a></dt>
+<dd><p>This function fetches messages from the database.
+:return list of tuple: list of tuple representing messages</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.fetch_notes">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fetch_notes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.fetch_notes" title="Link to this definition">¶</a></dt>
+<dd><p>This function fetches notes from the database.
+:return list of tuple: list of tuple representing notes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.fetch_notifications">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fetch_notifications</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.fetch_notifications" title="Link to this definition">¶</a></dt>
+<dd><p>This function fetches notifications from the database.
+:return list of tuple: list of tuple representing notifications</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.fetch_subjects">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fetch_subjects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.fetch_subjects" title="Link to this definition">¶</a></dt>
+<dd><p>This function fetches subjects from the database.
+:return list of tuple: list of tuple representing subjects</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.fetch_user_by_name">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fetch_user_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.fetch_user_by_name" title="Link to this definition">¶</a></dt>
+<dd><p>This function fetches a single user from the database by their username.
+:type name: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param name: username
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: a tuple representing the user</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.fetch_user_password">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fetch_user_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.fetch_user_password" title="Link to this definition">¶</a></dt>
+<dd><p>This function fetches user password from database.
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param user_id: user id
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: success status</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.fetch_users">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fetch_users</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.fetch_users" title="Link to this definition">¶</a></dt>
+<dd><p>This function fetches users from the database.
+:return list of tuple: list of tuple representing users</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.insert_event">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">insert_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.insert_event" title="Link to this definition">¶</a></dt>
+<dd><p>This function inserts event into the database.
+:type title: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param title: event title
+:type description: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param description: event description
+:type date: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param date: event date
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param user_id: user id
+:return success status: whether insert was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.insert_grade">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">insert_grade</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">semester</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.insert_grade" title="Link to this definition">¶</a></dt>
+<dd><p>This function inserts grades into the database.
+:type value: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>
+:param value: grade value
+:type weight: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>
+:param weight: grade weight
+:type sub_type: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param sub_type: subject type
+:type semester: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param semester: corresponding semester id
+:type subject_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param subject_id: subject id
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param user_id: user id
+:return success status: whether insert was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.insert_message">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">insert_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recipient_uuid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.insert_message" title="Link to this definition">¶</a></dt>
+<dd><p>This function inserts event into the database.
+:type recipient_uuid: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param recipient_uuid: recipient uuid
+:type content: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param content: message content
+:type user_uuid: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param user_uuid: user universally unique identifier
+:return success status: whether insert was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.insert_note">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">insert_note</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_at</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">associated_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.insert_note" title="Link to this definition">¶</a></dt>
+<dd><p>This function inserts note into the database.
+:type title: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param title: note title
+:type content: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param content: note content
+:type created_at: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param created_at: note creation date
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param user_id: user id
+:type associated_date: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></span>
+:param associated_date: note association date
+:type color: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param color: note color
+:return success status: whether insert was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.insert_notification">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">insert_notification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notification_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_read</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">associated_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.insert_notification" title="Link to this definition">¶</a></dt>
+<dd><p>This function inserts notification into the database.
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param user_id: user id
+:type message: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param message: message
+:type notification_type: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param notification_type: notification type
+:type is_read: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param is_read: is read
+:type associated_time: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param associated_time: associated time
+:return success status: whether insert was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.insert_subject">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">insert_subject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.insert_subject" title="Link to this definition">¶</a></dt>
+<dd><p>This function inserts subject into the database.
+:type name: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param name: subject name
+:type ects: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param ects: subject ects
+:return success status: whether insert was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.insert_users">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">insert_users</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.insert_users" title="Link to this definition">¶</a></dt>
+<dd><p>This function inserts user into the database.
+:type name: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param name: username
+:type uuid: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param uuid: user uuid
+:type password: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param password: password
+:return success status: whether insert was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.update_event">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.update_event" title="Link to this definition">¶</a></dt>
+<dd><p>This function updates event in the database.
+:type title: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param title: event title
+:type description: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param description: event description
+:type date: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param date: event date
+:type event_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param event_id: user id
+:return success status: whether update was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.update_grade">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_grade</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grade_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">semester</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.update_grade" title="Link to this definition">¶</a></dt>
+<dd><p>This function updates the grade in the database.
+:type grade_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param grade_id: id of a grade to update
+:type value: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>
+:param value: grade value
+:type weight: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>
+:param weight: grade weight
+:type sub_type: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param sub_type: subject type
+:type semester: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param semester: corresponding semester id
+:type subject_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param subject_id: subject id
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param user_id: user id
+:return success status: whether update was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.update_message">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recipient_uuid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.update_message" title="Link to this definition">¶</a></dt>
+<dd><p>This function updates event in the database.
+:type recipient_uuid: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param recipient_uuid: recipient uuid
+:type content: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param content: message content
+:type user_uuid: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param user_uuid: user universally unique identifier
+:type message_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param message_id: message id
+:return success status: whether update was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.update_note">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_note</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_at</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">associated_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.update_note" title="Link to this definition">¶</a></dt>
+<dd><p>This function updates note in the database.
+:type note_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param note_id: id of a note to update
+:type title: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param title: note title
+:type content: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param content: note content
+:type created_at: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param created_at: note creation date
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param user_id: user id
+:type associated_date: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></span>
+:param associated_date: note association date
+:type color: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param color: note color
+:return success status: whether update was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.update_notification">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_notification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">notification_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notification_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_read</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">associated_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.update_notification" title="Link to this definition">¶</a></dt>
+<dd><p>This function updates notification in the database.
+:type notification_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param notification_id: notification id
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param user_id: user id
+:type message: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param message: notification message
+:type notification_type: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param notification_type: notification type
+:type is_read: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param is_read: notification read
+:type associated_time: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param associated_time: notification associated time
+:return success status: whether update was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.update_subject">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_subject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.update_subject" title="Link to this definition">¶</a></dt>
+<dd><p>This function updates subject in the database.
+:type subject_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param subject_id: id of a subject to update
+:type name: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param name: subject name
+:type ects: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param ects: subject ects
+:return success status: whether update was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.update_user">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.update_user" title="Link to this definition">¶</a></dt>
+<dd><p>This function updates user in the database.
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param user_id: user id
+:type name: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param name: username
+:type uuid: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param uuid: user uuid
+:return success status: whether update was successful or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.backend.database.Db.update_user_password">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_user_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_password</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.backend.database.Db.update_user_password" title="Link to this definition">¶</a></dt>
+<dd><p>This function update user password.
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param user_id: user id
+:type new_password: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param new_password: new user password
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>
+:return: success status</p>
+</dd></dl>
+
+</dd></dl>
+
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">StudentOrganizationSupportApplication</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="app_backend_charts.html"><code class="docutils literal notranslate"><span class="pre">StatisticsManager</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_charts.html#app.backend.charts.all_grades_histogram_plot"><code class="docutils literal notranslate"><span class="pre">all_grades_histogram_plot()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_charts.html#app.backend.charts.all_grades_pie_plot"><code class="docutils literal notranslate"><span class="pre">all_grades_pie_plot()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_charts.html#app.backend.charts.subjects_averages_histogram_plot"><code class="docutils literal notranslate"><span class="pre">subjects_averages_histogram_plot()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_chat.html"><code class="docutils literal notranslate"><span class="pre">Client</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_chat.html#app.backend.chat.Server"><code class="docutils literal notranslate"><span class="pre">Server</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_chat.html#app.backend.chat.make_payload"><code class="docutils literal notranslate"><span class="pre">make_payload()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_chat.html#app.backend.chat.send"><code class="docutils literal notranslate"><span class="pre">send()</span></code></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">Db</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.close"><code class="docutils literal notranslate"><span class="pre">Db.close()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.conn"><code class="docutils literal notranslate"><span class="pre">Db.conn</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.connect_to_database"><code class="docutils literal notranslate"><span class="pre">Db.connect_to_database()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.cursor"><code class="docutils literal notranslate"><span class="pre">Db.cursor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.delete_event"><code class="docutils literal notranslate"><span class="pre">Db.delete_event()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.delete_grade"><code class="docutils literal notranslate"><span class="pre">Db.delete_grade()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.delete_message"><code class="docutils literal notranslate"><span class="pre">Db.delete_message()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.delete_note"><code class="docutils literal notranslate"><span class="pre">Db.delete_note()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.delete_notification"><code class="docutils literal notranslate"><span class="pre">Db.delete_notification()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.delete_subject"><code class="docutils literal notranslate"><span class="pre">Db.delete_subject()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.delete_user"><code class="docutils literal notranslate"><span class="pre">Db.delete_user()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.dequeue_messages"><code class="docutils literal notranslate"><span class="pre">Db.dequeue_messages()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.fetch_events"><code class="docutils literal notranslate"><span class="pre">Db.fetch_events()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.fetch_grades"><code class="docutils literal notranslate"><span class="pre">Db.fetch_grades()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.fetch_grades_id"><code class="docutils literal notranslate"><span class="pre">Db.fetch_grades_id()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.fetch_messages"><code class="docutils literal notranslate"><span class="pre">Db.fetch_messages()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.fetch_notes"><code class="docutils literal notranslate"><span class="pre">Db.fetch_notes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.fetch_notifications"><code class="docutils literal notranslate"><span class="pre">Db.fetch_notifications()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.fetch_subjects"><code class="docutils literal notranslate"><span class="pre">Db.fetch_subjects()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.fetch_user_by_name"><code class="docutils literal notranslate"><span class="pre">Db.fetch_user_by_name()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.fetch_user_password"><code class="docutils literal notranslate"><span class="pre">Db.fetch_user_password()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.fetch_users"><code class="docutils literal notranslate"><span class="pre">Db.fetch_users()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.insert_event"><code class="docutils literal notranslate"><span class="pre">Db.insert_event()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.insert_grade"><code class="docutils literal notranslate"><span class="pre">Db.insert_grade()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.insert_message"><code class="docutils literal notranslate"><span class="pre">Db.insert_message()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.insert_note"><code class="docutils literal notranslate"><span class="pre">Db.insert_note()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.insert_notification"><code class="docutils literal notranslate"><span class="pre">Db.insert_notification()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.insert_subject"><code class="docutils literal notranslate"><span class="pre">Db.insert_subject()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.insert_users"><code class="docutils literal notranslate"><span class="pre">Db.insert_users()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.update_event"><code class="docutils literal notranslate"><span class="pre">Db.update_event()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.update_grade"><code class="docutils literal notranslate"><span class="pre">Db.update_grade()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.update_message"><code class="docutils literal notranslate"><span class="pre">Db.update_message()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.update_note"><code class="docutils literal notranslate"><span class="pre">Db.update_note()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.update_notification"><code class="docutils literal notranslate"><span class="pre">Db.update_notification()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.update_subject"><code class="docutils literal notranslate"><span class="pre">Db.update_subject()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.update_user"><code class="docutils literal notranslate"><span class="pre">Db.update_user()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.backend.database.Db.update_user_password"><code class="docutils literal notranslate"><span class="pre">Db.update_user_password()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_grade_monitor.html"><code class="docutils literal notranslate"><span class="pre">Grade</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_grade_monitor.html#app.backend.grade_monitor.GradeMonitor"><code class="docutils literal notranslate"><span class="pre">GradeMonitor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_grade_monitor.html#app.backend.grade_monitor.GradeType"><code class="docutils literal notranslate"><span class="pre">GradeType</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_grade_monitor.html#app.backend.grade_monitor.Subject"><code class="docutils literal notranslate"><span class="pre">Subject</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_grade_monitor.html#app.backend.grade_monitor.initiate_grade_monitor"><code class="docutils literal notranslate"><span class="pre">initiate_grade_monitor()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_notes.html"><code class="docutils literal notranslate"><span class="pre">Note</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_notes.html#app.backend.notes.NoteManager"><code class="docutils literal notranslate"><span class="pre">NoteManager</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_notes.html#app.backend.notes.initiate_note_manager"><code class="docutils literal notranslate"><span class="pre">initiate_note_manager()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_notifications.html"><code class="docutils literal notranslate"><span class="pre">Notification</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_notifications.html#app.backend.notifications.NotificationManager"><code class="docutils literal notranslate"><span class="pre">NotificationManager</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_notifications.html#app.backend.notifications.NotificationType"><code class="docutils literal notranslate"><span class="pre">NotificationType</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_notifications.html#app.backend.notifications.initiate_notification_manager"><code class="docutils literal notranslate"><span class="pre">initiate_notification_manager()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_registration.html"><code class="docutils literal notranslate"><span class="pre">Auth</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_registration.html#app.backend.registration.get_all_users"><code class="docutils literal notranslate"><span class="pre">get_all_users()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_session.html"><code class="docutils literal notranslate"><span class="pre">Session</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_tooltip.html"><code class="docutils literal notranslate"><span class="pre">NotificationPopUp</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_backend_tooltip.html#app.backend.tooltip.Tooltip"><code class="docutils literal notranslate"><span class="pre">Tooltip</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_buttons.html"><code class="docutils literal notranslate"><span class="pre">ButtonsCreator</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_frames.html"><code class="docutils literal notranslate"><span class="pre">LeftFrame</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_frames.html#app.frontend.frames.RightFrame"><code class="docutils literal notranslate"><span class="pre">RightFrame</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_icons.html"><code class="docutils literal notranslate"><span class="pre">IconsHolder</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_main_window.html"><code class="docutils literal notranslate"><span class="pre">AppGUI</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_main_window.html#app.frontend.main_window.GridMaker"><code class="docutils literal notranslate"><span class="pre">GridMaker</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_main_window.html#app.frontend.main_window.LabelsCreator"><code class="docutils literal notranslate"><span class="pre">LabelsCreator</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_views.html"><code class="docutils literal notranslate"><span class="pre">AverageView</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_views.html#app.frontend.views.BaseView"><code class="docutils literal notranslate"><span class="pre">BaseView</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_views.html#app.frontend.views.CalendarView"><code class="docutils literal notranslate"><span class="pre">CalendarView</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_views.html#app.frontend.views.ChatView"><code class="docutils literal notranslate"><span class="pre">ChatView</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_views.html#app.frontend.views.GradesView"><code class="docutils literal notranslate"><span class="pre">GradesView</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_views.html#app.frontend.views.LoginRegisterView"><code class="docutils literal notranslate"><span class="pre">LoginRegisterView</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_views.html#app.frontend.views.NotesView"><code class="docutils literal notranslate"><span class="pre">NotesView</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_views.html#app.frontend.views.NotificationsView"><code class="docutils literal notranslate"><span class="pre">NotificationsView</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_frontend_views.html#app.frontend.views.SettingsView"><code class="docutils literal notranslate"><span class="pre">SettingsView</span></code></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="app_backend_chat.html" title="previous chapter">&lt;no title&gt;</a></li>
+      <li>Next: <a href="app_backend_grade_monitor.html" title="next chapter">&lt;no title&gt;</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Gabriel Michal Grzegorz Jakub Artur.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/app_backend_database.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
